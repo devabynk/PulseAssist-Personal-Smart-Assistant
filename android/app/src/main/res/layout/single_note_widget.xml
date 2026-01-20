@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFB74D"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/widget_title_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Latest Note"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:alpha="0.8"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:id="@+id/note_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Note Title"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp" />
+
+    <TextView
+        android:id="@+id/note_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="Note content..."
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:alpha="0.9"
+        android:maxLines="5"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/note_updated"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Updated: Jan 1"
+        android:textColor="#FFFFFF"
+        android:textSize="11sp"
+        android:alpha="0.7"
+        android:paddingTop="8dp" />
+</LinearLayout>

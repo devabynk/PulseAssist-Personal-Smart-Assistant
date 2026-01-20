@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Smart Assistant</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>smart_assistant</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	
+	<!-- Microphone permission for voice notes -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs access to your microphone to record voice notes. / Bu uygulama sesli not kaydetmek için mikrofon erişimine ihtiyaç duyar.</string>
+	
+	<!-- Camera permission for image attachments -->
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs access to your camera to take photos for notes. / Bu uygulama notlara fotoğraf eklemek için kameraya erişime ihtiyaç duyar.</string>
+	
+	<!-- Photo library permission -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs access to your photo library to attach images to notes. / Bu uygulama notlara resim eklemek için fotoğraf galerisine erişime ihtiyaç duyar.</string>
+	
+	<!-- Background modes for alarm package -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>audio</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.gdelataillade.fetch</string>
+	</array>
+	<!-- App Transport Security Settings for Network Access -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Allow all HTTPS connections (recommended for production) -->
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		
+		<!-- Allow local networking for development/debugging -->
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+		
+		<!-- Domain-specific exceptions -->
+		<key>NSExceptionDomains</key>
+		<dict>
+			<!-- Groq API (Llama 3.1 8B) -->
+			<key>api.groq.com</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<true/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.2</string>
+			</dict>
+			
+			<key>groq.com</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<true/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.2</string>
+			</dict>
+			
+			<!-- Localhost for development (remove for production) -->
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+</dict>
+</plist>

@@ -1,0 +1,320 @@
+{
+  "@@locale": "en",
+  "appTitle": "Smart Assistant",
+  "home": "Home",
+  "chatbot": "Assistant",
+  "alarm": "Alarm",
+  "notes": "Notes",
+  "reminders": "Reminders",
+  
+  "online": "Online",
+  "typeMessage": "Type a message...",
+  "clearChat": "Clear Chat",
+  
+  "noAlarms": "No alarms yet",
+  "addAlarmHint": "Tap + to add a new alarm",
+  "newAlarm": "New Alarm",
+  "editAlarm": "Edit Alarm",
+  "snoozeButton": "Snooze (5 min)",
+  "stopButton": "Stop",
+  "alarmTitle": "Alarm title",
+  "cancel": "Cancel",
+  "save": "Save",
+  "delete": "Delete",
+  
+  "myNotes": "My Notes",
+  "searchNotes": "Search notes...",
+  "noNotes": "No notes yet",
+  "noteNotFound": "Note not found",
+  "addNoteHint": "Tap + to add a new note",
+  "newNote": "New Note",
+  "editNote": "Edit Note",
+  "noteTitle": "Title",
+  "untitledNote": "Untitled Note",
+  "writeNote": "Write your note...",
+  
+  "today": "Today",
+  "upcoming": "Upcoming Events",
+  "completed": "Completed",
+  "searchReminders": "Search reminders...",
+  "noReminders": "No reminders yet",
+  "addReminderHint": "Tap + to add a new reminder",
+  "newReminder": "New Reminder",
+  "reminderTitle": "Title",
+  "description": "Description (optional)",
+  "dateTime": "Date & Time",
+  "priority": "Priority",
+  "priorityLow": "Low",
+  "priorityMedium": "Medium",
+  "priorityHigh": "High",
+  "enterTitle": "Please enter a title",
+  
+  "welcomeTitle": "Welcome!",
+  "welcomeSubtitle": "Your smart assistant is ready",
+  
+  "permissionsTitle": "Permissions",
+  "permissionsSubtitle": "We need the following permissions for the app to work properly",
+  "permissionsOptional": "All permissions are optional",
+  "permissionsSkipInfo": "You can grant permissions later from settings",
+  "notificationPermission": "Notification Permission",
+  "notificationPermissionDesc": "Required for alarms and reminder notifications",
+  "notificationPermissionUsage": "Show notifications for alarms and reminders",
+  "cameraPermission": "Camera Permission",
+  "cameraPermissionDesc": "Required to take photos for your notes",
+  "cameraPermissionUsage": "Take and add photos to your notes",
+  "microphonePermission": "Microphone Permission",
+  "microphonePermissionDesc": "Required to record voice notes",
+  "microphonePermissionUsage": "Record voice notes and voice reminders",
+  "schedulerPermission": "Scheduler Permission",
+  "schedulerPermissionDesc": "Required to send notifications at exact times",
+  "schedulerPermissionUsage": "Ensure alarms and reminders trigger on time",
+  "storagePermission": "Storage Permission",
+  "storagePermissionDesc": "Required to add images to your notes",
+  "storagePermissionUsage": "Add images to notes and save voice recordings",
+  "grantAllPermissions": "Grant All Permissions",
+  "grant": "Grant",
+  "allowPermissions": "Allow Permissions",
+  "continueButton": "Continue",
+  "skip": "Skip",
+  
+  "attachmentOptions": "Add Attachment",
+  "attachmentImageGallery": "Image Gallery",
+  "attachmentCamera": "Camera",
+  "attachmentAudio": "Audio",
+  "attachmentDocument": "Document",
+  "supportedFileTypes": "Supported File Types",
+  "imageFormats": "Images: JPG, JPEG, PNG, WebP, HEIC",
+  "audioFormats": "Audio: MP3, WAV, M4A, AAC, OGG",
+  "documentFormats": "Documents: PDF, DOCX, XLSX, TXT, CSV",
+  "maxFileSize": "Maximum file size: 10MB",
+  "fileSizeLimitExceeded": "File size exceeds {limit}MB limit",
+  "@fileSizeLimitExceeded": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "fileTypeNotSupported": "This file type is not supported",
+  "pdfProcessing": "Processing PDF...",
+  "documentAnalyzing": "Analyzing document...",
+  "imageAnalyzing": "Analyzing image...",
+  "audioTranscribing": "Transcribing audio...",
+  "fileProcessingError": "Error processing file",
+  "fileTooLarge": "File too large! Maximum: {limit}MB",
+  "@fileTooLarge": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "meetingDate": "Date",
+  "meetingParticipants": "Participants",
+  "meetingAgenda": "Agenda",
+  "meetingNotes": "Notes",
+  "meetingActionItems": "Action Items",
+  "shoppingItem1": "Milk",
+  "shoppingItem2": "Bread",
+  "shoppingItem3": "Eggs",
+  "todoItem1": "Task to do 1",
+  "todoItem2": "Task to do 2",
+  "todoItem3": "Task to do 3",
+
+
+
+  
+  "chatWelcome": "🤖 Hello! I'm your smart assistant.\n\nI can help you with:\n• ⏰ Setting alarms\n• 📝 Taking notes\n• 🔔 Creating reminders\n\nAsk me anything or use the menu below!",
+  
+  "helpResponse": "🤖 **What I can do:**\n\n⏰ **Set alarms:**\n\"Set alarm\" or \"Add alarm\"\n\n📝 **Take notes:**\n\"Take note\" or \"Write note\"\n\n🔔 **Reminders:**\n\"Create reminder\"\n\n💬 Ask anything for more help!",
+  
+  "qaAlarm": "Set alarm",
+  "qaReminder": "Create reminder",
+  "qaNote": "Take note",
+  "qaPharmacy": "Pharmacies on duty?",
+  "qaEvents": "Upcoming events?",
+  
+  "goodMorning": "Good morning! ☀️",
+  "goodAfternoon": "Good afternoon! 🌤️",
+  "goodEvening": "Good evening! 🌙",
+  
+  "alarmSet": "Alarm set for {time}",
+  "managePermissions": "Manage Permissions",
+  "@alarmSet": {
+    "placeholders": {
+        "time": {
+            "type": "String"
+        }
+    }
+  },
+  "alarmTimeNotSpecified": "When should I set the alarm?",
+  "reminder": "Reminder",
+  "reminderSet": "Reminder set: {content}",
+  "@reminderSet": {
+      "placeholders": {
+          "content": {
+              "type": "String"
+          }
+      }
+  },
+  "noteContentEmpty": "What should I write?",
+  "noteSaved": "Note saved",
+  "voiceNote": "Voice Note",
+  "recordVoice": "Record Voice",
+  "deleteNote": "Delete Note",
+  "deleteNoteConfirm": "Are you sure you want to delete this note?",
+  "noteContent": "Start typing...",
+  "repeat": "Repeat",
+  "oneTime": "Once",
+  "everyDay": "Every day",
+  "custom": "Custom",
+  "date": "Date",
+  "weekdays": "Weekdays",
+  "weekends": "Weekends",
+  
+  "conversationHistory": "Conversation History",
+  "clearHistory": "Clear History",
+  "clearHistoryConfirm": "Are you sure you want to delete all conversations? (Learning data will stay)",
+  "startConversation": "Start a new conversation!",
+  "noHistory": "No history yet",
+  
+  "colorDefault": "Default",
+  "colorRed": "Red",
+  "colorBlue": "Blue",
+  "colorGreen": "Green",
+  "colorYellow": "Yellow",
+  "colorPurple": "Purple",
+  
+  "widgetNotesListTitle": "My Notes",
+  "widgetNoNotes": "No notes yet",
+  "widgetTapToOpen": "Tap to open",
+  "widgetSingleNoteTitle": "Latest Note",
+  "widgetUpdated": "Updated",
+  
+  "widgetAlarmsListTitle": "Alarms",
+  "widgetNoAlarms": "No alarms set",
+  "widgetNextAlarm": "Next Alarm",
+  "widgetAlarmIn": "in {time}",
+  "@widgetAlarmIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetActive": "Active",
+  "widgetInactive": "Inactive",
+  
+  "allNotes": "All Notes",
+  "pinned": "Pinned",
+  "pin": "Pin",
+  "unpin": "Unpin",
+  "withImages": "With Images",
+  "voiceNotes": "Voice Notes",
+  "tagged": "Tagged",
+  "fileSizeError": "File size exceeds 10MB limit",
+  "fileFormatError": "Unsupported file format. Allowed: {formats}",
+  "@fileFormatError": {
+    "placeholders": {
+        "formats": {
+            "type": "String"
+        }
+    }
+  },
+  "newNote": "New Note",
+  "share": "Share",
+  "deleteReminder": "Delete Reminder",
+  "deleteConfirmation": "Are you sure you want to delete this?",
+  "past": "Past",
+  "required": "Required",
+  "all": "All",
+  "tomorrow": "Tomorrow",
+  "newChat": "New Chat",
+  
+  "templateBlank": "Blank Note",
+  "templateBlankDesc": "Start with empty note",
+  "templateShopping": "Shopping List",
+  "templateShoppingDesc": "Checklist for shopping",
+  "templateTodo": "To-Do List",
+  "templateTodoDesc": "Task checklist",
+  "templateMeeting": "Meeting Notes",
+  "templateMeetingDesc": "Structured meeting notes",
+  "chooseTemplate": "Choose Template",
+  "addTag": "Add tag...",
+  "recording": "Recording",
+  "voiceNoteAttached": "Voice note attached",
+  "drawingAttached": "Drawing attached",
+  "editDrawing": "Edit Drawing",
+  "deleteRecording": "Delete Recording",
+  "addImage": "Add Image",
+  "draw": "Draw",
+  "color": "Color",
+  "formattingTools": "Formatting Tools",
+  "hideTools": "Hide Tools",
+  "noNotifications": "No notifications",
+  "notifications": "Notifications",
+  "clearAll": "Clear All",
+  
+  "priorityUrgent": "Urgent",
+  "subtasks": "Subtasks",
+  "addSubtask": "Add subtask",
+  "voiceReminder": "Voice Reminder",
+  "recordVoiceNote": "Record Voice Note",
+  "meetingReminder": "Meeting Reminder",
+  "completedTasks": "Completed Tasks",
+  "reminderTitle": "Reminder Title",
+  "reminderDescription": "Description",
+  
+  "widgetRemindersListTitle": "Reminders",
+  "widgetNoReminders": "No reminders",
+  "widgetNextReminder": "Next Reminder",
+  "widgetDueIn": "Due in {time}",
+  "@widgetDueIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetOverdue": "Overdue",
+  "widgetDueToday": "Due today",
+  
+  "weather": "Weather",
+  "selectLocation": "Select Location",
+  "city": "State/City",
+  "district": "District",
+  "temperature": "Temperature",
+  "feelsLike": "Feels Like",
+  "humidity": "Humidity",
+  "wind": "Wind",
+  "weatherNotAvailable": "Weather information not available",
+  "searchCity": "Search city...",
+  "currentLocation": "Current Location",
+  "weatherUpdated": "Updated",
+  
+  "duplicateAlarmTitle": "Duplicate Alarm",
+  "duplicateAlarmMessage": "An alarm already exists for {time} on {days}. What would you like to do?",
+  "@duplicateAlarmMessage": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "duplicateAlarmReplace": "Replace Existing",
+  "duplicateAlarmKeepBoth": "Keep Both",
+  "duplicateAlarmAiWarning": "⚠️ An alarm already exists for {time}. Please check your alarms and edit if needed.",
+  "@duplicateAlarmAiWarning": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "alarmSound": "Sound",
+  "soundDefault": "Default"
+}

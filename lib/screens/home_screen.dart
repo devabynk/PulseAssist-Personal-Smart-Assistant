@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/extensions.dart';
 import '../utils/responsive.dart';
+
 import 'dashboard_screen.dart';
 import 'chatbot_screen.dart';
 import 'alarm_screen.dart';
@@ -81,34 +82,69 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTabletLayout(AppLocalizations l10n) {
+    final showLabels = MediaQuery.of(context).size.width > 900;
+    
     return Scaffold(
       body: Row(
         children: [
           // Side navigation for tablet
           NavigationRail(
+            extended: showLabels,
             selectedIndex: _currentIndex,
             onDestinationSelected: (index) => setState(() => _currentIndex = index),
             backgroundColor: Theme.of(context).cardColor,
-            leading: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(16),
+            elevation: 8,
+            minExtendedWidth: 200,
+            leading: Column(
+              children: [
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: AppColors.primaryGradient,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withAlpha(80),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.favorite, color: Colors.white, size: 28),
                 ),
-                child: const Icon(Icons.favorite, color: Colors.white),
-              ),
+                if (showLabels) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    'PulseAssist',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 24),
+              ],
             ),
             trailing: Expanded(
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: IconButton(
-                    icon: const Icon(Icons.settings),
-                    onPressed: () => _openSettings(),
-                  ),
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: showLabels 
+                    ? TextButton.icon(
+                        onPressed: _openSettings,
+                        icon: const Icon(Icons.settings),
+                        label: Text(l10n.settingsTitle),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).iconTheme.color?.withAlpha(180),
+                        ),
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.settings),
+                        onPressed: _openSettings,
+                      ),
                 ),
               ),
             ),

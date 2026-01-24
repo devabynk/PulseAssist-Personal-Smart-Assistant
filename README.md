@@ -5,7 +5,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)](https://dart.dev)
 [![AI](https://img.shields.io/badge/AI-GPT--OSS%20120B%20%7C%20Llama%204-orange)](https://groq.com)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![License](https://img.shields.io/badge/License-GPLv3-blue)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-lightgrey)](#-multi-platform-support)
 
 **PulseAssist** is a state-of-the-art, AI-powered personal assistant built with Flutter. It combines the power of LLMs (Groq Llama 3.3) with local NLP to provide a seamless, intuitive, and high-performance user experience across all major platforms.
@@ -182,7 +182,7 @@ PulseAssist doesn't just use one model; it intelligently routes requests to the 
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU GPLv3 License - see the [LICENSE](LICENSE) file for details.
 
 ---
 

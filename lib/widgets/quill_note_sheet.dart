@@ -221,7 +221,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
                   
                   // Quill Editor
                   Container(
-                    constraints: BoxConstraints(minHeight: 200),
+                    constraints: BoxConstraints(minHeight: 120),
                     child: quill.QuillEditor.basic(
                       controller: _quillController,
                       focusNode: _editorFocus,
@@ -230,7 +230,8 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 200),
+                  SizedBox(height: 20), // Reduced from 200
+
                 ],
               ),
             ),

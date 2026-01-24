@@ -13,11 +13,20 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
+val flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "1"
+val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0.0"
+
 
 android {
     namespace = "com.abynk.smart_assistant"
     compileSdk = 36  // Required by plugins
-    ndkVersion = "28.2.13676358"  // Flutter 3.38 requirement for 16KB page support
+    // ndkVersion = "28.2.13676358"  // Flutter 3.38 requirement for 16KB page support - Commented out to fix strip issues
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
@@ -26,15 +35,15 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget = "17"
     }
 
     defaultConfig {
         applicationId = "com.abynk.smart_assistant"
         minSdk = 24  // Flutter 3.38 minimum (Android 7.0+)
         targetSdk = 36  // Targeting Android 16 Beta
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = flutterVersionCode.toInt()
+        versionName = flutterVersionName
         multiDexEnabled = true
     }
 

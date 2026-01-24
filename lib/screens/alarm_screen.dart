@@ -9,6 +9,8 @@ import '../providers/alarm_provider.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/extensions.dart';
+import '../utils/responsive.dart';
+
 import '../widgets/common/custom_text_field.dart';
 
 class AlarmScreen extends StatefulWidget {
@@ -197,7 +199,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(l10n.alarm),
+        title: Text(l10n.alarmPageTitle),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
@@ -210,6 +212,29 @@ class _AlarmScreenState extends State<AlarmScreen> {
           if (alarmProvider.alarms.isEmpty) {
             return _buildEmptyState(l10n);
           }
+
+          final isTablet = context.isTablet || context.isDesktop;
+          
+          if (isTablet) {
+            return GridView.builder(
+              padding: EdgeInsets.symmetric(
+                horizontal: context.horizontalPadding,
+                vertical: 24,
+              ),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 2.2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: alarmProvider.alarms.length,
+              itemBuilder: (context, index) {
+                final alarm = alarmProvider.alarms[index];
+                return _buildAlarmCard(alarm);
+              },
+            );
+          }
+
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: alarmProvider.alarms.length,

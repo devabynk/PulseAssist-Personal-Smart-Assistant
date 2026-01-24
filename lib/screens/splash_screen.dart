@@ -91,8 +91,9 @@ class _SplashScreenState extends State<SplashScreen>
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: isDark
-                ? [Theme.of(context).cardColor, Theme.of(context).scaffoldBackgroundColor]
-                : [Colors.white, const Color(0xFFF5F7FA)],
+                ? [AppPalette.darkSurface, AppPalette.darkBackground]
+                : [AppPalette.lightSurface, AppPalette.lightBackground],
+
           ),
         ),
         child: Center(
@@ -104,26 +105,14 @@ class _SplashScreenState extends State<SplashScreen>
                 builder: (context, child) {
                   return Transform.scale(
                     scale: _scaleAnimation.value,
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(25),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withAlpha(100),
-                            blurRadius: 25,
-                            spreadRadius: 3,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.favorite,
-                        size: 50,
-                        color: Colors.white,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(25),
+                      child: Image.asset(
+                        'assets/app_icon.png',
+                        fit: BoxFit.cover,
                       ),
                     ),
+
                   );
                 },
               ),

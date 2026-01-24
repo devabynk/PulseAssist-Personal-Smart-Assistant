@@ -119,6 +119,18 @@ abstract class AppLocalizations {
   /// **'Alarm'**
   String get alarm;
 
+  /// No description provided for @alarmPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarms'**
+  String get alarmPageTitle;
+
+  /// No description provided for @versionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed Beta'**
+  String get versionLabel;
+
   /// No description provided for @notes.
   ///
   /// In en, this message translates to:
@@ -130,6 +142,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reminders'**
   String get reminders;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
 
   /// No description provided for @online.
   ///

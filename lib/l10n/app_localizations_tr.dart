@@ -21,10 +21,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String get alarm => 'Alarm';
 
   @override
+  String get alarmPageTitle => 'Alarmlar';
+
+  @override
+  String get versionLabel => 'Kapalı Beta';
+
+  @override
   String get notes => 'Notlar';
 
   @override
   String get reminders => 'Hatırlatıcı';
+
+  @override
+  String get settings => 'Ayarlar';
+
+  @override
+  String get settingsTitle => 'Ayarlar';
 
   @override
   String get online => 'Çevrimiçi';

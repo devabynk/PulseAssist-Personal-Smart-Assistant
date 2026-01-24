@@ -4,8 +4,13 @@
   "home": "Özet",
   "chatbot": "Asistan",
   "alarm": "Alarm",
+  "alarmPageTitle": "Alarmlar",
+  "versionLabel": "Kapalı Beta",
   "notes": "Notlar",
   "reminders": "Hatırlatıcı",
+  "settings": "Ayarlar",
+  "settingsTitle": "Ayarlar",
+
   
   "online": "Çevrimiçi",
   "typeMessage": "Mesajını yaz...",

@@ -21,10 +21,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alarm => 'Alarm';
 
   @override
+  String get alarmPageTitle => 'Alarms';
+
+  @override
+  String get versionLabel => 'Closed Beta';
+
+  @override
   String get notes => 'Notes';
 
   @override
   String get reminders => 'Reminders';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get settingsTitle => 'Settings';
 
   @override
   String get online => 'Online';

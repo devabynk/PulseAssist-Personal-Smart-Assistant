@@ -4,8 +4,13 @@
   "home": "Home",
   "chatbot": "Assistant",
   "alarm": "Alarm",
+  "alarmPageTitle": "Alarms",
+  "versionLabel": "Closed Beta",
   "notes": "Notes",
   "reminders": "Reminders",
+  "settings": "Settings",
+  "settingsTitle": "Settings",
+
   
   "online": "Online",
   "typeMessage": "Type a message...",

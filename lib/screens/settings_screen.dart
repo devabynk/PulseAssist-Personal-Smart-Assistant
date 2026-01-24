@@ -7,6 +7,9 @@ import '../services/data_service.dart';
 import 'legal/privacy_policy_screen.dart';
 import 'legal/terms_of_use_screen.dart';
 import 'permissions_screen.dart';
+import '../utils/extensions.dart';
+import '../utils/responsive.dart';
+
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -14,6 +17,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = Provider.of<SettingsProvider>(context);
+    final l10n = context.l10n;
     final isTurkish = settings.locale.languageCode == 'tr';
 
     return Scaffold(
@@ -24,7 +28,10 @@ class SettingsScreen extends StatelessWidget {
         elevation: 0,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.horizontalPadding,
+          vertical: 16,
+        ),
         children: [
           // About Section
           _buildSectionHeader(context, isTurkish ? 'Hakkında' : 'About'),
@@ -201,6 +208,7 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _buildAboutSection(BuildContext context, bool isTurkish) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -237,7 +245,7 @@ class SettingsScreen extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     Text(
-                      'v0.2.16 (github)',
+                      l10n.versionLabel,
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(context).textTheme.bodyMedium?.color,

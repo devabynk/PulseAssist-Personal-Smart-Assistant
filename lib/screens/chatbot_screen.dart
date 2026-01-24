@@ -5,6 +5,8 @@ import '../models/message.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/extensions.dart';
+import '../utils/responsive.dart';
+
 import '../providers/settings_provider.dart';
 import '../providers/chat_provider.dart';
 import '../providers/alarm_provider.dart';
@@ -586,6 +588,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 
   Widget _buildMessageBubble(Message message) {
     final isUser = message.isUser;
+    final maxWidth = Responsive.chatBubbleMaxWidth(context);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -603,7 +607,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
             ),
             const SizedBox(width: 8),
           ],
-          Flexible(
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(

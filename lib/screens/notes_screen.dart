@@ -11,6 +11,7 @@ import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/extensions.dart';
 import '../utils/responsive.dart';
+
 import '../widgets/quill_note_sheet.dart';
 import '../widgets/quill_note_viewer.dart';
 import '../widgets/drawing_preview.dart';
@@ -226,7 +227,10 @@ class _NotesScreenState extends State<NotesScreen> {
 
   Widget _buildNotesGrid(List<Note> notes) {
     return SliverPadding(
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.horizontalPadding,
+        vertical: 16,
+      ),
       sliver: SliverMasonryGrid.count(
         crossAxisCount: Responsive.isMobile(context) ? 2 : 4,
         mainAxisSpacing: 12,

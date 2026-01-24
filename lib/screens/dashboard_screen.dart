@@ -13,6 +13,8 @@ import '../models/reminder.dart';
 import '../theme/app_theme.dart';
 import '../widgets/quill_note_viewer.dart';
 import '../utils/extensions.dart';
+import '../utils/responsive.dart';
+
 import '../models/notification_log.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/location_selector_dialog.dart';
@@ -95,42 +97,94 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final userName = settings.userName ?? '';
 
+    final isTablet = context.isTablet || context.isDesktop;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       // Main Content
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header with greeting
-              _buildHeader(isTurkish, userName, isDark),
-              const SizedBox(height: 24),
-              
-              // Quick Actions
-              _buildQuickActions(isTurkish),
-              const SizedBox(height: 20),
-              
-              // Weather Card (moved above AI chat)
-              _buildWeatherCard(isTurkish, isDark),
-              const SizedBox(height: 16),
-              
-              // AI Chatbot Card
-              _buildAIChatbotCard(isTurkish, isDark),
-              const SizedBox(height: 16),
-              
-              // Alarm & Tasks Row
-              _buildAlarmTasksRow(isTurkish, isDark),
-              const SizedBox(height: 16),
-              
-              // Recent Notes
-              _buildRecentNotes(isTurkish, isDark),
-              const SizedBox(height: 80), // Space for bottom nav
-            ],
+          padding: EdgeInsets.symmetric(
+            horizontal: context.horizontalPadding,
+            vertical: 16,
           ),
+          child: isTablet 
+            ? _buildTabletView(isTurkish, userName, isDark)
+            : _buildMobileView(isTurkish, userName, isDark),
         ),
       ),
+    );
+  }
+
+  Widget _buildMobileView(bool isTurkish, String userName, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header with greeting
+        _buildHeader(isTurkish, userName, isDark),
+        const SizedBox(height: 24),
+        
+        // Quick Actions
+        _buildQuickActions(isTurkish),
+        const SizedBox(height: 20),
+        
+        // Weather Card
+        _buildWeatherCard(isTurkish, isDark),
+        const SizedBox(height: 16),
+        
+        // AI Chatbot Card
+        _buildAIChatbotCard(isTurkish, isDark),
+        const SizedBox(height: 16),
+        
+        // Alarm & Tasks Row
+        _buildAlarmTasksRow(isTurkish, isDark),
+        const SizedBox(height: 16),
+        
+        // Recent Notes
+        _buildRecentNotes(isTurkish, isDark),
+        const SizedBox(height: 80), // Space for bottom nav
+      ],
+    );
+  }
+
+  Widget _buildTabletView(bool isTurkish, String userName, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildHeader(isTurkish, userName, isDark),
+        const SizedBox(height: 32),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Left Column
+            Expanded(
+              flex: 3,
+              child: Column(
+                children: [
+                  _buildWeatherCard(isTurkish, isDark),
+                  const SizedBox(height: 16),
+                  _buildAIChatbotCard(isTurkish, isDark),
+                ],
+              ),
+            ),
+            const SizedBox(width: 24),
+            // Right Column
+            Expanded(
+              flex: 4,
+              child: Column(
+                children: [
+                   _buildQuickActions(isTurkish),
+                   const SizedBox(height: 24),
+                   _buildAlarmTasksRow(isTurkish, isDark),
+                   const SizedBox(height: 24),
+                   _buildRecentNotes(isTurkish, isDark),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 32),
+      ],
     );
   }
 

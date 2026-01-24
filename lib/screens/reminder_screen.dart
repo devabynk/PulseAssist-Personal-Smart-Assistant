@@ -11,6 +11,8 @@ import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/extensions.dart';
+import '../utils/responsive.dart';
+
 import '../providers/reminder_provider.dart';
 import '../providers/settings_provider.dart';
 import '../screens/voice_note_screen.dart';
@@ -247,6 +249,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
           }
           
           final filteredReminders = _filterReminders(provider.reminders);
+          final isTablet = context.isTablet || context.isDesktop;
           
           if (filteredReminders.isEmpty && !_isSearching) {
             return _buildEmptyState(l10n);
@@ -255,7 +258,8 @@ class _ReminderScreenState extends State<ReminderScreen> {
           return _buildReminderList(
             filteredReminders.where((r) => !r.isCompleted).toList(), 
             filteredReminders.where((r) => r.isCompleted).toList(), 
-            l10n
+            l10n,
+            isTablet,
           );
         },
       ),
@@ -320,7 +324,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
     );
   }
 
-  Widget _buildReminderList(List<Reminder> upcoming, List<Reminder> completed, AppLocalizations l10n) {
+  Widget _buildReminderList(List<Reminder> upcoming, List<Reminder> completed, AppLocalizations l10n, bool isTablet) {
     // Split into pinned and unpinned
     final pinnedUpcoming = upcoming.where((r) => r.isPinned).toList();
     final unpinnedUpcoming = upcoming.where((r) => !r.isPinned).toList();
@@ -333,70 +337,125 @@ class _ReminderScreenState extends State<ReminderScreen> {
     final upcomingReminders = unpinnedUpcoming.where((r) => r.dateTime.isAfter(todayEnd)).toList();
     
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.horizontalPadding,
+        vertical: 16,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (pinnedUpcoming.isNotEmpty) ...[
             _buildSectionHeader(l10n.pinned, pinnedUpcoming.length),
             const SizedBox(height: 12),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: pinnedUpcoming.length,
-              itemBuilder: (context, index) => _buildReminderCard(pinnedUpcoming[index]),
-            ),
+            isTablet 
+              ? GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 3.5,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 0,
+                  ),
+                  itemCount: pinnedUpcoming.length,
+                  itemBuilder: (context, index) => _buildReminderCard(pinnedUpcoming[index]),
+                )
+              : ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: pinnedUpcoming.length,
+                  itemBuilder: (context, index) => _buildReminderCard(pinnedUpcoming[index]),
+                ),
             const SizedBox(height: 16),
           ],
           if (todayReminders.isNotEmpty) ...[
             _buildSectionHeader(l10n.today, todayReminders.length),
             const SizedBox(height: 12),
-            ReorderableListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: todayReminders.length,
-              onReorder: (oldIndex, newIndex) => _onReorder(todayReminders, oldIndex, newIndex),
-              itemBuilder: (context, index) {
-                final reminder = todayReminders[index];
-                return Container(
-                    key: Key(reminder.id),
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: _buildReminderCard(reminder),
-                );
-              },
-            ),
+            isTablet
+              ? GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 3.5,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 0,
+                  ),
+                  itemCount: todayReminders.length,
+                  itemBuilder: (context, index) => _buildReminderCard(todayReminders[index]),
+                )
+              : ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: todayReminders.length,
+                  onReorder: (oldIndex, newIndex) => _onReorder(todayReminders, oldIndex, newIndex),
+                  itemBuilder: (context, index) {
+                    final reminder = todayReminders[index];
+                    return Container(
+                        key: Key(reminder.id),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: _buildReminderCard(reminder),
+                    );
+                  },
+                ),
             const SizedBox(height: 16),
           ],
           if (upcomingReminders.isNotEmpty) ...[
             _buildSectionHeader(l10n.upcoming, upcomingReminders.length),
             const SizedBox(height: 12),
-            ReorderableListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: upcomingReminders.length,
-              onReorder: (oldIndex, newIndex) => _onReorder(upcomingReminders, oldIndex, newIndex),
-              itemBuilder: (context, index) {
-                final reminder = upcomingReminders[index];
-                return Container(
-                    key: Key(reminder.id),
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: _buildReminderCard(reminder),
-                );
-              },
-            ),
+            isTablet
+              ? GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 3.5,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 0,
+                  ),
+                  itemCount: upcomingReminders.length,
+                  itemBuilder: (context, index) => _buildReminderCard(upcomingReminders[index]),
+                )
+              : ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: upcomingReminders.length,
+                  onReorder: (oldIndex, newIndex) => _onReorder(upcomingReminders, oldIndex, newIndex),
+                  itemBuilder: (context, index) {
+                    final reminder = upcomingReminders[index];
+                    return Container(
+                        key: Key(reminder.id),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: _buildReminderCard(reminder),
+                    );
+                  },
+                ),
           ],
           if (completed.isNotEmpty) ...[
             const SizedBox(height: 24),
             _buildSectionHeader(l10n.completed, completed.length),
             const SizedBox(height: 12),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: completed.length,
-              itemBuilder: (context, index) {
-                 return _buildReminderCard(completed[index]);
-              },
-            ),
+            isTablet
+              ? GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 3.5,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 0,
+                  ),
+                  itemCount: completed.length,
+                  itemBuilder: (context, index) => _buildReminderCard(completed[index]),
+                )
+              : ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: completed.length,
+                  itemBuilder: (context, index) {
+                     return _buildReminderCard(completed[index]);
+                  },
+                ),
           ],
         ],
       ),
@@ -712,7 +771,7 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                   // Reminder Content Editor 
                   // Removed box decoration to match Notes style
                   Container(
-                    constraints: const BoxConstraints(minHeight: 150),
+                    constraints: const BoxConstraints(minHeight: 100),
                     child: quill.QuillEditor.basic(
                       controller: _quillController,
                       config: quill.QuillEditorConfig(
@@ -807,7 +866,8 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                         ),
                       ),
                     ),
-                  const SizedBox(height: 200), // Extra space for scrolling
+                  const SizedBox(height: 20), // Reduced from 200 to 20 for cleaner look
+
                 ],
               ),
             ),

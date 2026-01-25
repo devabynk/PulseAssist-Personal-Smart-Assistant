@@ -204,46 +204,49 @@ class _AlarmScreenState extends State<AlarmScreen> {
         foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
       ),
-      body: Consumer<AlarmProvider>(
-        builder: (context, alarmProvider, child) {
-          if (alarmProvider.isLoading) {
-            return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
-          }
-          if (alarmProvider.alarms.isEmpty) {
-            return _buildEmptyState(l10n);
-          }
+      body: SafeArea(
+        bottom: true,
+        child: Consumer<AlarmProvider>(
+          builder: (context, alarmProvider, child) {
+            if (alarmProvider.isLoading) {
+              return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+            }
+            if (alarmProvider.alarms.isEmpty) {
+              return _buildEmptyState(l10n);
+            }
 
-          final isTablet = context.isTablet || context.isDesktop;
-          
-          if (isTablet) {
-            return GridView.builder(
-              padding: EdgeInsets.symmetric(
-                horizontal: context.horizontalPadding,
-                vertical: 24,
-              ),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 2.2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-              ),
+            final isTablet = context.isTablet || context.isDesktop;
+            
+            if (isTablet) {
+              return GridView.builder(
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.horizontalPadding,
+                  vertical: 24,
+                ),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 2.2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+                itemCount: alarmProvider.alarms.length,
+                itemBuilder: (context, index) {
+                  final alarm = alarmProvider.alarms[index];
+                  return _buildAlarmCard(alarm);
+                },
+              );
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
               itemCount: alarmProvider.alarms.length,
               itemBuilder: (context, index) {
-                final alarm = alarmProvider.alarms[index];
-                return _buildAlarmCard(alarm);
+                 final alarm = alarmProvider.alarms[index];
+                 return _buildAlarmCard(alarm);
               },
             );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: alarmProvider.alarms.length,
-            itemBuilder: (context, index) {
-               final alarm = alarmProvider.alarms[index];
-               return _buildAlarmCard(alarm);
-            },
-          );
-        },
+          },
+        ),
       ),
       floatingActionButton: Container(
         decoration: BoxDecoration(

@@ -242,26 +242,29 @@ class _ReminderScreenState extends State<ReminderScreen> {
         ],
 
       ),
-      body: Consumer<ReminderProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading) {
-            return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
-          }
-          
-          final filteredReminders = _filterReminders(provider.reminders);
-          final isTablet = context.isTablet || context.isDesktop;
-          
-          if (filteredReminders.isEmpty && !_isSearching) {
-            return _buildEmptyState(l10n);
-          }
-          
-          return _buildReminderList(
-            filteredReminders.where((r) => !r.isCompleted).toList(), 
-            filteredReminders.where((r) => r.isCompleted).toList(), 
-            l10n,
-            isTablet,
-          );
-        },
+      body: SafeArea(
+        bottom: true,
+        child: Consumer<ReminderProvider>(
+          builder: (context, provider, child) {
+            if (provider.isLoading) {
+              return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+            }
+            
+            final filteredReminders = _filterReminders(provider.reminders);
+            final isTablet = context.isTablet || context.isDesktop;
+            
+            if (filteredReminders.isEmpty && !_isSearching) {
+              return _buildEmptyState(l10n);
+            }
+            
+            return _buildReminderList(
+              filteredReminders.where((r) => !r.isCompleted).toList(), 
+              filteredReminders.where((r) => r.isCompleted).toList(), 
+              l10n,
+              isTablet,
+            );
+          },
+        ),
       ),
       floatingActionButton: Container(
         decoration: BoxDecoration(

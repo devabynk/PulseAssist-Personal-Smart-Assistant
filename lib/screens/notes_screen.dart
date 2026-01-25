@@ -127,16 +127,19 @@ class _NotesScreenState extends State<NotesScreen> {
           ),
         ],
       ),
-      body: Consumer<NoteProvider>(
-        builder: (context, noteProvider, child) {
-          if (noteProvider.isLoading) {
-            return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
-          }
-          if (_filteredNotes.isEmpty) {
-            return _buildEmptyState(l10n);
-          }
-          return _buildNotesList();
-        },
+      body: SafeArea(
+        bottom: true,
+        child: Consumer<NoteProvider>(
+          builder: (context, noteProvider, child) {
+            if (noteProvider.isLoading) {
+              return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+            }
+            if (_filteredNotes.isEmpty) {
+              return _buildEmptyState(l10n);
+            }
+            return _buildNotesList();
+          },
+        ),
       ),
       floatingActionButton: Container(
         decoration: BoxDecoration(

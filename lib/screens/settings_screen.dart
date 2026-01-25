@@ -27,52 +27,55 @@ class SettingsScreen extends StatelessWidget {
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
       ),
-      body: ListView(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.horizontalPadding,
-          vertical: 16,
+      body: SafeArea(
+        bottom: true,
+        child: ListView(
+          padding: EdgeInsets.symmetric(
+            horizontal: context.horizontalPadding,
+            vertical: 16,
+          ),
+          children: [
+            // About Section
+            _buildSectionHeader(context, isTurkish ? 'Hakkında' : 'About'),
+            const SizedBox(height: 8),
+            _buildAboutSection(context, isTurkish),
+            
+            const SizedBox(height: 24),
+
+            // Theme Section
+            _buildSectionHeader(context, isTurkish ? 'Görünüm' : 'Appearance'),
+            const SizedBox(height: 8),
+            _buildThemeSelector(context, settings, isTurkish),
+            
+            const SizedBox(height: 24),
+
+            // Permissions Section
+            _buildSectionHeader(context, isTurkish ? 'İzinler' : 'Permissions'),
+            const SizedBox(height: 8),
+            _buildPermissionsSection(context, isTurkish, settings),
+            
+            const SizedBox(height: 24),
+
+            // Data Management Section
+            _buildSectionHeader(context, isTurkish ? 'Veri Yönetimi' : 'Data Management'),
+            const SizedBox(height: 8),
+            _buildDataManagementSection(context, isTurkish),
+            
+            const SizedBox(height: 24),
+            
+            // Language Section
+            _buildSectionHeader(context, isTurkish ? 'Dil' : 'Language'),
+            const SizedBox(height: 8),
+            _buildLanguageSelector(context, settings),
+            
+            const SizedBox(height: 24),
+
+            // Legal Section
+            _buildSectionHeader(context, isTurkish ? 'Yasal' : 'Legal'),
+            const SizedBox(height: 8),
+            _buildLegalSection(context, isTurkish),
+          ],
         ),
-        children: [
-          // About Section
-          _buildSectionHeader(context, isTurkish ? 'Hakkında' : 'About'),
-          const SizedBox(height: 8),
-          _buildAboutSection(context, isTurkish),
-          
-          const SizedBox(height: 24),
-
-          // Theme Section
-          _buildSectionHeader(context, isTurkish ? 'Görünüm' : 'Appearance'),
-          const SizedBox(height: 8),
-          _buildThemeSelector(context, settings, isTurkish),
-          
-          const SizedBox(height: 24),
-
-          // Permissions Section
-          _buildSectionHeader(context, isTurkish ? 'İzinler' : 'Permissions'),
-          const SizedBox(height: 8),
-          _buildPermissionsSection(context, isTurkish, settings),
-          
-          const SizedBox(height: 24),
-
-          // Data Management Section
-          _buildSectionHeader(context, isTurkish ? 'Veri Yönetimi' : 'Data Management'),
-          const SizedBox(height: 8),
-          _buildDataManagementSection(context, isTurkish),
-          
-          const SizedBox(height: 24),
-          
-          // Language Section
-          _buildSectionHeader(context, isTurkish ? 'Dil' : 'Language'),
-          const SizedBox(height: 8),
-          _buildLanguageSelector(context, settings),
-          
-          const SizedBox(height: 24),
-
-          // Legal Section
-          _buildSectionHeader(context, isTurkish ? 'Yasal' : 'Legal'),
-          const SizedBox(height: 8),
-          _buildLegalSection(context, isTurkish),
-        ],
       ),
     );
   }

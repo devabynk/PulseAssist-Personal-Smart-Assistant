@@ -72,9 +72,12 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       },
       child: Scaffold(
-        body: IndexedStack(
-          index: _currentIndex,
-          children: _screens,
+        body: SafeArea(
+          bottom: true,
+          child: IndexedStack(
+            index: _currentIndex,
+            children: _screens,
+          ),
         ),
         bottomNavigationBar: _buildBottomNav(l10n),
       ),

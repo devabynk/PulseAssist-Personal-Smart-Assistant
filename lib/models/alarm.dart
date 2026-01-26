@@ -6,6 +6,7 @@ class Alarm {
   final List<int> repeatDays; // 0=Sunday, 1=Monday, ... 6=Saturday
   final List<DateTime> skippedDates; // Dates where the alarm instance was skipped
   final String? soundPath; // Path to the alarm sound (asset or file)
+  final String? soundName; // Display name of the sound
 
   Alarm({
     required this.id,
@@ -15,6 +16,7 @@ class Alarm {
     this.repeatDays = const [],
     this.skippedDates = const [],
     this.soundPath, // optional
+    this.soundName, // optional
   });
 
   Map<String, dynamic> toMap() {
@@ -26,6 +28,7 @@ class Alarm {
       'repeatDays': repeatDays.join(','),
       'skippedDates': skippedDates.map((d) => d.toIso8601String()).join(','),
       'soundPath': soundPath,
+      'soundName': soundName,
     };
   }
 
@@ -42,6 +45,7 @@ class Alarm {
           ? []
           : map['skippedDates'].toString().split(',').map((e) => DateTime.parse(e)).toList(),
       soundPath: map['soundPath'],
+      soundName: map['soundName'],
     );
   }
 
@@ -53,6 +57,7 @@ class Alarm {
     List<int>? repeatDays,
     List<DateTime>? skippedDates,
     String? soundPath,
+    String? soundName,
   }) {
     return Alarm(
       id: id ?? this.id,
@@ -62,6 +67,7 @@ class Alarm {
       repeatDays: repeatDays ?? this.repeatDays,
       skippedDates: skippedDates ?? this.skippedDates,
       soundPath: soundPath ?? this.soundPath,
+      soundName: soundName ?? this.soundName,
     );
   }
 }

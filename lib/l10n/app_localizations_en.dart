@@ -706,4 +706,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get soundDefault => 'Default';
+
+  @override
+  String alarmUpdated(String oldTime, String newTime) {
+    return 'Alarm updated: $oldTime → $newTime';
+  }
+
+  @override
+  String noteUpdated(String title) {
+    return 'Note updated: $title';
+  }
+
+  @override
+  String reminderUpdated(String title) {
+    return 'Reminder updated: $title';
+  }
+
+  @override
+  String get actionCancelled => 'Cancelled. What else can I help with?';
+
+  @override
+  String get askAlarmTime => 'What time should I set the alarm?';
+
+  @override
+  String get askNoteContent => 'What would you like to note?';
+
+  @override
+  String get askReminderTitle => 'What should I remind you about?';
+
+  @override
+  String get dataAnalysis => 'Your Data Summary';
+
+  @override
+  String get totalAlarms => 'Total Alarms';
+
+  @override
+  String get totalNotes => 'Total Notes';
+
+  @override
+  String get totalReminders => 'Total Reminders';
+
+  @override
+  String get activeItems => 'Active';
+
+  @override
+  String get completedItems => 'Completed';
 }

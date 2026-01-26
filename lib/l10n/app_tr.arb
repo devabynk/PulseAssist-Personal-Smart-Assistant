@@ -272,5 +272,19 @@
   "duplicateAlarmKeepBoth": "İkisini de Tut",
   "duplicateAlarmAiWarning": "⚠️ {time} saati için zaten bir alarm mevcut. Lütfen alarmlarınızı kontrol edin ve gerekirse düzenleyin.",
   "alarmSound": "Ses",
-  "soundDefault": "Varsayılan"
+  "soundDefault": "Varsayılan",
+  
+  "alarmUpdated": "Alarm güncellendi: {oldTime} → {newTime}",
+  "noteUpdated": "Not güncellendi: {title}",
+  "reminderUpdated": "Hatırlatıcı güncellendi: {title}",
+  "actionCancelled": "İptal edildi. Başka nasıl yardımcı olabilirim?",
+  "askAlarmTime": "Alarmı saat kaça kurayım?",
+  "askNoteContent": "Neyi not etmemi istersin?",
+  "askReminderTitle": "Neyi hatırlatmamı istersin?",
+  "dataAnalysis": "Veri Özetiniz",
+  "totalAlarms": "Toplam Alarm",
+  "totalNotes": "Toplam Not",
+  "totalReminders": "Toplam Hatırlatıcı",
+  "activeItems": "Aktif",
+  "completedItems": "Tamamlanan"
 }

@@ -26,7 +26,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 12, // v12: Sound path for alarms
+      version: 13, // v13: Sound name for alarms
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -63,7 +63,8 @@ class DatabaseService {
         isActive INTEGER NOT NULL,
         repeatDays TEXT,
         skippedDates TEXT,
-        soundPath TEXT
+        soundPath TEXT,
+        soundName TEXT
       )
     ''');
 
@@ -218,6 +219,11 @@ class DatabaseService {
     if (oldVersion < 12) {
       // Add soundPath to alarms table
       await db.execute('ALTER TABLE alarms ADD COLUMN soundPath TEXT');
+    }
+    
+    if (oldVersion < 13) {
+      // Add soundName to alarms table
+      await db.execute('ALTER TABLE alarms ADD COLUMN soundName TEXT');
     }
   }
 

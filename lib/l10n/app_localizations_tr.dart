@@ -706,4 +706,49 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get soundDefault => 'Varsayılan';
+
+  @override
+  String alarmUpdated(String oldTime, String newTime) {
+    return 'Alarm güncellendi: $oldTime → $newTime';
+  }
+
+  @override
+  String noteUpdated(String title) {
+    return 'Not güncellendi: $title';
+  }
+
+  @override
+  String reminderUpdated(String title) {
+    return 'Hatırlatıcı güncellendi: $title';
+  }
+
+  @override
+  String get actionCancelled => 'İptal edildi. Başka nasıl yardımcı olabilirim?';
+
+  @override
+  String get askAlarmTime => 'Alarmı saat kaça kurayım?';
+
+  @override
+  String get askNoteContent => 'Neyi not etmemi istersin?';
+
+  @override
+  String get askReminderTitle => 'Neyi hatırlatmamı istersin?';
+
+  @override
+  String get dataAnalysis => 'Veri Özetiniz';
+
+  @override
+  String get totalAlarms => 'Toplam Alarm';
+
+  @override
+  String get totalNotes => 'Toplam Not';
+
+  @override
+  String get totalReminders => 'Toplam Hatırlatıcı';
+
+  @override
+  String get activeItems => 'Aktif';
+
+  @override
+  String get completedItems => 'Tamamlanan';
 }

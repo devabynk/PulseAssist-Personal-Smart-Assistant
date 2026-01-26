@@ -321,5 +321,35 @@
     }
   },
   "alarmSound": "Sound",
-  "soundDefault": "Default"
+  "soundDefault": "Default",
+  
+  "alarmUpdated": "Alarm updated: {oldTime} → {newTime}",
+  "@alarmUpdated": {
+    "placeholders": {
+      "oldTime": {"type": "String"},
+      "newTime": {"type": "String"}
+    }
+  },
+  "noteUpdated": "Note updated: {title}",
+  "@noteUpdated": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "reminderUpdated": "Reminder updated: {title}",
+  "@reminderUpdated": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "actionCancelled": "Cancelled. What else can I help with?",
+  "askAlarmTime": "What time should I set the alarm?",
+  "askNoteContent": "What would you like to note?",
+  "askReminderTitle": "What should I remind you about?",
+  "dataAnalysis": "Your Data Summary",
+  "totalAlarms": "Total Alarms",
+  "totalNotes": "Total Notes",
+  "totalReminders": "Total Reminders",
+  "activeItems": "Active",
+  "completedItems": "Completed"
 }

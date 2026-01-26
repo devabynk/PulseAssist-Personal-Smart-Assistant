@@ -65,7 +65,8 @@ class AlarmProvider with ChangeNotifier {
       time: snoozeTime,
       isActive: true, // Auto active
       repeatDays: [], // One-time
-      // soundPath: We could verify if original alarm had a sound, but for now use default or let UI decide
+      soundPath: _alarms.firstWhere((a) => a.id == alarmId).soundPath,
+      soundName: _alarms.firstWhere((a) => a.id == alarmId).soundName,
     );
     
     await addAlarm(snoozedAlarm);

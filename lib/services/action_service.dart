@@ -9,6 +9,7 @@ import 'nlp/entity_extractor.dart';
 // Providers
 import '../providers/alarm_provider.dart';
 import '../providers/note_provider.dart';
+import '../providers/reminder_provider.dart';
 import '../l10n/app_localizations.dart';
 
 import '../services/learning_service.dart';
@@ -26,13 +27,14 @@ class ActionService {
       required AppLocalizations l10n, 
       AlarmProvider? alarmProvider, 
       NoteProvider? noteProvider,
+      ReminderProvider? reminderProvider,
       bool isTurkish = true,
   }) async {
     switch (response.intent.type) {
       case IntentType.alarm:
         return await _createAlarm(response.entities, l10n, alarmProvider);
       case IntentType.reminder:
-        return await _createReminder(response.entities, l10n, alarmProvider);
+        return await _createReminder(response.entities, l10n, reminderProvider);
       case IntentType.note:
         return await _createNote(response.entities, l10n, noteProvider);
       case IntentType.listAlarms:
@@ -79,6 +81,8 @@ class ActionService {
       time: alarmDate,
       isActive: true,
       repeatDays: days?.days ?? [],
+      soundPath: 'assets/alarm.mp3',
+      soundName: 'Default',
     );
 
     if (provider != null) {
@@ -93,7 +97,7 @@ class ActionService {
     return l10n.alarmSet(time.formatted); // Assuming localize method exists or constructing string
   }
 
-  Future<String> _createReminder(Map<String, dynamic> entities, AppLocalizations l10n, AlarmProvider? provider) async {
+  Future<String> _createReminder(Map<String, dynamic> entities, AppLocalizations l10n, ReminderProvider? provider) async {
     final time = entities['time'] as TimeEntity?;
     final relativeDate = entities['relativeDate'] as RelativeDateEntity?;
     final content = entities['content'] as String? ?? l10n.reminder;
@@ -131,29 +135,18 @@ class ActionService {
       );
     }
 
-    final reminder = Reminder( // Using Reminder model but AlarmProvider handles alarms?
-       // Wait, AlarmProvider currently handles Alarms. Do we have ReminderProvider?
-       // Only AlarmProvider was created. Reminder model exists.
-       // The DB has insertReminder.
-       // AlarmProvider logic only has addAlarm.
-       // Assuming Reminders are separate.
-       // But user wants "not hatırlatıcı vs ekle".
-       // Let's stick to DB for Reminders if no provider, OR make AlarmProvider handle reminders too?
-       // Reminder is likely just a scheduled notification.
-       // Let's keep DB for now but notify?
-       // Actually, I should use AlarmProvider for anything that needs "Refresh".
-       // Does Reminder List use AlarmProvider? No.
-       // Let's just create ReminderProvider? Or update DB.
-       // AlarmProvider is strictly for Alarms.
-       // I'll stick to DB for Reminders for this step to minimize diff, but return localized string.
-       // Wait, I should probably Notify UI. I'll add ReminderProvider later if needed.
+    final reminder = Reminder(
       id: _uuid.v4(),
       title: content,
       dateTime: scheduledDate,
       priority: priority?.level ?? 'medium',
     );
 
-    await _db.insertReminder(reminder);
+    if (provider != null) {
+      await provider.addReminder(reminder);
+    } else {
+      await _db.insertReminder(reminder);
+    }
     return l10n.reminderSet(content);
   }
   

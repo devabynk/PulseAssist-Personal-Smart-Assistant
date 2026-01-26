@@ -1456,6 +1456,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Default'**
   String get soundDefault;
+
+  /// No description provided for @alarmUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarm updated: {oldTime} → {newTime}'**
+  String alarmUpdated(String oldTime, String newTime);
+
+  /// No description provided for @noteUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Note updated: {title}'**
+  String noteUpdated(String title);
+
+  /// No description provided for @reminderUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder updated: {title}'**
+  String reminderUpdated(String title);
+
+  /// No description provided for @actionCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled. What else can I help with?'**
+  String get actionCancelled;
+
+  /// No description provided for @askAlarmTime.
+  ///
+  /// In en, this message translates to:
+  /// **'What time should I set the alarm?'**
+  String get askAlarmTime;
+
+  /// No description provided for @askNoteContent.
+  ///
+  /// In en, this message translates to:
+  /// **'What would you like to note?'**
+  String get askNoteContent;
+
+  /// No description provided for @askReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What should I remind you about?'**
+  String get askReminderTitle;
+
+  /// No description provided for @dataAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Data Summary'**
+  String get dataAnalysis;
+
+  /// No description provided for @totalAlarms.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Alarms'**
+  String get totalAlarms;
+
+  /// No description provided for @totalNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Notes'**
+  String get totalNotes;
+
+  /// No description provided for @totalReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Reminders'**
+  String get totalReminders;
+
+  /// No description provided for @activeItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get activeItems;
+
+  /// No description provided for @completedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completedItems;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

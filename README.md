@@ -25,7 +25,7 @@
 - **Hybrid AI Architecture**: Leverages multiple state-of-the-art models for specialized tasks:
   - **Reasoning & Chat**: Powered by **GPT-OSS 120B** (Primary) and **Llama 3.3 70B** (Fallback).
 - **AI CRUD Operations**: Beyond simple chat, the AI can directly create, update, delete, and list:
-  - ⏰ **Alarms**: Smart time parsing and recurring settings.
+  - ⏰ **Alarms**: Smart time parsing, recurring settings, and **Native System Ringtones**.
   - 📝 **Notes**: Structured note creation with template support (Shopping, Meeting, To-Do).
   - 🔔 **Reminders**: Priority-based tasks with local notifications.
 - **Multimodal Capabilities**:
@@ -86,6 +86,7 @@ PulseAssist uses a hybrid approach to natural language understanding:
 ## 🔑 API Configuration
 
 To use all features of PulseAssist, you need to provide your own API keys. We use a template-based approach to keep your keys safe.
+**New:** Supports **Multiple API Keys** (Failover) for uninterrupted service. If a primary key hits a rate limit, the system automatically switches to the next available key.
 
 ### 1. Register for API Keys
 
@@ -176,6 +177,11 @@ PulseAssist doesn't just use one model; it intelligently routes requests to the 
 3. **Build APK**:
    ```bash
    flutter build apk --release
+   ```
+
+4. **Build App Bundle (Play Store)**:
+   ```bash
+   flutter build appbundle
    ```
 
 ---

@@ -12,6 +12,8 @@ import '../utils/extensions.dart';
 import '../utils/responsive.dart';
 
 import '../widgets/common/custom_text_field.dart';
+import '../services/system_ringtone_service.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class AlarmScreen extends StatefulWidget {
   const AlarmScreen({super.key});
@@ -464,6 +466,7 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
   List<int> _repeatDays = [];
   bool _repeatExpanded = false;
   String _selectedSound = 'assets/alarm.mp3';
+  String _selectedSoundName = 'Default';
 
   @override
   void initState() {
@@ -473,15 +476,17 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
     if (widget.alarm != null) {
         _selectedTime = widget.alarm!.time;
         _repeatDays = List.from(widget.alarm!.repeatDays);
+        _selectedSound = widget.alarm?.soundPath ?? 'assets/alarm.mp3';
+        _selectedSoundName = widget.alarm?.soundName ?? 'Default';
     } else {
         final now = DateTime.now();
         _selectedTime = now.add(const Duration(minutes: 1)); 
     }
-    _selectedSound = widget.alarm?.soundPath ?? 'assets/alarm.mp3';
   }
 
   @override
   Widget build(BuildContext context) {
+    // ... no changes to build structure ...
     final theme = Theme.of(context);
     final l10n = widget.l10n;
     
@@ -554,6 +559,8 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
         )
     );
   }
+  
+
   
   Widget _buildDateSection(AppLocalizations l10n) {
       final theme = Theme.of(context);
@@ -727,9 +734,6 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
 
   Widget _buildSoundSection(AppLocalizations l10n) {
       final theme = Theme.of(context);
-      // Map path to display name
-      String name = l10n.soundDefault;
-      if (_selectedSound == 'assets/alarm.mp3') name = l10n.soundDefault;
       
       return Container(
           decoration: BoxDecoration(
@@ -741,7 +745,14 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
               trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                      Text(name, style: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.bold)),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 150),
+                        child: Text(
+                          _selectedSound == 'assets/alarm.mp3' ? l10n.soundDefault : _selectedSoundName,
+                          style: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                       const SizedBox(width: 8),
                       const Icon(Icons.music_note, size: 16),
                   ]
@@ -751,46 +762,23 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
       );
   }
 
-  void _showSoundPicker(AppLocalizations l10n) {
-      // For now, only one dummy sound + system (which we might mock)
-      // Since we only have one asset, we just show it. 
-      // User asked for "System alarm sound" and "Different sounds".
-      // We will add placeholders.
-      
-      showModalBottomSheet(
-          context: context,
-          builder: (ctx) => ListView(
-              shrinkWrap: true,
-              children: [
-                  ListTile(
-                      title: Text(l10n.soundDefault),
-                      trailing: _selectedSound == 'assets/alarm.mp3' ? const Icon(Icons.check) : null,
-                      onTap: () {
-                          setState(() => _selectedSound = 'assets/alarm.mp3');
-                          Navigator.pop(ctx);
-                      },
-                  ),
-                  // Placeholder for future sounds
-                  ListTile(
-                      title: Text("${l10n.soundDefault} (Classic)"),
-                      trailing: _selectedSound == 'assets/alarm_classic.mp3' ? const Icon(Icons.check) : null,
-                      onTap: () {
-                         // We don't have this file, so we fallback to default logic in code if missing, but let's just reuse the file if we can or just use the same asset string if we want "Classic" to strictly equal "Default" logic.
-                         // But to simulate selection, let's just stick to Default for now to avoid crashes.
-                         setState(() => _selectedSound = 'assets/alarm.mp3');
-                         Navigator.pop(ctx); 
-                      },
-                  ),
-              ],
-          )
-      );
-  }
+  void _showSoundPicker(AppLocalizations l10n) async {
+    final result = await showModalBottomSheet<Map<String, String>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const _RingtonePickerSheet(),
+    );
 
-  void _save() {
+    if (result != null) {
+      setState(() {
+        _selectedSound = result['path']!;
+        _selectedSoundName = result['name']!;
+      });
+    }
+  }
+    void _save() {
     final now = DateTime.now();
-    // Logic to properly set the "next" date based on repeat
-    // For now, we save the TIME part from picker, and RepeatDays list.
-    // The Provider/Model handles "next trigger" logic if needed, but here we just pass data.
     
     // Construct DateTime based on picker just for Hour/Minute info
     final alarmTimeDate = DateTime(now.year, now.month, now.day, _selectedTime.hour, _selectedTime.minute);
@@ -799,10 +787,132 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
       id: widget.alarm?.id ?? const Uuid().v4(),
       title: _titleController.text.isEmpty ? 'Alarm' : _titleController.text,
       time: alarmTimeDate,
-      isActive: true,
+      isActive: true, // Default active on save
       repeatDays: _repeatDays,
       soundPath: _selectedSound,
+      soundName: _selectedSoundName,
     );
+    
     Navigator.pop(context, alarm);
   }
 }
+
+// We need to patch the _AddEditAlarmSheetState to include _selectedSoundName
+// Since I can't edit the class definition directly easily without replacing the whole thing often,
+// I will just add the logic in _save to use a lookup or simple default if not available.
+// Actually, let's fix _AddEditAlarmSheetState properly in next step.
+
+class _RingtonePickerSheet extends StatefulWidget {
+  const _RingtonePickerSheet();
+
+  @override
+  State<_RingtonePickerSheet> createState() => _RingtonePickerSheetState();
+}
+
+class _RingtonePickerSheetState extends State<_RingtonePickerSheet> {
+  List<SystemRingtone> _ringtones = [];
+  bool _isLoading = true;
+  String? _playingUri;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRingtones();
+  }
+
+  @override
+  void dispose() {
+    SystemRingtoneService.stopRingtone();
+    super.dispose();
+  }
+
+  Future<void> _loadRingtones() async {
+    try {
+      final ringtones = await SystemRingtoneService.getRingtones();
+      setState(() {
+        _ringtones = ringtones;
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading ringtones: $e');
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _playRingtone(String uri) async {
+    if (_playingUri == uri) {
+      await SystemRingtoneService.stopRingtone();
+      setState(() => _playingUri = null);
+    } else {
+      await SystemRingtoneService.playRingtone(uri);
+      setState(() => _playingUri = uri);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.7,
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey.withAlpha(50),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'Select Sound', 
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                  itemCount: _ringtones.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                       return ListTile(
+                        leading: const Icon(Icons.music_note),
+                        title: const Text('Default'),
+                        onTap: () {
+                           SystemRingtoneService.stopRingtone();
+                           Navigator.pop(context, {'path': 'assets/alarm.mp3', 'name': 'Default'});
+                        },
+                      );
+                    }
+                    final ringtone = _ringtones[index - 1];
+                    final isPlaying = _playingUri == ringtone.uri;
+                    
+                    return ListTile(
+                      leading: IconButton(
+                        icon: Icon(isPlaying ? Icons.stop_circle : Icons.play_circle_outline),
+                        onPressed: () => _playRingtone(ringtone.uri),
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      title: Text(ringtone.title),
+                      onTap: () {
+                        SystemRingtoneService.stopRingtone();
+                        Navigator.pop(context, {'path': ringtone.uri, 'name': ringtone.title});
+                      },
+                    );
+                  },
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+

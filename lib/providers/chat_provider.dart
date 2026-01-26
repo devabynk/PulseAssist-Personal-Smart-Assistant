@@ -552,6 +552,7 @@ class ChatProvider with ChangeNotifier {
         l10n: l10n,
         alarmProvider: alarmProvider,
         noteProvider: noteProvider,
+        reminderProvider: reminderProvider,
         isTurkish: isTurkish,
       );
       if (result != null) {
@@ -720,6 +721,8 @@ class ChatProvider with ChangeNotifier {
         case 'alarm':
         case 'create_alarm':
           return await _executeAiCreateAlarm(actionData, isTurkish, l10n, alarmProvider);
+        case 'update_alarm':
+          return await _executeAiUpdateAlarm(actionData, isTurkish, l10n, alarmProvider);
         case 'delete_alarm':
           return await _executeAiDeleteAlarm(actionData, isTurkish, l10n, alarmProvider);
         case 'list_alarms':
@@ -729,6 +732,8 @@ class ChatProvider with ChangeNotifier {
         case 'note':
         case 'create_note':
           return await _executeAiCreateNote(actionData, isTurkish, l10n, noteProvider);
+        case 'update_note':
+          return await _executeAiUpdateNote(actionData, isTurkish, l10n, noteProvider);
         case 'delete_note':
           return await _executeAiDeleteNote(actionData, isTurkish, l10n, noteProvider);
         case 'list_notes':
@@ -738,17 +743,18 @@ class ChatProvider with ChangeNotifier {
         case 'reminder':
         case 'create_reminder':
           return await _executeAiCreateReminder(actionData, isTurkish, l10n, reminderProvider);
+        case 'update_reminder':
+          return await _executeAiUpdateReminder(actionData, isTurkish, l10n, reminderProvider);
         case 'delete_reminder':
+          return await _executeAiDeleteReminder(actionData, isTurkish, l10n, reminderProvider);
         case 'toggle_reminder':
           return await _executeAiToggleReminder(actionData, isTurkish, l10n, reminderProvider);
-          
-        // === LIST OPERATIONS ===
-        case 'list_alarms':
-          return await _listAlarmsForAi(isTurkish, alarmProvider);
-        case 'list_notes':
-          return await _listNotesForAi(isTurkish);
         case 'list_reminders':
           return await _listRemindersForAi(isTurkish);
+
+        // === ANALYSIS ===
+        case 'analyze_data':
+          return await _executeAiAnalyzeData(actionData, isTurkish, alarmProvider, noteProvider, reminderProvider);
 
         // === PHARMACY ===
         case 'get_pharmacy':
@@ -984,9 +990,101 @@ class ChatProvider with ChangeNotifier {
       }
       return buffer.toString();
   }
-  
 
-  
+  /// Update an existing alarm by search_time
+  Future<String> _executeAiUpdateAlarm(
+    Map<String, dynamic> data,
+    bool isTurkish,
+    AppLocalizations l10n,
+    AlarmProvider? provider,
+  ) async {
+    if (provider == null) {
+      return isTurkish ? 'Hata: Alarm servisi bulunamadı.' : 'Error: Alarm service not found.';
+    }
+
+    final searchTimeStr = data['search_time']?.toString();
+    
+    if (searchTimeStr == null || searchTimeStr.isEmpty) {
+      return isTurkish 
+          ? '❌ Hangi alarmı güncelleyeyim? Saatini belirtir misin?'
+          : '❌ Which alarm should I update? Please specify the time.';
+    }
+
+    try {
+      // Parse search time
+      final searchParts = searchTimeStr.split(':');
+      final searchHour = int.parse(searchParts[0]);
+      final searchMinute = searchParts.length > 1 ? int.parse(searchParts[1]) : 0;
+      
+      // Find alarm by time
+      final alarmToUpdate = provider.alarms.firstWhereOrNull(
+        (a) => a.time.hour == searchHour && a.time.minute == searchMinute
+      );
+      
+      if (alarmToUpdate == null) {
+        return isTurkish 
+            ? '⚠️ $searchTimeStr saatinde alarm bulunamadı.'
+            : '⚠️ No alarm found for $searchTimeStr.';
+      }
+      
+      // Parse new values
+      DateTime newTime = alarmToUpdate.time;
+      String newLabel = alarmToUpdate.title;
+      List<int> newRepeatDays = List.from(alarmToUpdate.repeatDays);
+      
+      // Update time if provided
+      final newTimeStr = data['new_time']?.toString();
+      if (newTimeStr != null && newTimeStr.isNotEmpty) {
+        final newParts = newTimeStr.split(':');
+        final newHour = int.parse(newParts[0]);
+        final newMinute = newParts.length > 1 ? int.parse(newParts[1]) : 0;
+        final now = DateTime.now();
+        newTime = DateTime(now.year, now.month, now.day, newHour, newMinute);
+        
+        // If time has passed today, schedule for tomorrow
+        if (newRepeatDays.isEmpty && newTime.isBefore(now)) {
+          newTime = newTime.add(const Duration(days: 1));
+        }
+      }
+      
+      // Update label if provided
+      if (data['new_label'] != null) {
+        newLabel = data['new_label'].toString();
+      }
+      
+      // Update repeat days if provided
+      final newRepeatDaysRaw = data['new_repeatDays'];
+      if (newRepeatDaysRaw != null && newRepeatDaysRaw is List) {
+        newRepeatDays = newRepeatDaysRaw
+            .map((e) => int.tryParse(e.toString()) ?? 0)
+            .where((e) => e >= 1 && e <= 7)
+            .toList();
+      }
+      
+      // Create updated alarm
+      final updatedAlarm = Alarm(
+        id: alarmToUpdate.id,
+        title: newLabel,
+        time: newTime,
+        isActive: alarmToUpdate.isActive,
+        repeatDays: newRepeatDays,
+        soundPath: alarmToUpdate.soundPath,
+        skippedDates: alarmToUpdate.skippedDates,
+      );
+      
+      await provider.updateAlarm(updatedAlarm);
+      
+      final newTimeFormatted = '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+      
+      return isTurkish 
+          ? '✅ Alarm güncellendi: $searchTimeStr → $newTimeFormatted "${newLabel}"'
+          : '✅ Alarm updated: $searchTimeStr → $newTimeFormatted "${newLabel}"';
+          
+    } catch (e) {
+      debugPrint('Error updating alarm: $e');
+      return isTurkish ? 'Alarm güncellenirken hata oluştu.' : 'Error updating alarm.';
+    }
+  }
   // ============================================================
   // NOTE CRUD OPERATIONS
   // ============================================================
@@ -1131,6 +1229,12 @@ class ChatProvider with ChangeNotifier {
   ) async {
     final search = data['search']?.toString() ?? '';
     
+    if (search.isEmpty) {
+      return isTurkish 
+          ? '❌ Hangi notu güncelleyeyim? Başlığını veya içeriğinden bir kelime söyle.'
+          : '❌ Which note should I update? Tell me the title or a keyword from its content.';
+    }
+    
     final notes = await _db.getNotes();
     Note? targetNote;
     
@@ -1148,16 +1252,48 @@ class ChatProvider with ChangeNotifier {
           : "❌ No note found matching \"$search\".";
     }
     
-    final newTitle = data['title']?.toString() ?? targetNote.title;
-    String newContent = data['content']?.toString() ?? targetNote.content;
-    final colorName = data['color']?.toString().toLowerCase();
+    // Get new values or keep existing
+    final newTitle = data['new_title']?.toString() ?? data['title']?.toString() ?? targetNote.title;
+    String newContent = targetNote.content;
+    final colorName = (data['new_color'] ?? data['color'])?.toString().toLowerCase();
     
-    // Process newlines in content
-    newContent = newContent.replaceAll('\\n', '\n');
+    // Handle content updates
+    final appendContent = data['append_content']?.toString();
+    final replaceContent = data['new_content']?.toString() ?? data['content']?.toString();
     
-    // Wrap content in Quill Delta JSON format if it was updated
-    if (data['content'] != null) {
-      newContent = jsonEncode([{'insert': '$newContent\n'}]);
+    if (appendContent != null && appendContent.isNotEmpty) {
+      // APPEND MODE: Add to existing content
+      try {
+        // Try to parse existing content as Quill Delta
+        final existingDelta = jsonDecode(targetNote.content) as List<dynamic>;
+        
+        // Process newlines in append content
+        final cleanAppend = appendContent.replaceAll('\\n', '\n');
+        
+        // Check if it's a checklist note (has list attributes)
+        bool isChecklist = existingDelta.any((op) => 
+            op is Map && op['attributes'] != null && 
+            (op['attributes']['list'] == 'unchecked' || op['attributes']['list'] == 'checked'));
+        
+        if (isChecklist) {
+          // Add as a new unchecked item
+          existingDelta.insert(existingDelta.length - 1, {'insert': cleanAppend});
+          existingDelta.insert(existingDelta.length - 1, {'insert': '\n', 'attributes': {'list': 'unchecked'}});
+        } else {
+          // Add as regular text
+          existingDelta.insert(existingDelta.length - 1, {'insert': '\n$cleanAppend'});
+        }
+        
+        newContent = jsonEncode(existingDelta);
+      } catch (e) {
+        // Fallback: append as plain text
+        final cleanAppend = appendContent.replaceAll('\\n', '\n');
+        newContent = jsonEncode([{'insert': '${targetNote.content}\n$cleanAppend\n'}]);
+      }
+    } else if (replaceContent != null) {
+      // REPLACE MODE: Replace entire content
+      final cleanContent = replaceContent.replaceAll('\\n', '\n');
+      newContent = jsonEncode([{'insert': '$cleanContent\n'}]);
     }
     
     // Map color names to hex codes
@@ -1182,6 +1318,8 @@ class ChatProvider with ChangeNotifier {
       updatedAt: DateTime.now(),
       color: hexColor,
       orderIndex: targetNote.orderIndex,
+      imagePaths: targetNote.imagePaths,
+      voiceNotePath: targetNote.voiceNotePath,
     );
     
     if (provider != null) {
@@ -1190,9 +1328,15 @@ class ChatProvider with ChangeNotifier {
       await _db.updateNote(updatedNote);
     }
     
+    String actionDesc = '';
+    if (appendContent != null) {
+      actionDesc = isTurkish ? ' (+${appendContent.length > 20 ? appendContent.substring(0, 20) + '...' : appendContent} eklendi)' 
+                             : ' (+${appendContent.length > 20 ? appendContent.substring(0, 20) + '...' : appendContent} added)';
+    }
+    
     return isTurkish 
-        ? "✅ Not güncellendi: \"$newTitle\""
-        : "✅ Note updated: \"$newTitle\"";
+        ? "✅ Not güncellendi: \"$newTitle\"$actionDesc"
+        : "✅ Note updated: \"$newTitle\"$actionDesc";
   }
   
   Future<String> _executeAiDeleteNote(
@@ -1549,6 +1693,104 @@ class ChatProvider with ChangeNotifier {
     
     return buffer.toString();
   }
+
+  /// Analyze user data and return summary statistics
+  Future<String> _executeAiAnalyzeData(
+    Map<String, dynamic> data,
+    bool isTurkish,
+    AlarmProvider? alarmProvider,
+    NoteProvider? noteProvider,
+    ReminderProvider? reminderProvider,
+  ) async {
+    final buffer = StringBuffer();
+    
+    buffer.writeln(isTurkish ? '📊 **Veri Özetiniz:**' : '📊 **Your Data Summary:**');
+    buffer.writeln('');
+    
+    // Alarm Statistics
+    if (alarmProvider != null) {
+      final totalAlarms = alarmProvider.alarms.length;
+      final activeAlarms = alarmProvider.alarms.where((a) => a.isActive).length;
+      
+      buffer.writeln(isTurkish ? '🔔 **Alarmlar:**' : '🔔 **Alarms:**');
+      buffer.writeln(isTurkish 
+          ? '   - Toplam: $totalAlarms alarm'
+          : '   - Total: $totalAlarms alarms');
+      buffer.writeln(isTurkish 
+          ? '   - Aktif: $activeAlarms'
+          : '   - Active: $activeAlarms');
+      
+      // Next alarm
+      final activeList = alarmProvider.alarms.where((a) => a.isActive).toList();
+      if (activeList.isNotEmpty) {
+        activeList.sort((a, b) => a.time.compareTo(b.time));
+        final next = activeList.first;
+        final nextTime = '${next.time.hour.toString().padLeft(2, '0')}:${next.time.minute.toString().padLeft(2, '0')}';
+        buffer.writeln(isTurkish 
+            ? '   - Sonraki: $nextTime (${next.title})'
+            : '   - Next: $nextTime (${next.title})');
+      }
+      buffer.writeln('');
+    }
+    
+    // Note Statistics
+    final notes = await _db.getNotes();
+    buffer.writeln(isTurkish ? '📝 **Notlar:**' : '📝 **Notes:**');
+    buffer.writeln(isTurkish 
+        ? '   - Toplam: ${notes.length} not'
+        : '   - Total: ${notes.length} notes');
+    
+    if (notes.isNotEmpty) {
+      // Most recent note
+      final sorted = notes.toList()..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      buffer.writeln(isTurkish 
+          ? '   - Son güncellenen: "${sorted.first.title}"'
+          : '   - Last updated: "${sorted.first.title}"');
+    }
+    buffer.writeln('');
+    
+    // Reminder Statistics
+    final reminders = await _db.getReminders();
+    final activeReminders = reminders.where((r) => !r.isCompleted).toList();
+    final completedReminders = reminders.where((r) => r.isCompleted).toList();
+    final highPriorityReminders = activeReminders.where((r) => r.priority == 'high' || r.priority == 'urgent').toList();
+    
+    buffer.writeln(isTurkish ? '⏰ **Hatırlatıcılar:**' : '⏰ **Reminders:**');
+    buffer.writeln(isTurkish 
+        ? '   - Toplam: ${reminders.length} hatırlatıcı'
+        : '   - Total: ${reminders.length} reminders');
+    buffer.writeln(isTurkish 
+        ? '   - Aktif: ${activeReminders.length}'
+        : '   - Active: ${activeReminders.length}');
+    buffer.writeln(isTurkish 
+        ? '   - Tamamlanan: ${completedReminders.length}'
+        : '   - Completed: ${completedReminders.length}');
+    
+    if (highPriorityReminders.isNotEmpty) {
+      buffer.writeln(isTurkish 
+          ? '   - Yüksek öncelikli: ${highPriorityReminders.length} ❗'
+          : '   - High priority: ${highPriorityReminders.length} ❗');
+    }
+    
+    // Upcoming reminders today
+    final now = DateTime.now();
+    final todayReminders = activeReminders.where((r) => 
+        r.dateTime.year == now.year && 
+        r.dateTime.month == now.month && 
+        r.dateTime.day == now.day &&
+        r.dateTime.isAfter(now)
+    ).toList();
+    
+    if (todayReminders.isNotEmpty) {
+      buffer.writeln('');
+      buffer.writeln(isTurkish 
+          ? '📅 Bugün ${todayReminders.length} hatırlatıcı var'
+          : '📅 ${todayReminders.length} reminders today');
+    }
+    
+    return buffer.toString();
+  }
+
 
   /// Helper: Format repeat days to human readable string
   String _formatDays(List<int> days, bool isTurkish) {

@@ -17,7 +17,8 @@ class WidgetService {
   static const String _singleAlarmWidgetName = 'SingleAlarmWidgetProvider';
   static const String _remindersListWidgetName = 'RemindersListWidgetProvider';
   static const String _singleReminderWidgetName = 'SingleReminderWidgetProvider';
-  
+  static const String _weatherWidgetName = 'WeatherWidgetProvider';
+
   // iOS widget names
   static const String _iosNoteWidgetName = 'NoteWidget';
   static const String _iosNotesListWidgetName = 'NotesListWidget';
@@ -26,6 +27,7 @@ class WidgetService {
   static const String _iosSingleAlarmWidgetName = 'SingleAlarmWidget';
   static const String _iosRemindersListWidgetName = 'RemindersListWidget';
   static const String _iosSingleReminderWidgetName = 'SingleReminderWidget';
+  static const String _iosWeatherWidgetName = 'WeatherWidget';
 
   /// Get current locale (simplified - returns 'tr' or 'en')
   static String _getCurrentLocale() {
@@ -386,5 +388,41 @@ class WidgetService {
       await updateRemindersListWidget(reminders);
       await updateSingleReminderWidget(reminders);
     }
+  }
+
+  /// Update Weather Widget
+  static Future<void> updateWeatherWidget({
+    required String city,
+    required double temp,
+    required String condition,
+  }) async {
+    final strings = _getLocalizedStrings();
+    
+    await HomeWidget.saveWidgetData<String>('weather_city', city);
+    await HomeWidget.saveWidgetData<String>('weather_temp', '${temp.toStringAsFixed(1)}°');
+    await HomeWidget.saveWidgetData<String>('weather_condition', condition);
+    await HomeWidget.saveWidgetData<String>('weather_updated', 
+      '${strings['updated']}: ${DateFormat('HH:mm').format(DateTime.now())}');
+      
+    await HomeWidget.updateWidget(
+      name: _weatherWidgetName,
+      iOSName: _iosWeatherWidgetName,
+    );
+  }
+
+  /// Set Widget Theme (Transparent/Solid)
+  static Future<void> setWidgetTheme({required bool isTransparent}) async {
+    await HomeWidget.saveWidgetData<bool>('widget_theme_transparent', isTransparent);
+    
+    // Force update all widgets to apply theme
+    // We don't send new data, just trigger update
+    await HomeWidget.updateWidget(name: _noteWidgetName, iOSName: _iosNoteWidgetName);
+    await HomeWidget.updateWidget(name: _singleNoteWidgetName, iOSName: _iosSingleNoteWidgetName);
+    await HomeWidget.updateWidget(name: _notesListWidgetName, iOSName: _iosNotesListWidgetName);
+    await HomeWidget.updateWidget(name: _singleAlarmWidgetName, iOSName: _iosSingleAlarmWidgetName);
+    await HomeWidget.updateWidget(name: _alarmsListWidgetName, iOSName: _iosAlarmsListWidgetName);
+    await HomeWidget.updateWidget(name: _singleReminderWidgetName, iOSName: _iosSingleReminderWidgetName);
+    await HomeWidget.updateWidget(name: _remindersListWidgetName, iOSName: _iosRemindersListWidgetName);
+    await HomeWidget.updateWidget(name: _weatherWidgetName, iOSName: _iosWeatherWidgetName);
   }
 }

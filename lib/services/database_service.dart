@@ -84,6 +84,7 @@ class DatabaseService {
   Future<void> insertMessage(Message message) async {
     await _ensureInitialized();
     await _messagesBox.put(message.id, message);
+    await _messagesBox.flush();
   }
 
   Future<List<Message>> getMessages() async {
@@ -96,22 +97,26 @@ class DatabaseService {
   Future<void> clearMessages() async {
     await _ensureInitialized();
     await _messagesBox.clear();
+    await _messagesBox.flush();
   }
 
   Future<void> deleteMessage(String id) async {
     await _ensureInitialized();
     await _messagesBox.delete(id);
+    await _messagesBox.flush();
   }
 
   // Conversations
   Future<void> insertConversation(Conversation conversation) async {
     await _ensureInitialized();
     await _conversationsBox.put(conversation.id, conversation);
+    await _conversationsBox.flush();
   }
 
   Future<void> updateConversation(Conversation conversation) async {
     await _ensureInitialized();
     await _conversationsBox.put(conversation.id, conversation);
+    await _conversationsBox.flush();
   }
 
   Future<List<Conversation>> getConversations() async {
@@ -131,6 +136,10 @@ class DatabaseService {
         .map((m) => m.id)
         .toList();
     await _messagesBox.deleteAll(messagesToDelete);
+    
+    // Flush both boxes
+    await _conversationsBox.flush();
+    await _messagesBox.flush();
   }
 
   Future<List<Message>> getMessagesForConversation(String conversationId) async {
@@ -146,12 +155,14 @@ class DatabaseService {
   Future<void> insertAlarm(Alarm alarm) async {
     await _ensureInitialized();
     await _alarmsBox.put(alarm.id, alarm);
+    await _alarmsBox.flush();
     debugPrint('💾 Inserted Alarm: ${alarm.id} (Title: ${alarm.title}). Total: ${_alarmsBox.length}');
   }
 
   Future<void> updateAlarm(Alarm alarm) async {
     await _ensureInitialized();
     await _alarmsBox.put(alarm.id, alarm);
+    await _alarmsBox.flush();
     debugPrint('💾 Updated Alarm: ${alarm.id}');
   }
 
@@ -159,6 +170,7 @@ class DatabaseService {
     await _ensureInitialized();
     if (_alarmsBox.containsKey(id)) {
        await _alarmsBox.delete(id);
+       await _alarmsBox.flush();
        debugPrint('🗑️ Deleted Alarm: $id. Remaining: ${_alarmsBox.length}');
     } else {
        debugPrint('⚠️ Delete Failed: Alarm ID $id not found in box.');
@@ -178,16 +190,19 @@ class DatabaseService {
   Future<void> insertNote(Note note) async {
     await _ensureInitialized();
     await _notesBox.put(note.id, note);
+    await _notesBox.flush();
   }
 
   Future<void> updateNote(Note note) async {
     await _ensureInitialized();
     await _notesBox.put(note.id, note);
+    await _notesBox.flush();
   }
 
   Future<void> deleteNote(String id) async {
     await _ensureInitialized();
     await _notesBox.delete(id);
+    await _notesBox.flush();
   }
 
   Future<List<Note>> getNotes() async {
@@ -208,22 +223,26 @@ class DatabaseService {
         final note = notes[i].copyWith(orderIndex: i);
         await _notesBox.put(note.id, note);
     }
+    await _notesBox.flush();
   }
 
   // Reminders
   Future<void> insertReminder(Reminder reminder) async {
     await _ensureInitialized();
     await _remindersBox.put(reminder.id, reminder);
+    await _remindersBox.flush();
   }
 
   Future<void> updateReminder(Reminder reminder) async {
     await _ensureInitialized();
     await _remindersBox.put(reminder.id, reminder);
+    await _remindersBox.flush();
   }
 
   Future<void> deleteReminder(String id) async {
     await _ensureInitialized();
     await _remindersBox.delete(id);
+    await _remindersBox.flush();
   }
 
   Future<List<Reminder>> getReminders() async {
@@ -244,17 +263,20 @@ class DatabaseService {
         final reminder = reminders[i].copyWith(orderIndex: i);
         await _remindersBox.put(reminder.id, reminder);
     }
+    await _remindersBox.flush();
   }
 
   // User Habits
   Future<void> insertHabit(UserHabit habit) async {
     await _ensureInitialized();
     await _userHabitsBox.put(habit.id, habit);
+    await _userHabitsBox.flush();
   }
 
   Future<void> updateHabit(UserHabit habit) async {
     await _ensureInitialized();
     await _userHabitsBox.put(habit.id, habit);
+    await _userHabitsBox.flush();
   }
 
   Future<List<UserHabit>> getHabitsForIntent(String intent) async {
@@ -282,6 +304,7 @@ class DatabaseService {
   Future<void> insertNotificationLog(NotificationLog log) async {
     await _ensureInitialized();
     await _notificationLogsBox.put(log.id, log);
+    await _notificationLogsBox.flush();
   }
 
   Future<List<NotificationLog>> getNotificationLogs() async {
@@ -294,16 +317,19 @@ class DatabaseService {
   Future<void> updateNotificationLog(NotificationLog log) async {
     await _ensureInitialized();
     await _notificationLogsBox.put(log.id, log);
+    await _notificationLogsBox.flush();
   }
 
   Future<void> deleteNotificationLog(String id) async {
     await _ensureInitialized();
     await _notificationLogsBox.delete(id);
+    await _notificationLogsBox.flush();
   }
 
   Future<void> deleteAllNotificationLogs() async {
     await _ensureInitialized();
     await _notificationLogsBox.clear();
+    await _notificationLogsBox.flush();
   }
 
   // User Location Operations
@@ -321,6 +347,7 @@ class DatabaseService {
     );
     // Using key 'current' since we only allow one location
     await _userLocationBox.put('current', location);
+    await _userLocationBox.flush();
   }
 
   Future<Map<String, dynamic>?> getUserLocation() async {
@@ -343,6 +370,7 @@ class DatabaseService {
   Future<void> deleteUserLocation() async {
     await _ensureInitialized();
     await _userLocationBox.delete('current');
+    await _userLocationBox.flush();
   }
 
   Future<void> close() async {

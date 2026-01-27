@@ -1,8 +1,22 @@
+import 'package:hive/hive.dart';
+
+part 'user_habit.g.dart';
+
+@HiveType(typeId: 7)
 class UserHabit {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String intent; // e.g., 'alarm', 'reminder'
+
+  @HiveField(2)
   final String parameters; // JSON string
+
+  @HiveField(3)
   final int frequency;
+
+  @HiveField(4)
   final DateTime lastUsed;
 
   UserHabit({

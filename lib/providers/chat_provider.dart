@@ -531,11 +531,57 @@ class ChatProvider with ChangeNotifier {
     ReminderProvider? reminderProvider, {
     bool showOfflineNote = true, // Show offline note by default
   }) async {
-    final response = _nlp.process(text, isTurkish: isTurkish, userName: userName);
+    // 1. Check for Cancellation if we have a pending partial intent
+    if (_partialIntent != null) {
+      final lowerText = text.toLowerCase();
+      if (lowerText.contains('iptal') || lowerText.contains('vazgeç') || lowerText.contains('cancel') || lowerText.contains('no') || lowerText.contains('hayır')) {
+        _partialIntent = null;
+        _partialEntities = {};
+        await addSystemMessage(isTurkish ? 'İşlem iptal edildi.' : 'Action cancelled.', _activeConversation?.id);
+        return;
+      }
+    }
+
+    var response = _nlp.process(text, isTurkish: isTurkish, userName: userName);
+    
+    // 2. Handle Pending Partial Intent (Slot Filling)
+    if (_partialIntent != null) {
+      // If the new intent is generic (like 'date', 'time', 'unknown') or matches, we assume it's filling a slot
+      // Valid slot-filling intents or just neutral text
+      if (response.intent.type == IntentType.date || 
+          response.intent.type == IntentType.time || 
+          response.intent.type == IntentType.unclear ||
+          response.intent.type == IntentType.smallTalk // sometimes user just says "tomorrow"
+          ) {
+          
+         // Merge entities
+         _partialEntities.addAll(response.entities);
+         if (response.intent.type == IntentType.time && !response.entities.containsKey('time')) {
+             // If NLP detected time intent but entities didn't capture complex time, try to parse text?
+             // Assuming NLP engine does its job.
+         }
+         
+         // Create a synthetic response with the ORIGINAL task intent but merged entities
+         // Create a synthetic response with the ORIGINAL task intent but merged entities
+         response = NlpResponse(
+            intent: Intent(type: _partialIntent!, confidence: 1.0),
+            entities: Map.from(_partialEntities),
+            text: response.text, // keep original text? or irrelevant
+            language: isTurkish ? 'tr' : 'en',
+         );
+      } else if (response.intent.type != _partialIntent) {
+         // User switched context? e.g. from "Alarm" to "Weather"
+         // Clear previous pending
+         _partialIntent = null;
+         _partialEntities = {};
+         // Proceed with new intent
+      }
+    }
     
     // Handle different intents locally
     if (_isLocalOnlyIntent(response.intent.type)) {
       await addSystemMessage(response.text, _activeConversation?.id);
+      _partialIntent = null; // Clear pending on unrelated success
     } else if (_isListIntent(response.intent.type)) {
       final result = await _actionService.executeAction(
         response, 
@@ -545,8 +591,16 @@ class ChatProvider with ChangeNotifier {
       if (result != null) {
         await addSystemMessage(result, _activeConversation?.id);
       }
+      _partialIntent = null;
     } else if (_isActionIntent(response.intent.type)) {
       // For action intents, execute directly with local NLP entities
+      // Save current intent as potential partial
+      
+      // If this is a fresh start, seed partial entities
+      if (_partialIntent == null) {
+          _partialEntities = Map.from(response.entities);
+      }
+
       final result = await _actionService.executeAction(
         response, 
         l10n: l10n,
@@ -555,8 +609,28 @@ class ChatProvider with ChangeNotifier {
         reminderProvider: reminderProvider,
         isTurkish: isTurkish,
       );
+      
       if (result != null) {
         await addSystemMessage(result, _activeConversation?.id);
+        
+        // CHECK IF ACTION WAS INCOMPLETE (Question asked)
+        // We compare result with known "Question Strings" from l10n
+        bool isQuestion = false;
+        if (result == l10n.alarmTimeNotSpecified || 
+            result == l10n.noteContentEmpty ||
+            result == l10n.askReminderTime
+           ) {
+            isQuestion = true;
+        }
+
+        if (isQuestion) {
+           _partialIntent = response.intent.type;
+           // _partialEntities already updated above or seeded
+        } else {
+           // Success! Clear pending
+           _partialIntent = null;
+           _partialEntities = {};
+        }
       }
     } else {
       // For other intents, show local NLP response
@@ -567,6 +641,10 @@ class ChatProvider with ChangeNotifier {
               : "\n\n📵 _Offline mode - limited features_")
           : '';
       await addSystemMessage(response.text + offlineNote, _activeConversation?.id);
+      
+      // If we were in a partial flow and got here (e.g. unclear unhandled), maybe keep it?
+      // No, usually best to clear if we drifted away unless we explicitly handled 'unclear' above.
+      // Above logic handles 'unclear' by merging. So this block is for non-action non-local intents.
     }
   }
 

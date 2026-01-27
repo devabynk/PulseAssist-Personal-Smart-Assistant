@@ -1,7 +1,19 @@
+import 'package:hive/hive.dart';
+
+part 'conversation.g.dart';
+
+@HiveType(typeId: 0)
 class Conversation {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String title;
+
+  @HiveField(2)
   final DateTime createdAt;
+
+  @HiveField(3)
   final DateTime lastMessageAt;
 
   Conversation({

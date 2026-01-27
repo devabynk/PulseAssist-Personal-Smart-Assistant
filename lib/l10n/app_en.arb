@@ -5,7 +5,7 @@
   "chatbot": "Assistant",
   "alarm": "Alarm",
   "alarmPageTitle": "Alarms",
-  "versionLabel": "Closed Beta",
+  "versionLabel": "v1.3.1",
   "notes": "Notes",
   "reminders": "Reminders",
   "settings": "Settings",
@@ -322,6 +322,7 @@
   },
   "alarmSound": "Sound",
   "soundDefault": "Default",
+  "selectSound": "Select Sound",
   
   "alarmUpdated": "Alarm updated: {oldTime} → {newTime}",
   "@alarmUpdated": {
@@ -346,6 +347,7 @@
   "askAlarmTime": "What time should I set the alarm?",
   "askNoteContent": "What would you like to note?",
   "askReminderTitle": "What should I remind you about?",
+  "askReminderTime": "When should I remind you?",
   "dataAnalysis": "Your Data Summary",
   "totalAlarms": "Total Alarms",
   "totalNotes": "Total Notes",

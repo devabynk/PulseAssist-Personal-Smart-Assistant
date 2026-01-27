@@ -175,22 +175,55 @@ class AlarmProvider with ChangeNotifier {
   /// Removes alarms from database that don't exist in system
   Future<void> syncAlarms() async {
     try {
-      final dbAlarms = await _db.getAlarms();
+      // 1. Load alarms from DB first to have a base
+      await loadAlarms();
+      
+      final dbAlarms = _alarms;
       final systemAlarms = await alarm_pkg.Alarm.getAlarms();
       
       // Create a set of system alarm IDs for quick lookup
       final systemAlarmIds = systemAlarms.map((a) => a.id).toSet();
       
-      // Remove alarms from DB that don't exist in system
+      // 2. Reschedule any DB alarms that match system alarms but might be missing in system (re-ensure)
+      // OR remove alarms from DB that are definitely gone from system is risky if system alarm cleared on reboot?
+      // Actually Android AlarmManager might persist across reboots but alarm_pkg handles it.
+      // If alarm_pkg says it's gone, it's probably gone.
+      
+      // However, to be safe against data loss:
+      // If DB has alarm but System doesn't:
+      // - If it's active and future, reschedule it! (Don't delete)
+      // - If it's past, then maybe delete or deactivate.
+      
+      final now = DateTime.now();
+
       for (var dbAlarm in dbAlarms) {
         final alarmId = dbAlarm.id.hashCode.abs();
+        
         if (!systemAlarmIds.contains(alarmId)) {
-          debugPrint('Removing orphaned alarm from DB: ${dbAlarm.title}');
-          await _db.deleteAlarm(dbAlarm.id);
+          // Alarm is in DB but not in System.
+          if (dbAlarm.isActive) {
+             // It should be running. Check if it's in the future or repeating.
+             bool shouldReschedule = false;
+             if (dbAlarm.repeatDays.isNotEmpty) {
+               shouldReschedule = true;
+             } else if (dbAlarm.time.isAfter(now)) {
+               shouldReschedule = true;
+             }
+             
+             if (shouldReschedule) {
+               debugPrint('Rescheduling missing system alarm found in DB: ${dbAlarm.title}');
+               await _scheduleAlarm(dbAlarm);
+             } else {
+               // It's old and one-time, simple deactivate
+               debugPrint('Deactivating expired orphan alarm: ${dbAlarm.title}');
+               final deactivated = dbAlarm.copyWith(isActive: false);
+               await _db.updateAlarm(deactivated);
+             }
+          }
         }
       }
       
-      // Reload alarms after cleanup
+      // Reload alarms after cleanup/reschedule
       await loadAlarms();
     } catch (e) {
       debugPrint('Error syncing alarms: $e');

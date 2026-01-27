@@ -1,20 +1,48 @@
 import 'dart:convert';
+import 'package:hive/hive.dart';
 
+part 'note.g.dart';
+
+@HiveType(typeId: 3)
 class Note {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String title;
+
+  @HiveField(2)
   final String content;
+
+  @HiveField(3)
   final DateTime createdAt;
+
+  @HiveField(4)
   final DateTime updatedAt;
+
+  @HiveField(5)
   final String color;
+
+  @HiveField(6)
   final int orderIndex;
   
   // Enhanced features
+  @HiveField(7)
   final bool isPinned;
+
+  @HiveField(8)
   final bool isFullWidth;
+
+  @HiveField(9)
   final List<String> imagePaths;
+
+  @HiveField(10)
   final String? drawingData;
+
+  @HiveField(11)
   final String? voiceNotePath;
+
+  @HiveField(12)
   final List<String> tags;
 
   Note({

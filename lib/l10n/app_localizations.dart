@@ -128,7 +128,7 @@ abstract class AppLocalizations {
   /// No description provided for @versionLabel.
   ///
   /// In en, this message translates to:
-  /// **'Closed Beta'**
+  /// **'v1.3.1'**
   String get versionLabel;
 
   /// No description provided for @notes.
@@ -1457,6 +1457,12 @@ abstract class AppLocalizations {
   /// **'Default'**
   String get soundDefault;
 
+  /// No description provided for @selectSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Sound'**
+  String get selectSound;
+
   /// No description provided for @alarmUpdated.
   ///
   /// In en, this message translates to:
@@ -1498,6 +1504,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'What should I remind you about?'**
   String get askReminderTitle;
+
+  /// No description provided for @askReminderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'When should I remind you?'**
+  String get askReminderTime;
 
   /// No description provided for @dataAnalysis.
   ///

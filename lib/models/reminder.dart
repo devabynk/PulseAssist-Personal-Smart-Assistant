@@ -1,8 +1,17 @@
 import 'dart:convert';
+import 'package:hive/hive.dart';
 
+part 'reminder.g.dart';
+
+@HiveType(typeId: 5)
 class Subtask {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String title;
+
+  @HiveField(2)
   final bool isCompleted;
 
   Subtask({
@@ -40,16 +49,36 @@ class Subtask {
   }
 }
 
+@HiveType(typeId: 4)
 class Reminder {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String title;
+
+  @HiveField(2)
   final String description;
+
+  @HiveField(3)
   final DateTime dateTime;
+
+  @HiveField(4)
   final bool isCompleted;
+
+  @HiveField(5)
   final String priority; // low, medium, high, urgent
+
+  @HiveField(6)
   final int orderIndex;
+
+  @HiveField(7)
   final bool isPinned;
+
+  @HiveField(8)
   final String? voiceNotePath;
+
+  @HiveField(9)
   final List<Subtask> subtasks;
 
   Reminder({

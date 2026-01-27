@@ -125,14 +125,8 @@ class ActionService {
           scheduledDate = scheduledDate.add(const Duration(days: 1));
       }
     } else {
-        // Default to 9 AM
-         scheduledDate = DateTime(
-        scheduledDate.year,
-        scheduledDate.month,
-        scheduledDate.day,
-        9,
-        0,
-      );
+         // INTERACTIVE: If no time specified, ask for it!
+         return l10n.askReminderTime; 
     }
 
     final reminder = Reminder(

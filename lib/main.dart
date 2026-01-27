@@ -8,6 +8,7 @@ import 'screens/splash_screen.dart';
 import 'providers/settings_provider.dart';
 import 'l10n/app_localizations.dart';
 import 'services/notification_service.dart';
+import 'services/database_service.dart';
 import 'services/ai/ai_manager.dart';
 import 'providers/chat_provider.dart';
 import 'providers/alarm_provider.dart';
@@ -19,6 +20,9 @@ import 'screens/alarm_ring_screen.dart' as import_screens;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Database Service (Hive)
+  await DatabaseService.instance.init();
   
   // Initialize alarm package for reliable background alarms
   await Alarm.init();

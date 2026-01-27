@@ -23,7 +23,9 @@
 
 ### 🧠 Intelligent Chatbot (Multi-Model AI)
 - **Hybrid AI Architecture**: Leverages multiple state-of-the-art models for specialized tasks:
-  - **Reasoning & Chat**: Powered by **GPT-OSS 120B** (Primary) and **Llama 3.3 70B** (Fallback).
+- **Reasoning & Chat**: Powered by **GPT-OSS 120B** (Primary) and **Llama 3.3 70B** (Fallback).
+  - **Interactive Slot Filling**: The assistant intelligently asks for missing details (e.g., "What time for the alarm?") instead of guessing.
+  - **Offline Smart Chat**: Even without internet, the Local NLP engine tracks conversation context to support multi-turn commands naturally.
 - **AI CRUD Operations**: Beyond simple chat, the AI can directly create, update, delete, and list:
   - ⏰ **Alarms**: Smart time parsing, recurring settings, and **Native System Ringtones**.
   - 📝 **Notes**: Structured note creation with template support (Shopping, Meeting, To-Do).
@@ -43,7 +45,7 @@
 - **📊 Dashboard**: A beautiful, responsive dashboard providing a quick overview of your day.
 
 ### 🔒 Privacy & Security
-- **Local-First Data**: All notes, alarms, and reminders are stored locally using **SQLite**.
+- **Local-First Data**: All notes, alarms, and reminders are stored locally using **Hive** (NoSQL), providing blazing fast performace without cloud dependencies.
 - **Secure Exports**: Backup and restore your data via encrypted ZIP files.
 - **Secret Management**: API keys are managed via a local-only configuration file to ensure security.
 
@@ -148,7 +150,7 @@ PulseAssist doesn't just use one model; it intelligently routes requests to the 
 |----------|------------|
 | **Core** | [Flutter](https://flutter.dev), [Dart](https://dart.dev) |
 | **State Management** | [Provider](https://pub.dev/packages/provider) |
-| **Database** | [SQLite (sqflite)](https://pub.dev/packages/sqflite) |
+| **Database** | [Hive](https://pub.dev/packages/hive) (Migrated from SQLite for speed) |
 | **AI Models** | GPT-OSS 120B, Llama 4 Scout, Llama 3.3 70B, Whisper V3 |
 | **UI Components** | flutter_quill, flutter_staggered_grid_view, google_fonts |
 

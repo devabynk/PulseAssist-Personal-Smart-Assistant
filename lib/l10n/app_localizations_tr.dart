@@ -24,7 +24,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get alarmPageTitle => 'Alarmlar';
 
   @override
-  String get versionLabel => 'Kapalı Beta';
+  String get versionLabel => 'v1.3.1';
 
   @override
   String get notes => 'Notlar';
@@ -708,6 +708,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get soundDefault => 'Varsayılan';
 
   @override
+  String get selectSound => 'Melodi Seç';
+
+  @override
   String alarmUpdated(String oldTime, String newTime) {
     return 'Alarm güncellendi: $oldTime → $newTime';
   }
@@ -733,6 +736,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get askReminderTitle => 'Neyi hatırlatmamı istersin?';
+
+  @override
+  String get askReminderTime => 'Hatırlatıcıyı ne zaman kurmalıyım?';
 
   @override
   String get dataAnalysis => 'Veri Özetiniz';

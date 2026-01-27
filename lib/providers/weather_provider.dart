@@ -103,8 +103,8 @@ class WeatherProvider with ChangeNotifier {
         await _db.saveUserLocation({
           'city_name': _currentWeather!.cityName,
           'country': _currentWeather!.country,
-          'state': _selectedState ?? '',
-          'district': _selectedDistrict ?? '',
+          'state': _selectedState, // Allow null
+          'district': _selectedDistrict, // Allow null
           'latitude': _currentWeather!.lat,
           'longitude': _currentWeather!.lon,
           'last_updated': DateTime.now().toIso8601String(),

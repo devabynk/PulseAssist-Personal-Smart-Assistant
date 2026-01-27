@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/weather.dart';
 import '../config/api_config.dart';
@@ -12,7 +13,6 @@ class WeatherService {
   /// Examples: "Kadıköy, İstanbul", "New York, NY", "London, UK"
   Future<Map<String, dynamic>?> getCoordinates(String query, {String? language}) async {
     try {
-      final lang = language ?? 'en';
       final encodedQuery = Uri.encodeComponent(query);
       
       return await _keyManager.executeWithRetry((apiKey) async {
@@ -35,12 +35,12 @@ class WeatherService {
         } else if (response.statusCode == 401 || response.statusCode == 429) {
            throw Exception('${response.statusCode} Error'); // Trigger retry
         } else {
-           print('Geocoding API Error: ${response.statusCode}');
+           debugPrint('Geocoding API Error: ${response.statusCode}');
            return null;
         }
       });
     } catch (e) {
-      print('Geocoding Error: $e');
+      debugPrint('Geocoding Error: $e');
       return null;
     }
   }
@@ -60,7 +60,7 @@ class WeatherService {
         country: coords['country'],
       );
     } catch (e) {
-      print('Get Current Weather Error: $e');
+      debugPrint('Get Current Weather Error: $e');
       return null;
     }
   }
@@ -93,13 +93,13 @@ class WeatherService {
              // Special case: valid key but no subscription. 
              // This is NOT an auth failure to rotate, just feature unavailable.
              // Fall through to 2.5
-             print('OneCall 3.0 requires subscription. Falling back to Standard 2.5...');
+             debugPrint('OneCall 3.0 requires subscription. Falling back to Standard 2.5...');
           } else if (response.statusCode == 401 || response.statusCode == 429) {
              throw Exception('${response.statusCode}'); // Key failure
           }
         } catch (e) {
            if (e.toString().contains('401') || e.toString().contains('429')) rethrow;
-           print('OneCall 3.0 Error: $e');
+           debugPrint('OneCall 3.0 Error: $e');
         }
 
         // 2. Fallback: Standard 2.5/weather API (Free, no card required)
@@ -119,7 +119,7 @@ class WeatherService {
         } else if (response.statusCode == 401 || response.statusCode == 429) {
              throw Exception('${response.statusCode}');
         } else {
-            print('Weather API Error: ${response.statusCode}');
+            debugPrint('Weather API Error: ${response.statusCode}');
             return null;
         }
     });
@@ -138,7 +138,7 @@ class WeatherService {
         language: language,
       );
     } catch (e) {
-      print('Get Forecast Error: $e');
+      debugPrint('Get Forecast Error: $e');
       return null;
     }
   }
@@ -175,13 +175,13 @@ class WeatherService {
               };
             }).toList();
           } else if (response.statusCode == 401 && response.body.contains("subscription")) {
-             print('OneCall 3.0 requires subscription. Falling back to Standard 2.5...');
+             debugPrint('OneCall 3.0 requires subscription. Falling back to Standard 2.5...');
           } else if (response.statusCode == 401 || response.statusCode == 429) {
              throw Exception('${response.statusCode}'); // Key failure
           }
         } catch (e) {
            if (e.toString().contains('401') || e.toString().contains('429')) rethrow;
-           print('OneCall 3.0 Forecast Error: $e');
+           debugPrint('OneCall 3.0 Forecast Error: $e');
         }
 
         // 2. Fallback: Standard 2.5/forecast API (5 days / 3 hour)
@@ -244,12 +244,12 @@ class WeatherService {
           } else if (response.statusCode == 401 || response.statusCode == 429) {
              throw Exception('${response.statusCode}');
           } else {
-            print('Forecast API Error: ${response.statusCode}');
+            debugPrint('Forecast API Error: ${response.statusCode}');
             return null;
           }
         } catch (e) {
           if (e.toString().contains('401') || e.toString().contains('429')) rethrow;
-          print('Forecast Service Error: $e');
+          debugPrint('Forecast Service Error: $e');
           return null;
         }
     });
@@ -288,13 +288,13 @@ class WeatherService {
               };
             }).toList();
           } else if (response.statusCode == 401 && response.body.contains("subscription")) {
-             print('OneCall 3.0 requires subscription. Falling back to Standard 2.5...');
+             debugPrint('OneCall 3.0 requires subscription. Falling back to Standard 2.5...');
           } else if (response.statusCode == 401 || response.statusCode == 429) {
              throw Exception('${response.statusCode}');
           }
         } catch (e) {
            if (e.toString().contains('401') || e.toString().contains('429')) rethrow;
-           print('OneCall 3.0 Hourly Error: $e');
+           debugPrint('OneCall 3.0 Hourly Error: $e');
         }
 
         // 2. Fallback: Standard 2.5/forecast API (3-hourly)
@@ -327,7 +327,7 @@ class WeatherService {
           }
         } catch (e) {
           if (e.toString().contains('401') || e.toString().contains('429')) rethrow;
-          print('Hourly Forecast Error: $e');
+          debugPrint('Hourly Forecast Error: $e');
           return null;
         }
     });
@@ -372,7 +372,7 @@ class WeatherService {
       return null;
     } catch (e) {
       if (e.toString().contains('401') || e.toString().contains('429')) rethrow;
-      print('Reverse Geocoding Error: $e');
+      debugPrint('Reverse Geocoding Error: $e');
       return null;
     }
   }
@@ -483,12 +483,12 @@ class WeatherService {
           } else if (response.statusCode == 401 || response.statusCode == 429) {
              throw Exception('${response.statusCode}');
           } else {
-            print('Search API Error: ${response.statusCode}');
+            debugPrint('Search API Error: ${response.statusCode}');
             return [];
           }
       });
     } catch (e) {
-      print('Search Service Error: $e');
+      debugPrint('Search Service Error: $e');
       return [];
     }
   }

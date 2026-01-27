@@ -1,11 +1,31 @@
+import 'package:hive/hive.dart';
+
+part 'alarm.g.dart';
+
+@HiveType(typeId: 2)
 class Alarm {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String title;
+
+  @HiveField(2)
   final DateTime time;
+
+  @HiveField(3)
   final bool isActive;
+
+  @HiveField(4)
   final List<int> repeatDays; // 0=Sunday, 1=Monday, ... 6=Saturday
+
+  @HiveField(5)
   final List<DateTime> skippedDates; // Dates where the alarm instance was skipped
+
+  @HiveField(6)
   final String? soundPath; // Path to the alarm sound (asset or file)
+
+  @HiveField(7)
   final String? soundName; // Display name of the sound
 
   Alarm({

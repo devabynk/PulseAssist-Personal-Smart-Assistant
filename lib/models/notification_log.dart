@@ -1,11 +1,28 @@
+import 'package:hive/hive.dart';
 
+part 'notification_log.g.dart';
+
+@HiveType(typeId: 6)
 class NotificationLog {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String title;
+
+  @HiveField(2)
   final String body;
+
+  @HiveField(3)
   final DateTime timestamp;
+
+  @HiveField(4)
   final bool isRead;
+
+  @HiveField(5)
   final String? type; // 'alarm', 'reminder', 'system'
+
+  @HiveField(6)
   final String? payload;
 
   NotificationLog({

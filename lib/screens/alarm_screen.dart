@@ -851,6 +851,8 @@ class _RingtonePickerSheetState extends State<_RingtonePickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
       decoration: BoxDecoration(
@@ -871,7 +873,7 @@ class _RingtonePickerSheetState extends State<_RingtonePickerSheet> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              'Select Sound', 
+              l10n.selectSound, 
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
@@ -885,10 +887,10 @@ class _RingtonePickerSheetState extends State<_RingtonePickerSheet> {
                     if (index == 0) {
                        return ListTile(
                         leading: const Icon(Icons.music_note),
-                        title: const Text('Default'),
+                        title: Text(l10n.soundDefault),
                         onTap: () {
                            SystemRingtoneService.stopRingtone();
-                           Navigator.pop(context, {'path': 'assets/alarm.mp3', 'name': 'Default'});
+                           Navigator.pop(context, {'path': 'assets/alarm.mp3', 'name': l10n.soundDefault});
                         },
                       );
                     }

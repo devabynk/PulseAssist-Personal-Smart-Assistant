@@ -1,10 +1,28 @@
+import 'package:hive/hive.dart';
+
+part 'message.g.dart';
+
+@HiveType(typeId: 1)
 class Message {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String content;
+
+  @HiveField(2)
   final bool isUser;
+
+  @HiveField(3)
   final DateTime timestamp;
+
+  @HiveField(4)
   final String? conversationId;
+
+  @HiveField(5)
   final String? attachmentPath;
+
+  @HiveField(6)
   final String? attachmentType; // 'image', 'audio', 'file'
 
   Message({

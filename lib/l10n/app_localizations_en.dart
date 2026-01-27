@@ -24,7 +24,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alarmPageTitle => 'Alarms';
 
   @override
-  String get versionLabel => 'Closed Beta';
+  String get versionLabel => 'v1.3.1';
 
   @override
   String get notes => 'Notes';
@@ -708,6 +708,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get soundDefault => 'Default';
 
   @override
+  String get selectSound => 'Select Sound';
+
+  @override
   String alarmUpdated(String oldTime, String newTime) {
     return 'Alarm updated: $oldTime → $newTime';
   }
@@ -733,6 +736,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get askReminderTitle => 'What should I remind you about?';
+
+  @override
+  String get askReminderTime => 'When should I remind you?';
 
   @override
   String get dataAnalysis => 'Your Data Summary';

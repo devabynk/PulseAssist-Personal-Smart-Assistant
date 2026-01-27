@@ -91,16 +91,23 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Row(
         children: [
           // Side navigation for tablet
-          NavigationRail(
-            extended: showLabels,
-            selectedIndex: _currentIndex,
-            onDestinationSelected: (index) => setState(() => _currentIndex = index),
-            backgroundColor: Theme.of(context).cardColor,
-            elevation: 8,
-            minExtendedWidth: 200,
-            leading: Column(
+          // Side navigation for tablet (Custom built to match mobile style)
+          Container(
+            width: showLabels ? 220 : 80,
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(20),
+                  blurRadius: 10,
+                  offset: const Offset(2, 0),
+                ),
+              ],
+            ),
+            child: Column(
               children: [
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
+                // App Logo / Header
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -127,57 +134,33 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 24),
+                const SizedBox(height: 48),
+                
+                // Navigation Items
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      _buildSideNavItem(0, Icons.home_outlined, Icons.home, l10n.home, showLabels),
+                      const SizedBox(height: 8),
+                      _buildSideNavItem(1, Icons.smart_toy_outlined, Icons.smart_toy, l10n.chatbot, showLabels),
+                      const SizedBox(height: 8),
+                      _buildSideNavItem(2, Icons.alarm_outlined, Icons.alarm, l10n.alarm, showLabels),
+                      const SizedBox(height: 8),
+                      _buildSideNavItem(3, Icons.note_alt_outlined, Icons.note_alt, l10n.notes, showLabels),
+                      const SizedBox(height: 8),
+                      _buildSideNavItem(4, Icons.notifications_outlined, Icons.notifications, l10n.reminders, showLabels),
+                    ],
+                  ),
+                ),
+
+                // Settings at bottom
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                  child: _buildSideNavItem(-1, Icons.settings_outlined, Icons.settings, l10n.settingsTitle, showLabels, isSettings: true),
+                ),
               ],
             ),
-            trailing: Expanded(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: showLabels 
-                    ? TextButton.icon(
-                        onPressed: _openSettings,
-                        icon: const Icon(Icons.settings),
-                        label: Text(l10n.settingsTitle),
-                        style: TextButton.styleFrom(
-                          foregroundColor: Theme.of(context).iconTheme.color?.withAlpha(180),
-                        ),
-                      )
-                    : IconButton(
-                        icon: const Icon(Icons.settings),
-                        onPressed: _openSettings,
-                      ),
-                ),
-              ),
-            ),
-            destinations: [
-              NavigationRailDestination(
-                icon: const Icon(Icons.home_outlined),
-                selectedIcon: const Icon(Icons.home),
-                label: Text(l10n.home),
-              ),
-              NavigationRailDestination(
-                icon: const Icon(Icons.smart_toy_outlined),
-                selectedIcon: const Icon(Icons.smart_toy),
-                label: Text(l10n.chatbot),
-              ),
-              NavigationRailDestination(
-                icon: const Icon(Icons.alarm_outlined),
-                selectedIcon: const Icon(Icons.alarm),
-                label: Text(l10n.alarm),
-              ),
-              NavigationRailDestination(
-                icon: const Icon(Icons.note_alt_outlined),
-                selectedIcon: const Icon(Icons.note_alt),
-                label: Text(l10n.notes),
-              ),
-              NavigationRailDestination(
-                icon: const Icon(Icons.notifications_outlined),
-                selectedIcon: const Icon(Icons.notifications),
-                label: Text(l10n.reminders),
-              ),
-            ],
           ),
           const VerticalDivider(width: 1),
           // Main content
@@ -273,6 +256,54 @@ class _HomeScreenState extends State<HomeScreen> {
           Icons.settings_outlined,
           color: Theme.of(context).iconTheme.color?.withAlpha(138),
           size: 24,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSideNavItem(int index, IconData icon, IconData activeIcon, String label, bool showLabels, {bool isSettings = false}) {
+    final isSelected = _currentIndex == index;
+    final primaryColor = Theme.of(context).primaryColor;
+    
+    return InkWell(
+      onTap: () {
+        if (isSettings) {
+          _openSettings();
+        } else {
+          setState(() => _currentIndex = index);
+        }
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? primaryColor.withAlpha(38) : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisAlignment: showLabels ? MainAxisAlignment.start : MainAxisAlignment.center,
+          children: [
+            Icon(
+              isSelected ? activeIcon : icon,
+              color: isSelected ? primaryColor : Theme.of(context).iconTheme.color?.withAlpha(150),
+              size: 24,
+            ),
+            if (showLabels) ...[
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: isSelected ? primaryColor : Theme.of(context).textTheme.bodyMedium?.color,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    fontSize: 14,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

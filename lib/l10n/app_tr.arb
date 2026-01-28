@@ -155,6 +155,8 @@
   "recordVoice": "Ses Kaydet",
   "deleteNote": "Notu Sil",
   "deleteNoteConfirm": "Bu notu silmek istediğinize emin misiniz?",
+  "deleteAlarm": "Alarmı Sil",
+  "deleteAlarmConfirm": "Bu alarmı silmek istediğinize emin misiniz?",
   "noteContent": "Yazmaya başlayın...",
   "repeat": "Tekrar",
   "oneTime": "Bir kez",

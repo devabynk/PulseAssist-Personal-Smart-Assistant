@@ -169,6 +169,8 @@
   "recordVoice": "Record Voice",
   "deleteNote": "Delete Note",
   "deleteNoteConfirm": "Are you sure you want to delete this note?",
+  "deleteAlarm": "Delete Alarm",
+  "deleteAlarmConfirm": "Are you sure you want to delete this alarm?",
   "noteContent": "Start typing...",
   "repeat": "Repeat",
   "oneTime": "Once",

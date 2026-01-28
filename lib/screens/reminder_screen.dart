@@ -20,6 +20,7 @@ import '../widgets/voice_player.dart';
 import '../widgets/quill_note_viewer.dart';
 import '../widgets/common/sheet_handle.dart';
 import '../widgets/common/sheet_header.dart'; // Import shared widget
+import '../widgets/common/confirmation_dialog.dart';
 
 enum ReminderFilter { all, today, upcoming, past }
 
@@ -1159,23 +1160,12 @@ class _ReminderSheetState extends State<_ReminderSheet> {
   }
 
   Future<void> _delete() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await ConfirmationDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(widget.l10n.deleteReminder),
-        content: Text(widget.l10n.deleteConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(widget.l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(widget.l10n.delete),
-          ),
-        ],
-      ),
+      title: widget.l10n.deleteReminder,
+      message: widget.l10n.deleteConfirmation,
+      confirmText: widget.l10n.delete,
+      cancelText: widget.l10n.cancel,
     );
 
     if (confirmed == true && widget.reminder != null) {

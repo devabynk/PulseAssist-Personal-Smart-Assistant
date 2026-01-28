@@ -389,6 +389,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteNoteConfirm => 'Are you sure you want to delete this note?';
 
   @override
+  String get deleteAlarm => 'Delete Alarm';
+
+  @override
+  String get deleteAlarmConfirm => 'Are you sure you want to delete this alarm?';
+
+  @override
   String get noteContent => 'Start typing...';
 
   @override

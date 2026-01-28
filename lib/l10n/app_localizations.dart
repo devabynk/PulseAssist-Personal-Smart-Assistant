@@ -839,6 +839,18 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to delete this note?'**
   String get deleteNoteConfirm;
 
+  /// No description provided for @deleteAlarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Alarm'**
+  String get deleteAlarm;
+
+  /// No description provided for @deleteAlarmConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this alarm?'**
+  String get deleteAlarmConfirm;
+
   /// No description provided for @noteContent.
   ///
   /// In en, this message translates to:

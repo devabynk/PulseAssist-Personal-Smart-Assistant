@@ -12,6 +12,7 @@ import '../utils/extensions.dart';
 import '../utils/responsive.dart';
 
 import '../widgets/common/custom_text_field.dart';
+import '../widgets/common/confirmation_dialog.dart';
 import '../services/system_ringtone_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 
@@ -342,46 +343,17 @@ class _AlarmScreenState extends State<AlarmScreen> {
         ),
         child: const Icon(Icons.delete, color: Colors.white),
       ),
-      onDismissed: (direction) {
-           // We don't delete immediately on dismissed because we might want to ASK first.
-           // However, Dismissible expects the item to be gone.
-           // If we might "cancel" the delete (by choosing skip), we should use confirmDismiss instead.
-      },
       confirmDismiss: (direction) async {
-          final isTurkish = Localizations.localeOf(context).languageCode == 'tr';
-          if (alarm.repeatDays.isEmpty) return true; // Proceed for non-repeating
-          
-          final result = await showDialog<String>(
+          // Show confirmation dialog for all alarms
+          final confirmed = await ConfirmationDialog.show(
             context: context,
-            builder: (ctx) => AlertDialog(
-                title: Text(context.l10n.delete),
-                content: Text(isTurkish 
-                    ? 'Bu tekrarlayan bir alarm. Ne yapmak istersiniz?' 
-                    : 'This is a repeating alarm. What do you want to do?'),
-                actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(ctx, 'skip'),
-                        child: Text(isTurkish ? 'Bir Kez Atla' : 'Skip Once'),
-                    ),
-                    TextButton(
-                        onPressed: () => Navigator.pop(ctx, 'delete'),
-                        child: Text(isTurkish ? 'Kalıcı Olarak Sil' : 'Delete Permanently', style: TextStyle(color: Colors.red)),
-                    ),
-                    TextButton(
-                        onPressed: () => Navigator.pop(ctx, 'cancel'),
-                        child: Text(context.l10n.cancel),
-                    ),
-                ],
-            )
-        );
+            title: context.l10n.deleteAlarm,
+            message: context.l10n.deleteAlarmConfirm,
+            confirmText: context.l10n.delete,
+            cancelText: context.l10n.cancel,
+          );
         
-        if (result == 'skip') {
-            await Provider.of<AlarmProvider>(context, listen: false).skipNextAlarm(alarm);
-             ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(isTurkish ? 'Alarm bir sonraki gün için atlandı' : 'Alarm skipped for next occurrence'))
-            );
-            return false; // Don't dismiss
-        } else if (result == 'delete') {
+        if (confirmed == true) {
             await Provider.of<AlarmProvider>(context, listen: false).deleteAlarm(alarm);
             return true; // Dismiss
         }

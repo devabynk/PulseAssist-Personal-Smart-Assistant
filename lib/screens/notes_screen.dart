@@ -15,6 +15,7 @@ import '../utils/responsive.dart';
 import '../widgets/quill_note_sheet.dart';
 import '../widgets/quill_note_viewer.dart';
 import '../widgets/drawing_preview.dart';
+import '../widgets/common/confirmation_dialog.dart';
 
 class NotesScreen extends StatefulWidget {
   const NotesScreen({super.key});
@@ -404,23 +405,12 @@ class _NotesScreenState extends State<NotesScreen> {
 
   Future<bool> _confirmDelete(Note note) async {
     final l10n = context.l10n;
-    final confirmed = await showDialog<bool>(
+    final confirmed = await ConfirmationDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.deleteNote),
-        content: Text(l10n.deleteNoteConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
+      title: l10n.deleteNote,
+      message: l10n.deleteNoteConfirm,
+      confirmText: l10n.delete,
+      cancelText: l10n.cancel,
     );
     
     if (confirmed == true) {

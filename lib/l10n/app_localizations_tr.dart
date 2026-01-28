@@ -389,6 +389,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get deleteNoteConfirm => 'Bu notu silmek istediğinize emin misiniz?';
 
   @override
+  String get deleteAlarm => 'Alarmı Sil';
+
+  @override
+  String get deleteAlarmConfirm => 'Bu alarmı silmek istediğinize emin misiniz?';
+
+  @override
   String get noteContent => 'Yazmaya başlayın...';
 
   @override

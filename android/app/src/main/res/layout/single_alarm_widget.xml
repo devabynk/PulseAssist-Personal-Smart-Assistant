@@ -3,7 +3,7 @@
     android:id="@+id/widget_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2196F3"
+    android:background="@color/widget_surface"
     android:orientation="vertical"
     android:padding="16dp"
     android:gravity="center">
@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Next Alarm"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/widget_text_tertiary"
         android:textSize="12sp"
         android:alpha="0.8"
         android:gravity="center"
@@ -24,7 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="07:00"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/widget_accent"
         android:textSize="48sp"
         android:textStyle="bold"
         android:gravity="center"
@@ -35,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Morning Alarm"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/widget_text_primary"
         android:textSize="16sp"
         android:gravity="center"
         android:paddingBottom="8dp" />
@@ -45,7 +45,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="in 8h"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/widget_text_secondary"
         android:textSize="14sp"
         android:alpha="0.8"
         android:gravity="center" />
@@ -55,11 +55,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Active"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/widget_surface"
         android:textSize="12sp"
         android:alpha="0.7"
         android:paddingTop="8dp"
         android:paddingHorizontal="12dp"
         android:paddingVertical="4dp"
-        android:background="#4CAF50" />
+        android:background="@color/widget_success" />
 </LinearLayout>

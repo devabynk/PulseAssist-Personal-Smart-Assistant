@@ -4,6 +4,8 @@
     android:minHeight="110dp"
     android:updatePeriodMillis="3600000"
     android:initialLayout="@layout/alarms_list_widget"
+    android:previewLayout="@layout/alarms_list_widget_preview"
     android:resizeMode="horizontal|vertical"
-    android:widgetCategory="home_screen">
+    android:widgetCategory="home_screen"
+    android:label="@string/widget_alarms_list">
 </appwidget-provider>

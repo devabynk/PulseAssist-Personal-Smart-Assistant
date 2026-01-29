@@ -1,4 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="splash_background">#0F172A</color>
+    <!-- Dark Mode Widget Colors -->
+    <!-- Background Colors -->
+    <color name="widget_background">#0F172A</color> <!-- Slate 900 - darkBackground -->
+    <color name="widget_surface">#1E293B</color> <!-- Slate 800 - darkSurface -->
+    
+    <!-- Text Colors -->
+    <color name="widget_text_primary">#F1F5F9</color> <!-- Slate 100 - textPrimaryDark -->
+    <color name="widget_text_secondary">#94A3B8</color> <!-- Slate 400 - textSecondaryDark -->
+    <color name="widget_text_tertiary">#64748B</color> <!-- Slate 500 - darker secondary -->
+    
+    <!-- Accent Colors -->
+    <color name="widget_accent">#6366F1</color> <!-- Indigo - primary -->
+    <color name="widget_accent_secondary">#EC4899</color> <!-- Pink - secondary -->
+    
+    <!-- Priority Colors -->
+    <color name="widget_priority_high">#EF4444</color> <!-- Red - priorityHigh -->
+    <color name="widget_priority_medium">#F59E0B</color> <!-- Amber - priorityMedium -->
+    <color name="widget_priority_low">#22C55E</color> <!-- Green - priorityLow -->
+    
+    <!-- Status Colors -->
+    <color name="widget_success">#22C55E</color> <!-- Green - success -->
+    <color name="widget_error">#EF4444</color> <!-- Red - error -->
+    <color name="widget_warning">#F59E0B</color> <!-- Amber - warning -->
 </resources>

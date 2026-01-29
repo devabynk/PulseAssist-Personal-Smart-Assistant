@@ -3,7 +3,7 @@
     android:id="@+id/widget_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFB74D"
+    android:background="@color/widget_surface"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Latest Note"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/widget_text_tertiary"
         android:textSize="12sp"
         android:alpha="0.8"
         android:paddingBottom="4dp" />
@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Note Title"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/widget_text_primary"
         android:textSize="18sp"
         android:textStyle="bold"
         android:paddingBottom="8dp" />
@@ -33,7 +33,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:text="Note content..."
-        android:textColor="#FFFFFF"
+        android:textColor="@color/widget_text_secondary"
         android:textSize="14sp"
         android:alpha="0.9"
         android:maxLines="5"

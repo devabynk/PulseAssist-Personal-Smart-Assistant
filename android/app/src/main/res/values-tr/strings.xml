@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PulseAssist</string>
+    
+    <!-- Widget Etiketleri -->
+    <string name="widget_notes_list">Notlarım</string>
+    <string name="widget_single_note">Son Not</string>
+    <string name="widget_note">Note</string>
+    <string name="widget_alarms_list">Alarmlar</string>
+    <string name="widget_single_alarm">Sonraki Alarm</string>
+    <string name="widget_reminders_list">Hatırlatıcılar</string>
+    <string name="widget_single_reminder">Sonraki Hatırlatıcı</string>
+    <string name="widget_weather">Hava Durumu</string>
+</resources>

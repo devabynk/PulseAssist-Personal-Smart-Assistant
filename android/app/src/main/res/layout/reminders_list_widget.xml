@@ -3,7 +3,7 @@
     android:id="@+id/widget_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@color/widget_background"
     android:orientation="vertical"
     android:padding="12dp">
 
@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Reminders"
-        android:textColor="#000000"
+        android:textColor="@color/widget_text_primary"
         android:textSize="18sp"
         android:textStyle="bold"
         android:paddingBottom="8dp" />
@@ -54,7 +54,7 @@
                         android:id="@+id/reminder_item_1_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="#000000"
+                        android:textColor="@color/widget_text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -62,7 +62,7 @@
                         android:id="@+id/reminder_item_1_datetime"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="#666666"
+                        android:textColor="@color/widget_text_secondary"
                         android:textSize="12sp"
                         android:paddingTop="2dp" />
                 </LinearLayout>
@@ -166,7 +166,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="No reminders"
-            android:textColor="#999999"
+            android:textColor="@color/widget_text_tertiary"
             android:textSize="14sp"
             android:gravity="center"
             android:paddingTop="16dp"

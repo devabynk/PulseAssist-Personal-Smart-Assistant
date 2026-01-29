@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Alarms"
-        android:textColor="#000000"
+        android:textColor="@color/widget_text_primary"
         android:textSize="18sp"
         android:textStyle="bold"
         android:paddingBottom="8dp" />
@@ -36,7 +36,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="#000000"
+                android:textColor="@color/widget_accent"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -45,7 +45,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="2"
                 android:layout_height="wrap_content"
-                android:textColor="#666666"
+                android:textColor="@color/widget_text_secondary"
                 android:textSize="14sp"
                 android:paddingStart="8dp" />
 
@@ -53,7 +53,7 @@
                 android:id="@+id/alarm_item_1_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#4CAF50"
+                android:textColor="@color/widget_success"
                 android:textSize="12sp"
                 android:paddingStart="8dp" />
         </LinearLayout>
@@ -135,7 +135,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="No alarms set"
-            android:textColor="#999999"
+            android:textColor="@color/widget_text_tertiary"
             android:textSize="14sp"
             android:gravity="center"
             android:paddingTop="16dp"

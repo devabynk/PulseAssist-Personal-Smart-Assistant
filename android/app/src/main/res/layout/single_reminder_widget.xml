@@ -3,7 +3,7 @@
     android:id="@+id/widget_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#9C27B0"
+    android:background="@color/widget_surface"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Next Reminder"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/widget_text_tertiary"
         android:textSize="12sp"
         android:alpha="0.8"
         android:paddingBottom="4dp" />
@@ -41,7 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Reminder Title"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/widget_text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:paddingBottom="4dp" />
@@ -51,7 +51,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Description..."
-                android:textColor="#FFFFFF"
+                android:textColor="@color/widget_text_secondary"
                 android:textSize="14sp"
                 android:alpha="0.9"
                 android:maxLines="3"

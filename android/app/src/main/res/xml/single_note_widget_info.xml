@@ -4,6 +4,8 @@
     android:minHeight="110dp"
     android:updatePeriodMillis="3600000"
     android:initialLayout="@layout/single_note_widget"
+    android:previewLayout="@layout/single_note_widget_preview"
     android:resizeMode="horizontal|vertical"
-    android:widgetCategory="home_screen">
+    android:widgetCategory="home_screen"
+    android:label="@string/widget_single_note">
 </appwidget-provider>

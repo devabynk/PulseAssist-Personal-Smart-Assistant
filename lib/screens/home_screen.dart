@@ -121,7 +121,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.favorite, color: Colors.white, size: 28),
+                  child: Image.asset(
+                    'assets/app_icon.png',
+                    width: 28,
+                    height: 28,
+                    fit: BoxFit.contain,
+                  ),
                 ),
                 if (showLabels) ...[
                   const SizedBox(height: 16),

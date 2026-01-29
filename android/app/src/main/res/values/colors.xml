@@ -1,4 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="splash_background">#F8FAFC</color>
+    
+    <!-- Light Mode Widget Colors -->
+    <!-- Background Colors -->
+    <color name="widget_background">#F8FAFC</color> <!-- Slate 50 - lightBackground -->
+    <color name="widget_surface">#FFFFFF</color> <!-- White - lightSurface -->
+    
+    <!-- Text Colors -->
+    <color name="widget_text_primary">#0F172A</color> <!-- Slate 900 - textPrimary -->
+    <color name="widget_text_secondary">#64748B</color> <!-- Slate 500 - textSecondary -->
+    <color name="widget_text_tertiary">#94A3B8</color> <!-- Slate 400 - lighter secondary -->
+    
+    <!-- Accent Colors -->
+    <color name="widget_accent">#6366F1</color> <!-- Indigo - primary -->
+    <color name="widget_accent_secondary">#EC4899</color> <!-- Pink - secondary -->
+    
+    <!-- Priority Colors -->
+    <color name="widget_priority_high">#EF4444</color> <!-- Red - priorityHigh -->
+    <color name="widget_priority_medium">#F59E0B</color> <!-- Amber - priorityMedium -->
+    <color name="widget_priority_low">#22C55E</color> <!-- Green - priorityLow -->
+    
+    <!-- Status Colors -->
+    <color name="widget_success">#22C55E</color> <!-- Green - success -->
+    <color name="widget_error">#EF4444</color> <!-- Red - error -->
+    <color name="widget_warning">#F59E0B</color> <!-- Amber - warning -->
 </resources>

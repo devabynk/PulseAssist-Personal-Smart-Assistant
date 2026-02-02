@@ -1,4 +1,4 @@
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 part 'user_location.g.dart';
 
@@ -25,6 +25,9 @@ class UserLocation {
   @HiveField(6)
   final DateTime lastUpdated;
 
+  @HiveField(7)
+  final String countryCode; // 'TR' or 'US'
+
   UserLocation({
     required this.cityName,
     required this.country,
@@ -33,5 +36,6 @@ class UserLocation {
     required this.latitude,
     required this.longitude,
     required this.lastUpdated,
+    this.countryCode = 'TR', // Default to Turkey for backward compatibility
   });
 }

@@ -8,7 +8,7 @@ part of 'notification_log.dart';
 
 class NotificationLogAdapter extends TypeAdapter<NotificationLog> {
   @override
-  final int typeId = 6;
+  final typeId = 6;
 
   @override
   NotificationLog read(BinaryReader reader) {

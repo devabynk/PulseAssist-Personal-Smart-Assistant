@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// A standardized confirmation dialog widget that provides consistent
 /// styling across the app for destructive actions like deletion.
-/// 
+///
 /// Automatically adapts to dark/light themes using the app's theme colors.
 class ConfirmationDialog extends StatelessWidget {
   final String title;
@@ -45,18 +45,12 @@ class ConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return AlertDialog(
       backgroundColor: theme.dialogTheme.backgroundColor,
       shape: theme.dialogTheme.shape,
-      title: Text(
-        title,
-        style: theme.dialogTheme.titleTextStyle,
-      ),
-      content: Text(
-        message,
-        style: theme.dialogTheme.contentTextStyle,
-      ),
+      title: Text(title, style: theme.dialogTheme.titleTextStyle),
+      content: Text(message, style: theme.dialogTheme.contentTextStyle),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
@@ -65,9 +59,7 @@ class ConfirmationDialog extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.pop(context, true),
           style: isDestructive
-              ? TextButton.styleFrom(
-                  foregroundColor: theme.colorScheme.error,
-                )
+              ? TextButton.styleFrom(foregroundColor: theme.colorScheme.error)
               : null,
           child: Text(confirmText),
         ),

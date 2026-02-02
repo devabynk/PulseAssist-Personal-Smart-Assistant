@@ -35,9 +35,9 @@ class SheetHeader extends StatelessWidget {
             child: Text(
               title,
               textAlign: TextAlign.left,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
           // Right-aligned action buttons
@@ -46,7 +46,9 @@ class SheetHeader extends StatelessWidget {
               icon: Icon(isPinned ? Icons.push_pin : Icons.push_pin_outlined),
               onPressed: onPin,
               color: isPinned ? Colors.amber : null,
-              tooltip: isPinned ? (unpinTooltip ?? 'Unpin') : (pinTooltip ?? 'Pin'),
+              tooltip: isPinned
+                  ? (unpinTooltip ?? 'Unpin')
+                  : (pinTooltip ?? 'Pin'),
             ),
           if (onDelete != null)
             IconButton(

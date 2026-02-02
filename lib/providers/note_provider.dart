@@ -5,7 +5,7 @@ import '../services/widget_service.dart';
 
 class NoteProvider with ChangeNotifier {
   final DatabaseService _db = DatabaseService.instance;
-  
+
   List<Note> _notes = [];
   bool _isLoading = true;
 
@@ -47,10 +47,10 @@ class NoteProvider with ChangeNotifier {
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
-    final Note item = _notes.removeAt(oldIndex);
+    final item = _notes.removeAt(oldIndex);
     _notes.insert(newIndex, item);
     notifyListeners(); // Optimistic update
-    
+
     await _db.updateNoteOrder(_notes);
     // Update all note widgets
     await WidgetService.updateWidget(_notes);

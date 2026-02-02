@@ -8,7 +8,7 @@ part of 'alarm.dart';
 
 class AlarmAdapter extends TypeAdapter<Alarm> {
   @override
-  final int typeId = 2;
+  final typeId = 2;
 
   @override
   Alarm read(BinaryReader reader) {
@@ -20,9 +20,13 @@ class AlarmAdapter extends TypeAdapter<Alarm> {
       id: fields[0] as String,
       title: fields[1] as String,
       time: fields[2] as DateTime,
-      isActive: fields[3] as bool,
-      repeatDays: (fields[4] as List).cast<int>(),
-      skippedDates: (fields[5] as List).cast<DateTime>(),
+      isActive: fields[3] == null ? true : fields[3] as bool,
+      repeatDays: fields[4] == null
+          ? const []
+          : (fields[4] as List).cast<int>(),
+      skippedDates: fields[5] == null
+          ? const []
+          : (fields[5] as List).cast<DateTime>(),
       soundPath: fields[6] as String?,
       soundName: fields[7] as String?,
     );

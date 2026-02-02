@@ -33,7 +33,7 @@ class _VoicePlayerState extends State<VoicePlayer> {
 
   Future<void> _initPlayer() async {
     _audioPlayer = AudioPlayer();
-    
+
     // Set up listeners
     _audioPlayer.onPlayerStateChanged.listen((state) {
       if (mounted) {
@@ -59,7 +59,7 @@ class _VoicePlayerState extends State<VoicePlayer> {
         });
       }
     });
-    
+
     _audioPlayer.onPlayerComplete.listen((_) {
       if (mounted) {
         setState(() {
@@ -76,15 +76,15 @@ class _VoicePlayerState extends State<VoicePlayer> {
       await Future.delayed(const Duration(milliseconds: 200));
       final d = await _audioPlayer.getDuration();
       if (d != null && mounted) {
-           setState(() {
-             _duration = d;
-             _isLoading = false;
-           });
+        setState(() {
+          _duration = d;
+          _isLoading = false;
+        });
       }
     } catch (e) {
-      debugPrint("Error loading audio: $e");
+      debugPrint('Error loading audio: $e');
       if (mounted) {
-          setState(() => _isLoading = false);
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -96,17 +96,21 @@ class _VoicePlayerState extends State<VoicePlayer> {
   }
 
   String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "$twoDigitMinutes:$twoDigitSeconds";
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    final twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return '$twoDigitMinutes:$twoDigitSeconds';
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final baseColor = widget.isDark ? Colors.blueAccent[100]! : Colors.blueAccent;
-    final bgColor = widget.isDark ? Colors.blue.withAlpha(50) : Colors.blue.withAlpha(30);
+    final baseColor = widget.isDark
+        ? Colors.blueAccent[100]!
+        : Colors.blueAccent;
+    final bgColor = widget.isDark
+        ? Colors.blue.withAlpha(50)
+        : Colors.blue.withAlpha(30);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -118,23 +122,34 @@ class _VoicePlayerState extends State<VoicePlayer> {
       child: Row(
         children: [
           IconButton(
-            icon: _isLoading 
-                ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: baseColor))
-                : Icon(_isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded),
+            icon: _isLoading
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: baseColor,
+                    ),
+                  )
+                : Icon(
+                    _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                  ),
             color: baseColor,
-            onPressed: _isLoading ? null : () async {
-              if (_isPlaying) {
-                await _audioPlayer.pause();
-              } else {
-                // If paused, resume. If stopped/completed, play from start or current position.
-                if (_position > Duration.zero && _position < _duration) {
-                  await _audioPlayer.resume();
-                } else {
-                   // Re-set source and play to ensure it works after completion
-                   await _audioPlayer.play(DeviceFileSource(widget.path));
-                }
-              }
-            },
+            onPressed: _isLoading
+                ? null
+                : () async {
+                    if (_isPlaying) {
+                      await _audioPlayer.pause();
+                    } else {
+                      // If paused, resume. If stopped/completed, play from start or current position.
+                      if (_position > Duration.zero && _position < _duration) {
+                        await _audioPlayer.resume();
+                      } else {
+                        // Re-set source and play to ensure it works after completion
+                        await _audioPlayer.play(DeviceFileSource(widget.path));
+                      }
+                    }
+                  },
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -147,18 +162,33 @@ class _VoicePlayerState extends State<VoicePlayer> {
                     activeTrackColor: baseColor,
                     inactiveTrackColor: baseColor.withAlpha(70),
                     thumbColor: baseColor,
-                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 6,
+                    ),
+                    overlayShape: const RoundSliderOverlayShape(
+                      overlayRadius: 12,
+                    ),
                     trackHeight: 3,
                   ),
                   child: Slider(
                     min: 0,
-                    max: _duration.inMilliseconds.toDouble() > 0 ? _duration.inMilliseconds.toDouble() : 1.0,
-                    value: _position.inMilliseconds.toDouble().clamp(0, _duration.inMilliseconds.toDouble() > 0 ? _duration.inMilliseconds.toDouble() : 1.0),
-                    onChanged: _isLoading ? null : (value) async {
-                      final position = Duration(milliseconds: value.toInt());
-                      await _audioPlayer.seek(position);
-                    },
+                    max: _duration.inMilliseconds.toDouble() > 0
+                        ? _duration.inMilliseconds.toDouble()
+                        : 1.0,
+                    value: _position.inMilliseconds.toDouble().clamp(
+                      0,
+                      _duration.inMilliseconds.toDouble() > 0
+                          ? _duration.inMilliseconds.toDouble()
+                          : 1.0,
+                    ),
+                    onChanged: _isLoading
+                        ? null
+                        : (value) async {
+                            final position = Duration(
+                              milliseconds: value.toInt(),
+                            );
+                            await _audioPlayer.seek(position);
+                          },
                   ),
                 ),
                 Padding(
@@ -168,11 +198,17 @@ class _VoicePlayerState extends State<VoicePlayer> {
                     children: [
                       Text(
                         _formatDuration(_position),
-                        style: TextStyle(fontSize: 10, color: theme.textTheme.bodySmall?.color),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: theme.textTheme.bodySmall?.color,
+                        ),
                       ),
                       Text(
                         _formatDuration(_duration),
-                        style: TextStyle(fontSize: 10, color: theme.textTheme.bodySmall?.color),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: theme.textTheme.bodySmall?.color,
+                        ),
                       ),
                     ],
                   ),
@@ -185,8 +221,8 @@ class _VoicePlayerState extends State<VoicePlayer> {
               icon: const Icon(Icons.close, size: 20),
               color: Colors.redAccent,
               onPressed: () {
-                  _audioPlayer.stop(); // Stop before delete
-                  widget.onDelete!();
+                _audioPlayer.stop(); // Stop before delete
+                widget.onDelete!();
               },
             ),
         ],

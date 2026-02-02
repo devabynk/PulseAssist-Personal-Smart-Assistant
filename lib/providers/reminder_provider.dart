@@ -5,13 +5,15 @@ import '../services/widget_service.dart';
 
 class ReminderProvider with ChangeNotifier {
   final DatabaseService _db = DatabaseService.instance;
-  
+
   List<Reminder> _reminders = [];
   bool _isLoading = true;
 
   List<Reminder> get reminders => _reminders;
-  List<Reminder> get pendingReminders => _reminders.where((r) => !r.isCompleted).toList();
-  List<Reminder> get completedReminders => _reminders.where((r) => r.isCompleted).toList();
+  List<Reminder> get pendingReminders =>
+      _reminders.where((r) => !r.isCompleted).toList();
+  List<Reminder> get completedReminders =>
+      _reminders.where((r) => r.isCompleted).toList();
   bool get isLoading => _isLoading;
 
   ReminderProvider() {
@@ -21,7 +23,7 @@ class ReminderProvider with ChangeNotifier {
   Future<void> loadReminders() async {
     _isLoading = true;
     notifyListeners();
-    
+
     final reminders = await _db.getReminders();
     _reminders = reminders;
     _isLoading = false;

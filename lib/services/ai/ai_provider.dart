@@ -2,13 +2,13 @@
 abstract class AiProvider {
   /// Provider name for logging
   String get name;
-  
+
   /// Check if this provider is available
   bool get isAvailable;
-  
+
   /// Initialize the provider
   Future<void> initialize({String? apiKey});
-  
+
   /// Send a message with context
   Future<String?> chat({
     required String message,
@@ -16,7 +16,7 @@ abstract class AiProvider {
     String? userName,
     List<ChatMessage>? conversationHistory,
   });
-  
+
   /// Clear session
   void clearSession();
 }
@@ -27,14 +27,15 @@ class ChatMessage {
   final bool isUser;
   final DateTime timestamp;
   final String? attachmentPath;
-  
+
   ChatMessage({
     required this.content,
     required this.isUser,
     required this.timestamp,
     this.attachmentPath,
   });
-  
+
   @override
-  String toString() => '${isUser ? "User" : "Assistant"}: $content ${attachmentPath != null ? "[Attachment]" : ""}';
+  String toString() =>
+      '${isUser ? "User" : "Assistant"}: $content ${attachmentPath != null ? "[Attachment]" : ""}';
 }

@@ -8,11 +8,11 @@ void main() {
     databaseFactory = databaseFactoryFfi;
   });
 
-  // Basic instantiation test (Mocking DB is hard without overrides, 
+  // Basic instantiation test (Mocking DB is hard without overrides,
   // so this acts as a placeholder or we can implement a mock-friendly version later).
   // For now, checks if imports work and class exists.
   test('LearningService instance exists', () {
-      final service = LearningService.instance;
-      expect(service, isNotNull);
+    final service = LearningService.instance;
+    expect(service, isNotNull);
   });
 }

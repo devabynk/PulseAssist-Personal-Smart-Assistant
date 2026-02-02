@@ -1,24 +1,25 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-import 'package:intl/intl.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 import '../models/note.dart';
 import '../providers/note_provider.dart';
-import '../utils/extensions.dart';
 import '../screens/drawing_screen.dart';
 import '../screens/voice_note_screen.dart';
-import 'voice_player.dart';
-import 'drawing_preview.dart';
+import '../utils/extensions.dart';
 import '../widgets/common/custom_text_field.dart';
+import 'drawing_preview.dart';
+import 'voice_player.dart';
 
 class NoteSheet extends StatefulWidget {
   final Note? note;
   final List<String> colors;
   final String? template;
-  
+
   const NoteSheet({super.key, this.note, required this.colors, this.template});
 
   @override
@@ -35,7 +36,7 @@ class _NoteSheetState extends State<NoteSheet> {
   late String? _drawingData;
   late String? _voiceNotePath;
   late List<String> _tags;
-  
+
   final FocusNode _contentFocus = FocusNode();
   final TextEditingController _tagController = TextEditingController();
 
@@ -70,29 +71,33 @@ class _NoteSheetState extends State<NoteSheet> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Initialize template content after context is available
-    if (widget.note == null && widget.template != null && _contentController.text.isEmpty) {
+    if (widget.note == null &&
+        widget.template != null &&
+        _contentController.text.isEmpty) {
       _initializeFromTemplate();
     }
   }
 
   void _initializeFromTemplate() {
     final l10n = context.l10n;
-    
+
     // Template-based initialization
     if (widget.template == 'shopping') {
       _titleController.text = l10n.templateShopping;
       _contentController.text = '- [ ] \n- [ ] \n- [ ] ';
     } else if (widget.template == 'todo') {
       _titleController.text = l10n.templateTodo;
-      _contentController.text = '- [ ] ${l10n.templateTodoDesc}\n- [ ] \n- [ ] ';
+      _contentController.text =
+          '- [ ] ${l10n.templateTodoDesc}\n- [ ] \n- [ ] ';
     } else if (widget.template == 'meeting') {
       _titleController.text = l10n.templateMeeting;
-      _contentController.text = '**${l10n.templateMeeting}**\n\n'
-            '**Tarih:** ${DateFormat('dd/MM/yyyy').format(DateTime.now())}\n\n'
-            '**Katılımcılar:**\n- \n\n'
-            '**Gündem:**\n- \n\n'
-            '**Notlar:**\n\n'
-            '**Aksiyon Maddeleri:**\n- [ ] ';
+      _contentController.text =
+          '**${l10n.templateMeeting}**\n\n'
+          '**Tarih:** ${DateFormat('dd/MM/yyyy').format(DateTime.now())}\n\n'
+          '**Katılımcılar:**\n- \n\n'
+          '**Gündem:**\n- \n\n'
+          '**Notlar:**\n\n'
+          '**Aksiyon Maddeleri:**\n- [ ] ';
     }
   }
 
@@ -109,18 +114,18 @@ class _NoteSheetState extends State<NoteSheet> {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final bgColor = theme.cardColor;
-    
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.92,
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [
           // Drag Handle
           Container(
-            margin: EdgeInsets.only(top: 12),
+            margin: const EdgeInsets.only(top: 12),
             width: 40,
             height: 4,
             decoration: BoxDecoration(
@@ -128,14 +133,14 @@ class _NoteSheetState extends State<NoteSheet> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          
+
           // Top Toolbar
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: Row(
               children: [
                 IconButton(
-                  icon: Icon(Icons.arrow_back),
+                  icon: const Icon(Icons.arrow_back),
                   onPressed: _save,
                   tooltip: l10n.save,
                 ),
@@ -143,68 +148,84 @@ class _NoteSheetState extends State<NoteSheet> {
                   child: Text(
                     widget.note == null ? l10n.newNote : l10n.editNote,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(_isPinned ? Icons.push_pin : Icons.push_pin_outlined),
+                  icon: Icon(
+                    _isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                  ),
                   onPressed: () => setState(() => _isPinned = !_isPinned),
                   color: _isPinned ? Colors.amber : null,
                   tooltip: _isPinned ? l10n.unpin : l10n.pin,
                 ),
                 IconButton(
-                  icon: Icon(Icons.delete_outline),
+                  icon: const Icon(Icons.delete_outline),
                   onPressed: _delete,
                   tooltip: l10n.delete,
                 ),
                 IconButton(
-                  icon: Icon(Icons.check),
+                  icon: const Icon(Icons.check),
                   onPressed: _save,
                   tooltip: l10n.save,
                 ),
               ],
             ),
           ),
-          
-          Divider(height: 1),
-          
+
+          const Divider(height: 1),
+
           // Scrollable Content
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Title
                   TextField(
                     controller: _titleController,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                     decoration: InputDecoration(
                       hintText: l10n.noteTitle,
                       border: InputBorder.none,
-                      hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
+                      hintStyle: Theme.of(
+                        context,
+                      ).inputDecorationTheme.hintStyle,
                     ),
                   ),
-                  SizedBox(height: 12),
-                  
+                  const SizedBox(height: 12),
+
                   // Tags
                   if (_tags.isNotEmpty)
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: _tags.map((tag) => Chip(
-                        label: Text('#$tag', style: TextStyle(fontSize: 13)),
-                        deleteIcon: Icon(Icons.close, size: 16),
-                        onDeleted: () => setState(() => _tags.remove(tag)),
-                        backgroundColor: theme.primaryColor.withAlpha(30),
-                      )).toList(),
+                      children: _tags
+                          .map(
+                            (tag) => Chip(
+                              label: Text(
+                                '#$tag',
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () =>
+                                  setState(() => _tags.remove(tag)),
+                              backgroundColor: theme.primaryColor.withAlpha(30),
+                            ),
+                          )
+                          .toList(),
                     ),
-                  
+
                   // Add tag field
                   CustomTextField(
                     controller: _tagController,
                     hintText: l10n.addTag,
-                    prefixIcon: Icon(Icons.tag),
+                    prefixIcon: const Icon(Icons.tag),
                     onSubmitted: (value) {
                       if (value.isNotEmpty && !_tags.contains(value)) {
                         setState(() => _tags.add(value));
@@ -212,9 +233,9 @@ class _NoteSheetState extends State<NoteSheet> {
                       }
                     },
                   ),
-                  
-                  Divider(),
-                  
+
+                  const Divider(),
+
                   // Attachments
                   if (_imagePaths.isNotEmpty) ...[
                     SizedBox(
@@ -225,7 +246,7 @@ class _NoteSheetState extends State<NoteSheet> {
                         itemBuilder: (context, index) => Stack(
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(right: 8),
+                              padding: const EdgeInsets.only(right: 8),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
                                 child: Image.file(
@@ -240,14 +261,19 @@ class _NoteSheetState extends State<NoteSheet> {
                               top: 4,
                               right: 12,
                               child: GestureDetector(
-                                onTap: () => setState(() => _imagePaths.removeAt(index)),
+                                onTap: () =>
+                                    setState(() => _imagePaths.removeAt(index)),
                                 child: Container(
-                                  padding: EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
                                     color: Colors.black54,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: Icon(Icons.close, color: Colors.white, size: 16),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
                                 ),
                               ),
                             ),
@@ -255,27 +281,29 @@ class _NoteSheetState extends State<NoteSheet> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                   ],
-                  
+
                   if (_voiceNotePath != null) ...[
                     VoicePlayer(
                       path: _voiceNotePath!,
                       isDark: Theme.of(context).brightness == Brightness.dark,
                       onDelete: () => setState(() => _voiceNotePath = null),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                   ],
-                  
+
                   if (_drawingData != null) ...[
                     GestureDetector(
                       onTap: _openDrawing,
                       child: Container(
-                        padding: EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.purple.withAlpha(30),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.purple.withAlpha(50)),
+                          border: Border.all(
+                            color: Colors.purple.withAlpha(50),
+                          ),
                         ),
                         child: Row(
                           children: [
@@ -285,64 +313,71 @@ class _NoteSheetState extends State<NoteSheet> {
                               height: 80,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
                                     children: [
-                                      Icon(Icons.draw, color: Colors.purple, size: 20),
-                                      SizedBox(width: 6),
+                                      const Icon(
+                                        Icons.draw,
+                                        color: Colors.purple,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 6),
                                       Text(
                                         l10n.drawingAttached,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontWeight: FontWeight.w600,
                                           fontSize: 14,
                                         ),
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 4),
                                   Text(
                                     'Düzenlemek için dokunun',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Theme.of(context).textTheme.bodySmall?.color,
+                                      color: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.color,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
                             IconButton(
-                              icon: Icon(Icons.close, size: 20),
-                              onPressed: () => setState(() => _drawingData = null),
+                              icon: const Icon(Icons.close, size: 20),
+                              onPressed: () =>
+                                  setState(() => _drawingData = null),
                               tooltip: 'Çizimi Sil',
                             ),
                           ],
                         ),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                   ],
-                  
+
                   // Content
                   TextField(
                     controller: _contentController,
                     focusNode: _contentFocus,
-                    style: TextStyle(fontSize: 16, height: 1.5),
+                    style: const TextStyle(fontSize: 16, height: 1.5),
                     maxLines: null,
                     decoration: InputDecoration(
-                      hintText: l10n.noteContent ?? "Note",
+                      hintText: l10n.noteContent,
                       border: InputBorder.none,
                     ),
                   ),
-                  SizedBox(height: 200),
+                  const SizedBox(height: 200),
                 ],
               ),
             ),
           ),
-          
+
           // Bottom Toolbar
           Container(
             decoration: BoxDecoration(
@@ -355,34 +390,59 @@ class _NoteSheetState extends State<NoteSheet> {
                 // Format toolbar
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 8,
+                  ),
                   child: Row(
                     children: [
-                      _toolButton(Icons.format_bold, () => _applyFormat("**", "**")),
-                      _toolButton(Icons.format_italic, () => _applyFormat("_", "_")),
-                      _toolButton(Icons.format_strikethrough, () => _applyFormat("~~", "~~")),
-                      SizedBox(width: 8),
-                      _toolButton(Icons.list, () => _applyFormat("- ", "")),
-                      _toolButton(Icons.check_box_outlined, () => _applyFormat("- [ ] ", "")),
-                      SizedBox(width: 8),
-                      _toolButton(Icons.title, () => _applyFormat("# ", "")),
-                      _toolButton(Icons.format_quote, () => _applyFormat("> ", "")),
+                      _toolButton(
+                        Icons.format_bold,
+                        () => _applyFormat('**', '**'),
+                      ),
+                      _toolButton(
+                        Icons.format_italic,
+                        () => _applyFormat('_', '_'),
+                      ),
+                      _toolButton(
+                        Icons.format_strikethrough,
+                        () => _applyFormat('~~', '~~'),
+                      ),
+                      const SizedBox(width: 8),
+                      _toolButton(Icons.list, () => _applyFormat('- ', '')),
+                      _toolButton(
+                        Icons.check_box_outlined,
+                        () => _applyFormat('- [ ] ', ''),
+                      ),
+                      const SizedBox(width: 8),
+                      _toolButton(Icons.title, () => _applyFormat('# ', '')),
+                      _toolButton(
+                        Icons.format_quote,
+                        () => _applyFormat('> ', ''),
+                      ),
                     ],
                   ),
                 ),
                 // Action toolbar
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 8,
+                  ),
                   child: Row(
                     children: [
                       _actionButton(Icons.image, l10n.addImage, _pickImage),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       _actionButton(Icons.draw, l10n.draw, _openDrawing),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       _actionButton(Icons.mic, l10n.voiceNote, _recordVoice),
-                      SizedBox(width: 8),
-                      _actionButton(Icons.palette, l10n.color, _showColorPicker),
+                      const SizedBox(width: 8),
+                      _actionButton(
+                        Icons.palette,
+                        l10n.color,
+                        _showColorPicker,
+                      ),
                     ],
                   ),
                 ),
@@ -398,7 +458,7 @@ class _NoteSheetState extends State<NoteSheet> {
     return IconButton(
       icon: Icon(icon, size: 22),
       onPressed: onPressed,
-      constraints: BoxConstraints(minWidth: 40, minHeight: 40),
+      constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
       padding: EdgeInsets.zero,
     );
   }
@@ -408,7 +468,7 @@ class _NoteSheetState extends State<NoteSheet> {
       onTap: onPressed,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor.withAlpha(30),
           borderRadius: BorderRadius.circular(16),
@@ -417,8 +477,8 @@ class _NoteSheetState extends State<NoteSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 20, color: Theme.of(context).primaryColor),
-            SizedBox(width: 6),
-            Text(label, style: TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(width: 6),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -428,33 +488,34 @@ class _NoteSheetState extends State<NoteSheet> {
   void _applyFormat(String prefix, String suffix) {
     final text = _contentController.text;
     final selection = _contentController.selection;
-    
+
     if (selection.start < 0) return;
 
     final newText = text.replaceRange(
       selection.start,
       selection.end,
-      "$prefix${text.substring(selection.start, selection.end)}$suffix"
+      '$prefix${text.substring(selection.start, selection.end)}$suffix',
     );
-    
+
     setState(() {
       _contentController.text = newText;
       _contentController.selection = TextSelection.collapsed(
-        offset: selection.start + prefix.length + (selection.end - selection.start)
+        offset:
+            selection.start + prefix.length + (selection.end - selection.start),
       );
     });
     _contentFocus.requestFocus();
   }
 
   Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(
+    final picker = ImagePicker();
+    final image = await picker.pickImage(
       source: ImageSource.gallery,
       maxWidth: 1920,
       maxHeight: 1920,
       imageQuality: 85,
     );
-    
+
     if (image != null) {
       setState(() => _imagePaths.add(image.path));
     }
@@ -467,7 +528,7 @@ class _NoteSheetState extends State<NoteSheet> {
         builder: (context) => DrawingScreen(initialData: _drawingData),
       ),
     );
-    
+
     if (result != null) {
       setState(() => _drawingData = result);
     }
@@ -480,7 +541,7 @@ class _NoteSheetState extends State<NoteSheet> {
         builder: (context) => VoiceNoteScreen(existingPath: _voiceNotePath),
       ),
     );
-    
+
     if (result != null) {
       setState(() => _voiceNotePath = result);
     }
@@ -492,8 +553,8 @@ class _NoteSheetState extends State<NoteSheet> {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         height: 100,
-        margin: EdgeInsets.all(16),
-        padding: EdgeInsets.all(16),
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
@@ -512,13 +573,20 @@ class _NoteSheetState extends State<NoteSheet> {
               child: Container(
                 width: 50,
                 height: 50,
-                margin: EdgeInsets.only(right: 12),
+                margin: const EdgeInsets.only(right: 12),
                 decoration: BoxDecoration(
                   color: _hexToColor(color),
                   shape: BoxShape.circle,
-                  border: isSelected ? Border.all(color: Theme.of(context).primaryColor, width: 3) : null,
+                  border: isSelected
+                      ? Border.all(
+                          color: Theme.of(context).primaryColor,
+                          width: 3,
+                        )
+                      : null,
                 ),
-                child: isSelected ? Icon(Icons.check, color: Colors.white) : null,
+                child: isSelected
+                    ? const Icon(Icons.check, color: Colors.white)
+                    : null,
               ),
             );
           },
@@ -530,15 +598,19 @@ class _NoteSheetState extends State<NoteSheet> {
   void _save() {
     final title = _titleController.text.trim();
     final content = _contentController.text.trim();
-    
-    if (title.isEmpty && content.isEmpty && _imagePaths.isEmpty && _voiceNotePath == null && _drawingData == null) {
+
+    if (title.isEmpty &&
+        content.isEmpty &&
+        _imagePaths.isEmpty &&
+        _voiceNotePath == null &&
+        _drawingData == null) {
       Navigator.pop(context);
       return;
     }
 
     final now = DateTime.now();
     final note = Note(
-      id: widget.note?.id ?? Uuid().v4(),
+      id: widget.note?.id ?? const Uuid().v4(),
       title: title,
       content: content,
       createdAt: widget.note?.createdAt ?? now,
@@ -552,7 +624,7 @@ class _NoteSheetState extends State<NoteSheet> {
       voiceNotePath: _voiceNotePath,
       tags: _tags,
     );
-    
+
     if (widget.note == null) {
       Provider.of<NoteProvider>(context, listen: false).addNote(note);
     } else {
@@ -576,15 +648,20 @@ class _NoteSheetState extends State<NoteSheet> {
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
               child: Text(l10n.delete),
             ),
           ],
         ),
       );
-      
+
       if (confirmed == true && mounted) {
-        await Provider.of<NoteProvider>(context, listen: false).deleteNote(widget.note!);
+        await Provider.of<NoteProvider>(
+          context,
+          listen: false,
+        ).deleteNote(widget.note!);
         if (mounted) Navigator.pop(context);
       }
     } else {

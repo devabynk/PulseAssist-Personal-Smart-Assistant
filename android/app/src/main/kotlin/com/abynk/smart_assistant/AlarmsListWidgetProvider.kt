@@ -20,10 +20,10 @@ class AlarmsListWidgetProvider : HomeWidgetProvider() {
                 
                 setTextViewText(R.id.widget_title, title)
                 
-                // Theme Logic
-                val primaryTextColor = if (isTransparent) Color.WHITE else Color.BLACK
-                val secondaryTextColor = if (isTransparent) Color.LTGRAY else Color.DKGRAY
-                val statusColorActive = Color.parseColor("#4CAF50")
+                // Use system color resources that adapt to dark/light mode
+                val primaryTextColor = context.getColor(R.color.widget_text_primary)
+                val secondaryTextColor = context.getColor(R.color.widget_text_secondary)
+                val statusColorActive = context.getColor(R.color.widget_success)
                 
                 if (isTransparent) {
                     setInt(R.id.widget_background, "setBackgroundResource", R.drawable.widget_background_transparent)

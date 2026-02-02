@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../theme/app_theme.dart';
-import 'permissions_screen.dart';
 import 'home_screen.dart';
+import 'permissions_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -46,21 +47,22 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _navigateToNext() async {
     try {
       // Add timeout to prevent infinite waiting
-      final prefs = await SharedPreferences.getInstance()
-          .timeout(const Duration(seconds: 3));
-      
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(seconds: 3),
+      );
+
       // Wait minimum animation time
       await Future.delayed(const Duration(milliseconds: 1500));
-      
+
       if (!mounted) return;
 
       final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
 
       if (mounted) {
-        Navigator.of(context).pushReplacement(
+        await Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => hasSeenOnboarding 
-                ? const HomeScreen() 
+            builder: (context) => hasSeenOnboarding
+                ? const HomeScreen()
                 : const PermissionsScreen(),
           ),
         );
@@ -68,12 +70,12 @@ class _SplashScreenState extends State<SplashScreen>
     } catch (e) {
       // If any error (including timeout), show notification screen on first launch
       debugPrint('Error in splash navigation: $e');
-      
+
       // Wait minimum animation time
       await Future.delayed(const Duration(milliseconds: 1500));
-      
+
       if (mounted) {
-        Navigator.of(context).pushReplacement(
+        await Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const PermissionsScreen()),
         );
       }
@@ -83,7 +85,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -93,7 +95,6 @@ class _SplashScreenState extends State<SplashScreen>
             colors: isDark
                 ? [AppPalette.darkSurface, AppPalette.darkBackground]
                 : [AppPalette.lightSurface, AppPalette.lightBackground],
-
           ),
         ),
         child: Center(
@@ -114,7 +115,6 @@ class _SplashScreenState extends State<SplashScreen>
                         fit: BoxFit.contain,
                       ),
                     ),
-
                   );
                 },
               ),
@@ -145,7 +145,9 @@ class _SplashScreenState extends State<SplashScreen>
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
-                            color: Theme.of(context).textTheme.bodyMedium?.color,
+                            color: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.color,
                           ),
                         ),
                       ],

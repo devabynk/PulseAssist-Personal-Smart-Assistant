@@ -1,10 +1,13 @@
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/weather.dart';
-import '../services/weather_service.dart';
 import '../services/database_service.dart';
+import '../services/weather_service.dart';
+import '../services/widget_service.dart';
 
 class WeatherProvider with ChangeNotifier {
   final WeatherService _weatherService = WeatherService();
@@ -15,6 +18,7 @@ class WeatherProvider with ChangeNotifier {
   String? _selectedLocation;
   String? _selectedState; // Province/State info
   String? _selectedDistrict; // District/İlçe info
+  String _selectedCountry = 'TR'; // Country code: 'TR' or 'US'
   bool _isLoading = false;
   String? _error;
   DateTime? _lastUpdate;
@@ -23,8 +27,12 @@ class WeatherProvider with ChangeNotifier {
 
   Weather? get currentWeather => _currentWeather;
   List<Map<String, dynamic>>? get forecast => _forecast;
-  List<Map<String, dynamic>>? get hourlyForecast => _hourlyForecast; // NEW getter
+  List<Map<String, dynamic>>? get hourlyForecast =>
+      _hourlyForecast; // NEW getter
   String? get selectedLocation => _selectedLocation;
+  String? get selectedState => _selectedState; // NEW: Expose state
+  String? get selectedDistrict => _selectedDistrict; // NEW: Expose district
+  String get selectedCountry => _selectedCountry; // NEW getter
   bool get isLoading => _isLoading;
   String? get error => _error;
   DateTime? get lastUpdate => _lastUpdate;
@@ -37,20 +45,22 @@ class WeatherProvider with ChangeNotifier {
   /// Initialize provider and load cached data
   Future<void> initialize({String? language}) async {
     await _loadFromDatabase();
-    
+
     // If we have a location, check if refresh is needed
     if (_selectedLocation != null) {
       if (needsRefresh()) {
         // Use provided language or default to 'tr' for Turkish
         await fetchWeather(
-          _selectedLocation!, 
+          _selectedLocation!,
           language: language ?? 'tr',
+          displayLabel: _selectedLocation, // Preserve full location name
           state: _selectedState,
           district: _selectedDistrict,
+          countryCode: _selectedCountry, // Preserve country code
         );
       }
     }
-    
+
     // Start auto-refresh timer (6 hours)
     startAutoRefresh();
   }
@@ -64,8 +74,11 @@ class WeatherProvider with ChangeNotifier {
         _selectedLocation = locationData['city_name'] as String;
         _selectedState = locationData['state'] as String?;
         _selectedDistrict = locationData['district'] as String?;
+        _selectedCountry =
+            locationData['country_code'] as String? ??
+            'TR'; // Load country code
       }
-      
+
       // Load weather from SharedPreferences (temporary cache)
       final prefs = await SharedPreferences.getInstance();
       final weatherJson = prefs.getString(_weatherKey);
@@ -73,7 +86,7 @@ class WeatherProvider with ChangeNotifier {
         final data = json.decode(weatherJson);
         _currentWeather = Weather.fromCache(data);
       }
-      
+
       final forecastJson = prefs.getString('weather_forecast');
       if (forecastJson != null) {
         _forecast = List<Map<String, dynamic>>.from(json.decode(forecastJson));
@@ -81,17 +94,19 @@ class WeatherProvider with ChangeNotifier {
 
       final hourlyJson = prefs.getString('weather_hourly_forecast');
       if (hourlyJson != null) {
-        _hourlyForecast = List<Map<String, dynamic>>.from(json.decode(hourlyJson));
+        _hourlyForecast = List<Map<String, dynamic>>.from(
+          json.decode(hourlyJson),
+        );
       }
 
       final lastUpdateStr = prefs.getString(_lastUpdateKey);
       if (lastUpdateStr != null) {
         _lastUpdate = DateTime.parse(lastUpdateStr);
       }
-      
+
       notifyListeners();
     } catch (e) {
-      print('Error loading weather from database: $e');
+      debugPrint('Error loading weather from database: $e');
     }
   }
 
@@ -101,61 +116,79 @@ class WeatherProvider with ChangeNotifier {
       // Save location to database
       if (_selectedLocation != null && _currentWeather != null) {
         await _db.saveUserLocation({
-          'city_name': _currentWeather!.cityName,
+          'city_name':
+              _selectedLocation!, // Use user's display name, not API name
           'country': _currentWeather!.country,
           'state': _selectedState, // Allow null
           'district': _selectedDistrict, // Allow null
           'latitude': _currentWeather!.lat,
           'longitude': _currentWeather!.lon,
           'last_updated': DateTime.now().toIso8601String(),
+          'country_code': _selectedCountry, // Save country code
         });
       }
-      
+
       // Save weather to SharedPreferences (temporary cache)
       final prefs = await SharedPreferences.getInstance();
       if (_selectedLocation != null) {
         await prefs.setString(_locationKey, _selectedLocation!);
       }
-      
+
       if (_currentWeather != null) {
-        await prefs.setString(_weatherKey, json.encode(_currentWeather!.toJson()));
+        await prefs.setString(
+          _weatherKey,
+          json.encode(_currentWeather!.toJson()),
+        );
       }
-      
+
       if (_forecast != null) {
         await prefs.setString('weather_forecast', json.encode(_forecast));
       }
-      
+
       if (_hourlyForecast != null) {
-        await prefs.setString('weather_hourly_forecast', json.encode(_hourlyForecast));
+        await prefs.setString(
+          'weather_hourly_forecast',
+          json.encode(_hourlyForecast),
+        );
       }
 
       if (_lastUpdate != null) {
         await prefs.setString(_lastUpdateKey, _lastUpdate!.toIso8601String());
       }
     } catch (e) {
-      print('Error saving weather to database: $e');
+      debugPrint('Error saving weather to database: $e');
     }
   }
 
   /// Fetch weather for a location
-  Future<void> fetchWeather(String location, {String? language, String? displayLabel, String? state, String? district}) async {
+  Future<void> fetchWeather(
+    String location, {
+    String? language,
+    String? displayLabel,
+    String? state,
+    String? district,
+    String? countryCode,
+  }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
       // 1. Get coordinates first (1 API call)
-      final coords = await _weatherService.getCoordinates(location, language: language);
+      final coords = await _weatherService.getCoordinates(
+        location,
+        language: language,
+      );
       if (coords == null) {
         _error = 'Location not found';
         _isLoading = false;
         notifyListeners();
         return;
       }
-      
+
       final lat = coords['lat'];
       final lon = coords['lon'];
-      
+
       // Determine the name to display
       // 1. Use explicitly provided label (from search selection)
       // 2. Use official name from API (for raw searches)
@@ -164,22 +197,29 @@ class WeatherProvider with ChangeNotifier {
 
       // 2. Fetch everything using coordinates (Parallel calls)
       final results = await Future.wait([
-        _weatherService.getWeatherByCoordinates(lat, lon, language: language, locationName: finalName),
+        _weatherService.getWeatherByCoordinates(
+          lat,
+          lon,
+          language: language,
+          locationName: finalName,
+        ),
         _weatherService.getForecastByCoordinates(lat, lon, language: language),
         _weatherService.getHourlyForecast(lat, lon, language: language),
       ]);
-      
+
       final weather = results[0] as Weather?;
       final forecast = results[1] as List<Map<String, dynamic>>?;
       final hourly = results[2] as List<Map<String, dynamic>>?;
-      
+
       if (weather != null) {
         _currentWeather = weather;
         _forecast = forecast;
         _hourlyForecast = hourly; // NEW
         _selectedLocation = finalName;
-        _selectedState = state ?? coords['state']; // Use provided state or from API
+        _selectedState =
+            state ?? coords['state']; // Use provided state or from API
         _selectedDistrict = district; // Save district info
+        _selectedCountry = countryCode ?? 'TR'; // Save country code
         _lastUpdate = DateTime.now();
         _error = null;
         await _saveToDatabase();
@@ -188,10 +228,30 @@ class WeatherProvider with ChangeNotifier {
       }
     } catch (e) {
       _error = 'Error: $e';
-      print('Error fetching weather: $e');
+      debugPrint('Error fetching weather: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
+
+      // Update weather widget with latest data
+      if (_currentWeather != null) {
+        await _updateWeatherWidget();
+      }
+    }
+  }
+
+  /// Update weather widget with current data
+  Future<void> _updateWeatherWidget() async {
+    if (_currentWeather == null) return;
+
+    try {
+      await WidgetService.updateWeatherWidget(
+        city: _currentWeather!.cityName,
+        temp: _currentWeather!.temperature,
+        condition: _currentWeather!.description,
+      );
+    } catch (e) {
+      debugPrint('Error updating weather widget: $e');
     }
   }
 
@@ -202,13 +262,30 @@ class WeatherProvider with ChangeNotifier {
   }
 
   /// Search for cities
-  Future<List<Map<String, String>>> searchCities(String query, {String? language}) async {
+  Future<List<Map<String, String>>> searchCities(
+    String query, {
+    String? language,
+  }) async {
     return await _weatherService.searchCities(query, language: language);
   }
 
   /// Set location and fetch weather
-  Future<void> setLocation(String location, {String? language, String? displayLabel, String? state, String? district}) async {
-    await fetchWeather(location, language: language, displayLabel: displayLabel, state: state, district: district);
+  Future<void> setLocation(
+    String location, {
+    String? language,
+    String? displayLabel,
+    String? state,
+    String? district,
+    String? countryCode,
+  }) async {
+    await fetchWeather(
+      location,
+      language: language,
+      displayLabel: displayLabel,
+      state: state,
+      district: district,
+      countryCode: countryCode ?? 'TR',
+    );
   }
 
   /// Clear weather data
@@ -217,10 +294,10 @@ class WeatherProvider with ChangeNotifier {
     _selectedLocation = null;
     _lastUpdate = null;
     _error = null;
-    
+
     // Clear from database
     await _db.deleteUserLocation();
-    
+
     // Clear from SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_locationKey);
@@ -228,7 +305,7 @@ class WeatherProvider with ChangeNotifier {
     await prefs.remove('weather_forecast');
     await prefs.remove('weather_hourly_forecast');
     await prefs.remove(_lastUpdateKey);
-    
+
     notifyListeners();
   }
 
@@ -242,7 +319,13 @@ class WeatherProvider with ChangeNotifier {
   /// Refresh weather if needed
   Future<void> refreshIfNeeded() async {
     if (_selectedLocation != null && needsRefresh()) {
-      await fetchWeather(_selectedLocation!);
+      await fetchWeather(
+        _selectedLocation!,
+        displayLabel: _selectedLocation,
+        state: _selectedState,
+        district: _selectedDistrict,
+        countryCode: _selectedCountry,
+      );
     }
   }
 
@@ -253,8 +336,10 @@ class WeatherProvider with ChangeNotifier {
       if (_selectedLocation != null) {
         fetchWeather(
           _selectedLocation!,
+          displayLabel: _selectedLocation, // Preserve full location name
           state: _selectedState,
           district: _selectedDistrict,
+          countryCode: _selectedCountry, // Preserve country code
         );
       }
     });

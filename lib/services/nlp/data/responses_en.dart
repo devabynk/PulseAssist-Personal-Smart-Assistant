@@ -412,12 +412,8 @@ In the Notes tab:
     'planning': [
       'I can help you plan your budget! Want to set reminders for tracking? 💰',
     ],
-    'saving': [
-      'I can create monthly reminders for your savings goals! 💰',
-    ],
-    'tracking': [
-      'I can take notes and set reminders for expense tracking! 📊',
-    ],
+    'saving': ['I can create monthly reminders for your savings goals! 💰'],
+    'tracking': ['I can take notes and set reminders for expense tracking! 📊'],
   };
 
   // Emotional support responses
@@ -426,20 +422,10 @@ In the Notes tab:
       'You seem sad. Want to talk? I\'m listening 💙',
       'Everything is temporary, this too shall pass. How can I help? 🤗',
     ],
-    'happy': [
-      'How wonderful! Thanks for sharing your happiness! 😊',
-    ],
-    'stressed': [
-      'You seem stressed. Take a deep breath 🧘\n\nCan I help?',
-    ],
-    'tired': [
-      'You seem tired. Maybe it\'s time to rest 😴',
-    ],
-    'motivated': [
-      'Great energy! Let\'s plan for your goals! 🚀',
-    ],
-    'lonely': [
-      'Sorry you feel lonely. I\'m here, we can talk 💙',
-    ],
+    'happy': ['How wonderful! Thanks for sharing your happiness! 😊'],
+    'stressed': ['You seem stressed. Take a deep breath 🧘\n\nCan I help?'],
+    'tired': ['You seem tired. Maybe it\'s time to rest 😴'],
+    'motivated': ['Great energy! Let\'s plan for your goals! 🚀'],
+    'lonely': ['Sorry you feel lonely. I\'m here, we can talk 💙'],
   };
 }

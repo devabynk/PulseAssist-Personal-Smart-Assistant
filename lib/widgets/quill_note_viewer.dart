@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-import 'dart:convert';
 
 class QuillNoteViewer extends StatelessWidget {
   final String content;
@@ -46,10 +47,10 @@ class QuillNoteViewer extends StatelessWidget {
           // Validate structure
           final lastOp = json.last;
           if (lastOp is Map && lastOp.containsKey('insert')) {
-             final data = lastOp['insert'];
-             if (data is String && !data.endsWith('\n')) {
-                lastOp['insert'] = '$data\n';
-             }
+            final data = lastOp['insert'];
+            if (data is String && !data.endsWith('\n')) {
+              lastOp['insert'] = '$data\n';
+            }
           }
           doc = quill.Document.fromJson(json);
         }
@@ -63,9 +64,7 @@ class QuillNoteViewer extends StatelessWidget {
         readOnly: true,
       );
 
-      return quill.QuillEditor.basic(
-        controller: controller,
-      );
+      return quill.QuillEditor.basic(controller: controller);
     } catch (e) {
       // Fallback for old markdown content or plain text
       return Text(

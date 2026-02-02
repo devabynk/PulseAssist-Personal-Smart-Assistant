@@ -5,7 +5,7 @@
   "chatbot": "Asistan",
   "alarm": "Alarm",
   "alarmPageTitle": "Alarmlar",
-  "versionLabel": "v1.3.3",
+  "versionLabel": "Sürüm 1.3.3",
   "notes": "Notlar",
   "reminders": "Hatırlatıcı",
   "settings": "Ayarlar",
@@ -268,6 +268,14 @@
   "currentLocation": "Mevcut Konum",
   "weatherUpdated": "Güncellendi",
   
+  "country": "Ülke",
+  "selectCountry": "Ülke Seç",
+  "selectLocationForWeather": "Hava durumu için ülke ve konum seçiniz.",
+  "state": "Eyalet",
+  "saveAndContinue": "Kaydet ve Devam Et",
+  "pharmacyServiceTurkeyOnly": "Nöbetçi eczane hizmeti sadece Türkiye için mevcuttur.\n\nLütfen hava durumu konumunuzu Türkiye'deki bir şehir olarak ayarlayın.",
+  "eventsServiceTurkeyOnly": "Etkinlik hizmeti sadece Türkiye için mevcuttur.\n\nLütfen hava durumu konumunuzu Türkiye'deki bir şehir olarak ayarlayın.",
+  
   "duplicateAlarmTitle": "Tekrar Eden Alarm",
   "duplicateAlarmMessage": "{time} saatinde {days} için zaten bir alarm var. Ne yapmak istersiniz?",
   "duplicateAlarmReplace": "Mevcut Olanı Değiştir",
@@ -290,5 +298,12 @@
   "totalNotes": "Toplam Not",
   "totalReminders": "Toplam Hatırlatıcı",
   "activeItems": "Aktif",
-  "completedItems": "Tamamlanan"
+  "completedItems": "Tamamlanan",
+  "country": "Ülke",
+  "selectCountry": "Ülke Seçin",
+  "selectLocationForWeather": "Hava durumu için ülke ve konum seçin.",
+  "state": "Eyalet",
+  "saveAndContinue": "Kaydet ve Devam Et",
+  "pharmacyServiceTurkeyOnly": "Nöbetçi eczane hizmeti sadece Türkiye için kullanılabilir.\\n\\nLütfen hava durumu konumunuzu Türkiye'deki bir şehre ayarlayın.",
+  "eventsServiceTurkeyOnly": "Etkinlik hizmeti sadece Türkiye için kullanılabilir.\\n\\nLütfen hava durumu konumunuzu Türkiye'deki bir şehre ayarlayın."
 }

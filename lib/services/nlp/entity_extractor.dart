@@ -5,7 +5,7 @@ class EntityExtractor {
   /// Extract time from text (returns hour and minute)
   static TimeEntity? extractTime(String text) {
     final lowerText = text.toLowerCase();
-    
+
     // Pattern: HH:MM or HH.MM
     final clockPattern = RegExp(r'(\d{1,2})[:.](\d{2})');
     final clockMatch = clockPattern.firstMatch(lowerText);
@@ -16,7 +16,7 @@ class EntityExtractor {
         return TimeEntity(hour: hour, minute: minute);
       }
     }
-    
+
     // Pattern: X'e, X'a, X'de (Turkish) or "at X" (English)
     final hourPatternTr = RegExp(r'(\d{1,2})\W?(?:e|a|de|da|ye|ya)\b');
     final hourMatchTr = hourPatternTr.firstMatch(lowerText);
@@ -26,9 +26,11 @@ class EntityExtractor {
         return TimeEntity(hour: hour, minute: 0);
       }
     }
-    
+
     // Pattern: X gibi, X sularında (Turkish approximation)
-    final approxTimeTr = RegExp(r'(\d{1,2})\W?(?:gibi|sularında|sularinda|civarı|civari)\b');
+    final approxTimeTr = RegExp(
+      r'(\d{1,2})\W?(?:gibi|sularında|sularinda|civarı|civari)\b',
+    );
     final approxMatchTr = approxTimeTr.firstMatch(lowerText);
     if (approxMatchTr != null) {
       final hour = int.parse(approxMatchTr.group(1)!);
@@ -41,31 +43,39 @@ class EntityExtractor {
     final hourPrefixTr = RegExp(r'saat\s+(\d{1,2})(?![:.])\b');
     final hourPrefixMatch = hourPrefixTr.firstMatch(lowerText);
     if (hourPrefixMatch != null) {
-       final hour = int.parse(hourPrefixMatch.group(1)!);
-       if (hour >= 0 && hour < 24) {
-         return TimeEntity(hour: hour, minute: 0);
-       }
+      final hour = int.parse(hourPrefixMatch.group(1)!);
+      if (hour >= 0 && hour < 24) {
+        return TimeEntity(hour: hour, minute: 0);
+      }
     }
-    
+
     // Pattern: "at X" or "at X:MM"
-    final atPattern = RegExp(r'(?:at|@)\s*(\d{1,2})(?::(\d{2}))?(?:\s*(am|pm))?', caseSensitive: false);
+    final atPattern = RegExp(
+      r'(?:at|@)\s*(\d{1,2})(?::(\d{2}))?(?:\s*(am|pm))?',
+      caseSensitive: false,
+    );
     final atMatch = atPattern.firstMatch(lowerText);
     if (atMatch != null) {
       var hour = int.parse(atMatch.group(1)!);
-      final minute = atMatch.group(2) != null ? int.parse(atMatch.group(2)!) : 0;
+      final minute = atMatch.group(2) != null
+          ? int.parse(atMatch.group(2)!)
+          : 0;
       final period = atMatch.group(3)?.toLowerCase();
-      
-      if (period == 'pm' && hour < 12 && hour > 0) hour += 12; 
+
+      if (period == 'pm' && hour < 12 && hour > 0) hour += 12;
       if (period == 'am' && hour == 12) hour = 0;
-      
+
       if (hour >= 0 && hour < 24 && minute >= 0 && minute < 60) {
         return TimeEntity(hour: hour, minute: minute);
       }
     }
-    
+
     // Pattern: Half-hour expressions
     // Turkish: "7 buçuk", "yedi buçuk"
-    final halfHourTr = RegExp(r'(\d{1,2}|bir|iki|üç|uc|dört|dort|beş|bes|altı|alti|yedi|sekiz|dokuz|on|onbir)\s*buçuk', caseSensitive: false);
+    final halfHourTr = RegExp(
+      r'(\d{1,2}|bir|iki|üç|uc|dört|dort|beş|bes|altı|alti|yedi|sekiz|dokuz|on|onbir)\s*buçuk',
+      caseSensitive: false,
+    );
     final halfMatchTr = halfHourTr.firstMatch(lowerText);
     if (halfMatchTr != null) {
       final hourStr = halfMatchTr.group(1)!;
@@ -74,9 +84,12 @@ class EntityExtractor {
         return TimeEntity(hour: hour, minute: 30);
       }
     }
-    
+
     // English: "half past X", "X thirty"
-    final halfPastEn = RegExp(r'half\s+past\s+(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)', caseSensitive: false);
+    final halfPastEn = RegExp(
+      r'half\s+past\s+(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)',
+      caseSensitive: false,
+    );
     final halfMatchEn = halfPastEn.firstMatch(lowerText);
     if (halfMatchEn != null) {
       final hourStr = halfMatchEn.group(1)!;
@@ -85,12 +98,18 @@ class EntityExtractor {
         return TimeEntity(hour: hour, minute: 30);
       }
     }
-    
+
     // Pattern: Quarter expressions
     // Turkish: "7 çeyrek geçe", "7'ye çeyrek var"
-    final quarterPastTr = RegExp(r'(\d{1,2})\s*çeyrek\s+geçe', caseSensitive: false);
-    final quarterToTr = RegExp(r'(\d{1,2})\s*(?:ye|ya)\s+çeyrek\s+var', caseSensitive: false);
-    
+    final quarterPastTr = RegExp(
+      r'(\d{1,2})\s*çeyrek\s+geçe',
+      caseSensitive: false,
+    );
+    final quarterToTr = RegExp(
+      r'(\d{1,2})\s*(?:ye|ya)\s+çeyrek\s+var',
+      caseSensitive: false,
+    );
+
     final qpMatch = quarterPastTr.firstMatch(lowerText);
     if (qpMatch != null) {
       final hour = int.tryParse(qpMatch.group(1)!);
@@ -98,7 +117,7 @@ class EntityExtractor {
         return TimeEntity(hour: hour, minute: 15);
       }
     }
-    
+
     final qtMatch = quarterToTr.firstMatch(lowerText);
     if (qtMatch != null) {
       var hour = int.tryParse(qtMatch.group(1)!);
@@ -108,11 +127,17 @@ class EntityExtractor {
         return TimeEntity(hour: hour, minute: 45);
       }
     }
-    
+
     // English: "quarter past X", "quarter to X"
-    final quarterPastEn = RegExp(r'quarter\s+past\s+(\d{1,2})', caseSensitive: false);
-    final quarterToEn = RegExp(r'quarter\s+to\s+(\d{1,2})', caseSensitive: false);
-    
+    final quarterPastEn = RegExp(
+      r'quarter\s+past\s+(\d{1,2})',
+      caseSensitive: false,
+    );
+    final quarterToEn = RegExp(
+      r'quarter\s+to\s+(\d{1,2})',
+      caseSensitive: false,
+    );
+
     final qpEnMatch = quarterPastEn.firstMatch(lowerText);
     if (qpEnMatch != null) {
       final hour = int.tryParse(qpEnMatch.group(1)!);
@@ -120,7 +145,7 @@ class EntityExtractor {
         return TimeEntity(hour: hour, minute: 15);
       }
     }
-    
+
     final qtEnMatch = quarterToEn.firstMatch(lowerText);
     if (qtEnMatch != null) {
       var hour = int.tryParse(qtEnMatch.group(1)!);
@@ -130,33 +155,47 @@ class EntityExtractor {
         return TimeEntity(hour: hour, minute: 45);
       }
     }
-    
+
     // Relative time: "X dakika sonra", "in X minutes"
-    final relativeMinTr = RegExp(r'(\d+)\s*dakika\s+sonra', caseSensitive: false);
-    final relativeMinEn = RegExp(r'in\s+(\d+)\s+minutes?', caseSensitive: false);
-    
+    final relativeMinTr = RegExp(
+      r'(\d+)\s*dakika\s+sonra',
+      caseSensitive: false,
+    );
+    final relativeMinEn = RegExp(
+      r'in\s+(\d+)\s+minutes?',
+      caseSensitive: false,
+    );
+
     final relMinTrMatch = relativeMinTr.firstMatch(lowerText);
     if (relMinTrMatch != null) {
       final minutes = int.tryParse(relMinTrMatch.group(1)!);
       if (minutes != null && minutes > 0 && minutes < 1440) {
         final future = DateTime.now().add(Duration(minutes: minutes));
-        return TimeEntity(hour: future.hour, minute: future.minute, periodName: 'relative');
+        return TimeEntity(
+          hour: future.hour,
+          minute: future.minute,
+          periodName: 'relative',
+        );
       }
     }
-    
+
     final relMinEnMatch = relativeMinEn.firstMatch(lowerText);
     if (relMinEnMatch != null) {
       final minutes = int.tryParse(relMinEnMatch.group(1)!);
       if (minutes != null && minutes > 0 && minutes < 1440) {
         final future = DateTime.now().add(Duration(minutes: minutes));
-        return TimeEntity(hour: future.hour, minute: future.minute, periodName: 'relative');
+        return TimeEntity(
+          hour: future.hour,
+          minute: future.minute,
+          periodName: 'relative',
+        );
       }
     }
-    
+
     // Time period words
     final timePeriods = {
       // Turkish
-      'sabah': 9, 'sabahleyin': 9, 'sabah erkenden': 7, 
+      'sabah': 9, 'sabahleyin': 9, 'sabah erkenden': 7,
       'öğle': 12, 'öğlen': 12, 'öğle vakti': 12,
       'öğleden sonra': 14, 'ikindi': 16, 'ikindide': 16,
       'akşam': 19, 'akşamleyin': 19, 'akşam üstü': 18, 'aksamustu': 18,
@@ -171,13 +210,13 @@ class EntityExtractor {
       'midnight': 0, 'at midnight': 0,
       'dawn': 6, 'at dawn': 6, 'sunrise': 6,
     };
-    
+
     for (final entry in timePeriods.entries) {
       if (lowerText.contains(entry.key)) {
         return TimeEntity(hour: entry.value, minute: 0, periodName: entry.key);
       }
     }
-    
+
     return null;
   }
 
@@ -185,7 +224,7 @@ class EntityExtractor {
   static DayEntity extractDays(String text) {
     final lowerText = text.toLowerCase();
     final days = <int>[];
-    
+
     // Day groups
     final dayGroups = {
       // Turkish
@@ -214,13 +253,13 @@ class EntityExtractor {
       'daily': [1, 2, 3, 4, 5, 6, 7],
       'all week': [1, 2, 3, 4, 5, 6, 7],
     };
-    
+
     for (final entry in dayGroups.entries) {
       if (lowerText.contains(entry.key)) {
         return DayEntity(days: entry.value, groupName: entry.key);
       }
     }
-    
+
     // Individual days
     final dayNames = {
       // Turkish
@@ -240,7 +279,7 @@ class EntityExtractor {
       'saturday': 6, 'sat': 6,
       'sunday': 7, 'sun': 7,
     };
-    
+
     for (final entry in dayNames.entries) {
       if (RegExp('\\b${entry.key}\\b').hasMatch(lowerText)) {
         if (!days.contains(entry.value)) {
@@ -248,7 +287,7 @@ class EntityExtractor {
         }
       }
     }
-    
+
     days.sort();
     return DayEntity(days: days);
   }
@@ -256,7 +295,7 @@ class EntityExtractor {
   /// Extract relative date (today, tomorrow, etc.)
   static RelativeDateEntity? extractRelativeDate(String text) {
     final lowerText = text.toLowerCase();
-    
+
     final relativeDates = {
       // Turkish
       'bugün': 0, 'bugun': 0, 'bu gün': 0, 'simdi': 0, 'şimdi': 0,
@@ -278,20 +317,20 @@ class EntityExtractor {
       'in two weeks': 14, 'in 2 weeks': 14,
       'next month': 30, 'in a month': 30, 'in one month': 30,
     };
-    
+
     for (final entry in relativeDates.entries) {
       if (lowerText.contains(entry.key)) {
         return RelativeDateEntity(daysFromNow: entry.value, phrase: entry.key);
       }
     }
-    
+
     return null;
   }
 
   /// Extract priority level
   static PriorityEntity? extractPriority(String text) {
     final lowerText = text.toLowerCase();
-    
+
     final highPriority = [
       // Turkish
       'acil', 'çok önemli', 'cok onemli', 'kritik', 'ivedi',
@@ -303,7 +342,7 @@ class EntityExtractor {
       'right away', 'high priority', 'top priority', 'must do',
       'extremely important', 'crucial', 'vital',
     ];
-    
+
     final lowPriority = [
       // Turkish
       'düşük öncelik', 'dusuk oncelik', 'önemsiz', 'onemsiz',
@@ -315,32 +354,29 @@ class EntityExtractor {
       'no rush', 'not important', 'later', 'eventually',
       'when convenient', 'at some point', 'someday',
     ];
-    
+
     for (final word in highPriority) {
       if (lowerText.contains(word)) {
         return PriorityEntity(level: 'high', keyword: word);
       }
     }
-    
+
     for (final word in lowPriority) {
       if (lowerText.contains(word)) {
         return PriorityEntity(level: 'low', keyword: word);
       }
     }
-    
+
     return null; // Default to medium
   }
 
   /// Extract content/title from text after command
   static String? extractContent(String text) {
     final lowerText = text.toLowerCase();
-    
+
     // First try quoted content (highest priority)
-    final quotedPatterns = [
-      RegExp(r'"([^"]+)"'),
-      RegExp(r"'([^']+)'"),
-    ];
-    
+    final quotedPatterns = [RegExp(r'"([^"]+)"'), RegExp(r"'([^']+)'")];
+
     for (final pattern in quotedPatterns) {
       final match = pattern.firstMatch(text);
       if (match != null) {
@@ -350,151 +386,212 @@ class EntityExtractor {
         }
       }
     }
-    
+
     // Shopping list patterns (highest priority after quotes)
     final shoppingPatterns = [
       // Turkish
-      RegExp(r'(?:alışveriş|alisveris|market|süpermarket)(?:\s+listesi)?[:\s]+(.+)', caseSensitive: false),
+      RegExp(
+        r'(?:alışveriş|alisveris|market|süpermarket)(?:\s+listesi)?[:\s]+(.+)',
+        caseSensitive: false,
+      ),
       // English
-      RegExp(r'(?:shopping|grocery)(?:\s+list)?[:\s]+(.+)', caseSensitive: false),
+      RegExp(
+        r'(?:shopping|grocery)(?:\s+list)?[:\s]+(.+)',
+        caseSensitive: false,
+      ),
     ];
-    
+
     for (final pattern in shoppingPatterns) {
       final match = pattern.firstMatch(text);
       if (match != null) {
-        String? content = match.group(1);
+        final content = match.group(1);
         if (content != null && content.trim().length > 2) {
           return content.trim();
         }
       }
     }
-    
+
     // Todo list patterns
     final todoPatterns = [
       // Turkish
-      RegExp(r'(?:yapılacaklar|yapilacaklar|görevler|gorevler)(?:\s+listesi)?[:\s]+(.+)', caseSensitive: false),
+      RegExp(
+        r'(?:yapılacaklar|yapilacaklar|görevler|gorevler)(?:\s+listesi)?[:\s]+(.+)',
+        caseSensitive: false,
+      ),
       // English
-      RegExp(r'(?:todo|to-do|task)(?:\s+list)?[:\s]+(.+)', caseSensitive: false),
+      RegExp(
+        r'(?:todo|to-do|task)(?:\s+list)?[:\s]+(.+)',
+        caseSensitive: false,
+      ),
     ];
-    
+
     for (final pattern in todoPatterns) {
       final match = pattern.firstMatch(text);
       if (match != null) {
-        String? content = match.group(1);
+        final content = match.group(1);
         if (content != null && content.trim().length > 2) {
           return content.trim();
         }
       }
     }
-    
+
     // Turkish patterns - ordered by specificity
     final trPatterns = [
       // "not al: X" or "not: X"
       RegExp(r'not\s*(?:al|yaz|ekle)?[:\s]+(.+)', caseSensitive: false),
       // "X not al" / "X kaydet"
-      RegExp(r'^(.+?)\s+(?:not\s+al|not\s+yaz|kaydet|yaz|ekle)$', caseSensitive: false),
+      RegExp(
+        r'^(.+?)\s+(?:not\s+al|not\s+yaz|kaydet|yaz|ekle)$',
+        caseSensitive: false,
+      ),
       // "hatırlatıcı: X" or "hatırlat: X"
-      RegExp('(?:hat[ıi]rlat[ıi]c[ıi]|hat[ıi]rlat|hatirla)[:\\s]+(.+)', caseSensitive: false),
-      // "X'i hatırlat" / "X'yi hatırlat"  
+      RegExp(
+        '(?:hat[ıi]rlat[ıi]c[ıi]|hat[ıi]rlat|hatirla)[:\\s]+(.+)',
+        caseSensitive: false,
+      ),
+      // "X'i hatırlat" / "X'yi hatırlat"
       RegExp("^(.+?)'?[ıiyu]\\s+(?:hat[ıi]rlat|hatirla)", caseSensitive: false),
       // "bana X'i hatırlat"
       RegExp('bana\\s+(.+?)\\s+(?:hat[ıi]rlat|hatirla)', caseSensitive: false),
       // "X'i unutturma" / "X'yi unutma"
       RegExp("^(.+?)'?[ıiyu]\\s+(?:unutturma|unutma)", caseSensitive: false),
       // "alarm kur not: X"
-      RegExp('(?:alarm|hat[ıi]rlat[ıi]c[ıi]).*[:\\s]+(.{3,})\$', caseSensitive: false),
+      RegExp(
+        '(?:alarm|hat[ıi]rlat[ıi]c[ıi]).*[:\\s]+(.{3,})\$',
+        caseSensitive: false,
+      ),
       // Simple "kaydet X"
       RegExp(r'(?:kaydet|yaz)\s+(.+)', caseSensitive: false),
     ];
-    
+
     // English patterns - ordered by specificity
     final enPatterns = [
       // "note: X" or "add note: X"
       RegExp(r'(?:add\s+)?note[:\s]+(.+)', caseSensitive: false),
       // "take note X" / "write down X"
-      RegExp(r'(?:take\s+note|write\s+down|jot\s+down|write)[:\s]+(.+)', caseSensitive: false),
+      RegExp(
+        r'(?:take\s+note|write\s+down|jot\s+down|write)[:\s]+(.+)',
+        caseSensitive: false,
+      ),
       // "remind me to X" / "remind me about X"
       RegExp(r'remind\s+me\s+(?:to|about|that)\s+(.+)', caseSensitive: false),
       // "don't forget to X" / "don't let me forget X"
-      RegExp(r"don'?t\s+(?:let\s+me\s+)?forget\s+(?:to\s+)?(.+)", caseSensitive: false),
+      RegExp(
+        r"don'?t\s+(?:let\s+me\s+)?forget\s+(?:to\s+)?(.+)",
+        caseSensitive: false,
+      ),
       // "reminder: X"
       RegExp(r'reminder[:\s]+(.+)', caseSensitive: false),
       // "set reminder for X"
-      RegExp(r'(?:set|create|add)\s+(?:a\s+)?reminder\s+(?:for|about)?\s*(.+)', caseSensitive: false),
+      RegExp(
+        r'(?:set|create|add)\s+(?:a\s+)?reminder\s+(?:for|about)?\s*(.+)',
+        caseSensitive: false,
+      ),
       // "save X"
       RegExp(r'(?:save|record)[:\s]+(.+)', caseSensitive: false),
     ];
-    
+
     // Try Turkish patterns
     for (final pattern in trPatterns) {
       final match = pattern.firstMatch(text);
       if (match != null) {
-        String? content = match.group(1);
+        var content = match.group(1);
         if (content != null && content.trim().length > 2) {
           content = _cleanReminderContent(content.trim());
           if (content.isNotEmpty) return content;
         }
       }
     }
-    
+
     // Try English patterns
     for (final pattern in enPatterns) {
       final match = pattern.firstMatch(text);
       if (match != null) {
-        String? content = match.group(1);
+        var content = match.group(1);
         if (content != null && content.trim().length > 2) {
           content = _cleanReminderContent(content.trim());
           if (content.isNotEmpty) return content;
         }
       }
     }
-    
+
     // Fallback: try to extract any content after removing command words
     final commandWords = [
-      'not al', 'not yaz', 'not ekle', 'hatırlat', 'hatirla', 'hatırlatıcı',
-      'kaydet', 'yaz', 'ekle', 'bana', 'lütfen', 'lutfen', 'unutma', 'unutturma',
-      'note', 'take note', 'write', 'add', 'save', 'remind', 'reminder',
-      'please', 'set', 'create', "don't forget", 'dont forget', 'kur', 'oluştur', 'olustur'
+      'not al',
+      'not yaz',
+      'not ekle',
+      'hatırlat',
+      'hatirla',
+      'hatırlatıcı',
+      'kaydet',
+      'yaz',
+      'ekle',
+      'bana',
+      'lütfen',
+      'lutfen',
+      'unutma',
+      'unutturma',
+      'note',
+      'take note',
+      'write',
+      'add',
+      'save',
+      'remind',
+      'reminder',
+      'please',
+      'set',
+      'create',
+      "don't forget",
+      'dont forget',
+      'kur',
+      'oluştur',
+      'olustur',
     ];
-    
-    String remaining = lowerText;
+
+    var remaining = lowerText;
     for (final word in commandWords) {
       remaining = remaining.replaceAll(word, '').trim();
     }
-    
+
     // Remove time references
     remaining = _cleanReminderContent(remaining);
-    
+
     if (remaining.length > 2) {
       // Capitalize first letter
       return remaining[0].toUpperCase() + remaining.substring(1);
     }
-    
+
     return null;
   }
-  
+
   /// Clean up reminder content by removing time/date references
   static String _cleanReminderContent(String content) {
     // Remove common time/date phrases from the end and middle (using double quotes for regex with single quotes)
     final cleanPatterns = [
-      RegExp(r"\s*(yarın|yarin|bugün|bugun|saat\s*\d+|at\s*\d+|tomorrow|today|tonight)\s*('da|'de|'te|'ta)?\.?\s*", caseSensitive: false),
+      RegExp(
+        r"\s*(yarın|yarin|bugün|bugun|saat\s*\d+|at\s*\d+|tomorrow|today|tonight)\s*('da|'de|'te|'ta)?\.?\s*",
+        caseSensitive: false,
+      ),
       RegExp(r'\s*\d{1,2}[:.:]\d{2}\s*\.?\s*'),
-      RegExp(r'\s*(sabah|akşam|aksam|öğle|ogle|gece)\s*\.?\s*', caseSensitive: false),
+      RegExp(
+        r'\s*(sabah|akşam|aksam|öğle|ogle|gece)\s*\.?\s*',
+        caseSensitive: false,
+      ),
       RegExp(r"\s*\d{1,2}('de|'da|'te|'ta)\s*", caseSensitive: false), // "9'da"
     ];
-    
-    String cleaned = content;
+
+    var cleaned = content;
     for (final pattern in cleanPatterns) {
       cleaned = cleaned.replaceAll(pattern, '').trim();
     }
-    
+
     return cleaned;
   }
 
-  /// Extract name/title from text 
+  /// Extract name/title from text
   static String? extractName(String text) {
-    final lowerText = text.toLowerCase();
-    
+    // final lowerText = text.toLowerCase();
+
     // Turkish patterns
     final trPatterns = [
       RegExp(r'bana\s+(.+?)\s+diye\s+(?:hitap|seslen)', caseSensitive: false),
@@ -504,7 +601,7 @@ class EntityExtractor {
       RegExp(r'(?:benim\s+adım|benim\s+adim)\s+(.+)', caseSensitive: false),
       RegExp(r'sana\s+(.+?)\s+diyebilirsin', caseSensitive: false),
     ];
-    
+
     // English patterns
     final enPatterns = [
       RegExp(r'call\s+me\s+(.+)', caseSensitive: false),
@@ -512,36 +609,43 @@ class EntityExtractor {
       RegExp(r"(?:i\s+am|i'm)\s+(.+)", caseSensitive: false),
       RegExp(r'address\s+me\s+(?:as\s+)?(.+)', caseSensitive: false),
     ];
-    
+
     for (final pattern in trPatterns) {
       final match = pattern.firstMatch(text);
       if (match != null) {
-        String name = match.group(1)?.trim() ?? '';
-        name = name.replaceAll(RegExp(r'\s*(lütfen|lutfen|please)\s*$', caseSensitive: false), '').trim();
+        var name = match.group(1)?.trim() ?? '';
+        name = name
+            .replaceAll(
+              RegExp(r'\s*(lütfen|lutfen|please)\s*$', caseSensitive: false),
+              '',
+            )
+            .trim();
         if (name.isNotEmpty && name.length < 50) {
           return name;
         }
       }
     }
-    
+
     for (final pattern in enPatterns) {
       final match = pattern.firstMatch(text);
       if (match != null) {
-        String name = match.group(1)?.trim() ?? '';
-        name = name.replaceAll(RegExp(r'\s*(please)\s*$', caseSensitive: false), '').trim();
+        var name = match.group(1)?.trim() ?? '';
+        name = name
+            .replaceAll(RegExp(r'\s*(please)\s*$', caseSensitive: false), '')
+            .trim();
         if (name.isNotEmpty && name.length < 50) {
           return name;
         }
       }
     }
-    
+
     return null;
   }
-  
+
   /// Extract color entity for notes
   static String? extractColor(String text) {
     final lowerText = text.toLowerCase();
-    
+
     final colors = {
       '#FF6B6B': ['kırmızı', 'kirmizi', 'al', 'red'],
       '#54A0FF': ['mavi', 'gök', 'gok', 'blue'],
@@ -551,7 +655,7 @@ class EntityExtractor {
       '#FF9FF3': ['pembe', 'pink'],
       '#FFB74D': ['turuncu', 'orange'],
     };
-    
+
     for (final entry in colors.entries) {
       for (final keyword in entry.value) {
         if (lowerText.contains(keyword)) {
@@ -559,31 +663,53 @@ class EntityExtractor {
         }
       }
     }
-    
+
     return null;
   }
-  
+
   /// Parse hour from word
   static int? _parseHourWord(String word) {
     final lowerWord = word.toLowerCase();
     final numHour = int.tryParse(word);
     if (numHour != null) return numHour;
-    
+
     const trHours = {
-      'bir': 1, 'iki': 2, 'üç': 3, 'uc': 3, 'dört': 4, 'dort': 4,
-      'beş': 5, 'bes': 5, 'altı': 6, 'alti': 6, 'yedi': 7,
-      'sekiz': 8, 'dokuz': 9, 'on': 10, 'onbir': 11, 'oniki': 12,
+      'bir': 1,
+      'iki': 2,
+      'üç': 3,
+      'uc': 3,
+      'dört': 4,
+      'dort': 4,
+      'beş': 5,
+      'bes': 5,
+      'altı': 6,
+      'alti': 6,
+      'yedi': 7,
+      'sekiz': 8,
+      'dokuz': 9,
+      'on': 10,
+      'onbir': 11,
+      'oniki': 12,
     };
-    
+
     const enHours = {
-      'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
-      'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
-      'eleven': 11, 'twelve': 12,
+      'one': 1,
+      'two': 2,
+      'three': 3,
+      'four': 4,
+      'five': 5,
+      'six': 6,
+      'seven': 7,
+      'eight': 8,
+      'nine': 9,
+      'ten': 10,
+      'eleven': 11,
+      'twelve': 12,
     };
-    
+
     if (trHours.containsKey(lowerWord)) return trHours[lowerWord];
     if (enHours.containsKey(lowerWord)) return enHours[lowerWord];
-    
+
     return null;
   }
 }
@@ -595,10 +721,12 @@ class TimeEntity {
 
   TimeEntity({required this.hour, required this.minute, this.periodName});
 
-  String get formatted => '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-  
+  String get formatted =>
+      '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+
   @override
-  String toString() => 'TimeEntity($formatted${periodName != null ? ', $periodName' : ''})';
+  String toString() =>
+      'TimeEntity($formatted${periodName != null ? ', $periodName' : ''})';
 }
 
 class DayEntity {
@@ -609,29 +737,38 @@ class DayEntity {
 
   bool get isEmpty => days.isEmpty;
   bool get isNotEmpty => days.isNotEmpty;
-  
+
   String formatTr() {
     if (days.isEmpty) return '';
     if (days.length == 7) return 'Her gün';
-    if (days.length == 5 && !days.contains(6) && !days.contains(7)) return 'Hafta içi';
-    if (days.length == 2 && days.contains(6) && days.contains(7)) return 'Hafta sonu';
-    
+    if (days.length == 5 && !days.contains(6) && !days.contains(7)) {
+      return 'Hafta içi';
+    }
+    if (days.length == 2 && days.contains(6) && days.contains(7)) {
+      return 'Hafta sonu';
+    }
+
     const names = ['', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
     return days.map((d) => names[d]).join(', ');
   }
-  
+
   String formatEn() {
     if (days.isEmpty) return '';
     if (days.length == 7) return 'Every day';
-    if (days.length == 5 && !days.contains(6) && !days.contains(7)) return 'Weekdays';
-    if (days.length == 2 && days.contains(6) && days.contains(7)) return 'Weekend';
-    
+    if (days.length == 5 && !days.contains(6) && !days.contains(7)) {
+      return 'Weekdays';
+    }
+    if (days.length == 2 && days.contains(6) && days.contains(7)) {
+      return 'Weekend';
+    }
+
     const names = ['', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     return days.map((d) => names[d]).join(', ');
   }
-  
+
   @override
-  String toString() => 'DayEntity($days${groupName != null ? ', $groupName' : ''})';
+  String toString() =>
+      'DayEntity($days${groupName != null ? ', $groupName' : ''})';
 }
 
 class RelativeDateEntity {
@@ -641,7 +778,7 @@ class RelativeDateEntity {
   RelativeDateEntity({required this.daysFromNow, required this.phrase});
 
   DateTime get targetDate => DateTime.now().add(Duration(days: daysFromNow));
-  
+
   @override
   String toString() => 'RelativeDateEntity($daysFromNow days, "$phrase")';
 }
@@ -651,7 +788,7 @@ class PriorityEntity {
   final String keyword;
 
   PriorityEntity({required this.level, required this.keyword});
-  
+
   @override
   String toString() => 'PriorityEntity($level, "$keyword")';
 }

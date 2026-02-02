@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 part 'note.g.dart';
 
@@ -25,7 +25,7 @@ class Note {
 
   @HiveField(6)
   final int orderIndex;
-  
+
   // Enhanced features
   @HiveField(7)
   final bool isPinned;
@@ -90,7 +90,7 @@ class Note {
       orderIndex: map['orderIndex'] ?? 0,
       isPinned: (map['isPinned'] ?? 0) == 1,
       isFullWidth: (map['isFullWidth'] ?? 0) == 1,
-      imagePaths: map['imagePaths'] != null 
+      imagePaths: map['imagePaths'] != null
           ? List<String>.from(jsonDecode(map['imagePaths']))
           : [],
       drawingData: map['drawingData'],

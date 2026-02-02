@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart'; // For debugPrint
 import 'package:flutter/services.dart';
 
 class SystemRingtone {
@@ -21,18 +22,20 @@ class SystemRingtone {
 }
 
 class SystemRingtoneService {
-  static const MethodChannel _channel = MethodChannel('com.abynk.smart_assistant/ringtones');
+  static const MethodChannel _channel = MethodChannel(
+    'com.abynk.smart_assistant/ringtones',
+  );
 
   /// Fetch list of system ringtones (Android)
   /// Returns empty list on iOS (access restricted)
   static Future<List<SystemRingtone>> getRingtones() async {
     try {
-      final List<dynamic>? result = await _channel.invokeMethod('getRingtones');
+      final result = await _channel.invokeMethod('getRingtones');
       if (result == null) return [];
-      
+
       return result.map((e) => SystemRingtone.fromMap(e as Map)).toList();
     } on PlatformException catch (e) {
-      print('Failed to get ringtones: ${e.message}');
+      debugPrint('Failed to get ringtones: ${e.message}');
       return [];
     }
   }
@@ -42,7 +45,7 @@ class SystemRingtoneService {
     try {
       await _channel.invokeMethod('playRingtone', {'uri': uri});
     } on PlatformException catch (e) {
-      print('Failed to play ringtone: ${e.message}');
+      debugPrint('Failed to play ringtone: ${e.message}');
     }
   }
 
@@ -51,7 +54,7 @@ class SystemRingtoneService {
     try {
       await _channel.invokeMethod('stopRingtone');
     } on PlatformException catch (e) {
-      print('Failed to stop ringtone: ${e.message}');
+      debugPrint('Failed to stop ringtone: ${e.message}');
     }
   }
 }

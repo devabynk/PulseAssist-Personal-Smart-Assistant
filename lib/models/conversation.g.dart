@@ -8,7 +8,7 @@ part of 'conversation.dart';
 
 class ConversationAdapter extends TypeAdapter<Conversation> {
   @override
-  final int typeId = 0;
+  final typeId = 0;
 
   @override
   Conversation read(BinaryReader reader) {

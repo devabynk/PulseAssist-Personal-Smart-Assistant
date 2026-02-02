@@ -1,24 +1,28 @@
 import 'dart:io';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tzdata;
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:timezone/data/latest.dart' as tzdata;
+import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
   static final NotificationService instance = NotificationService._init();
-  final FlutterLocalNotificationsPlugin notifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin notifications =
+      FlutterLocalNotificationsPlugin();
 
   NotificationService._init();
 
   Future<void> initialize() async {
     // Initialize timezone database
     tzdata.initializeTimeZones();
-    
+
     // Set local timezone (Turkey is Europe/Istanbul)
     tz.setLocalLocation(tz.getLocation('Europe/Istanbul'));
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -31,12 +35,15 @@ class NotificationService {
     );
 
     await notifications.initialize(
-      initSettings,
+      settings: initSettings,
       onDidReceiveNotificationResponse: _onNotificationTap,
     );
-    
+
     // Create notification channels for Android
-    final androidPlugin = notifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = notifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (androidPlugin != null) {
       // Alarm channel
       await androidPlugin.createNotificationChannel(
@@ -49,7 +56,7 @@ class NotificationService {
           enableVibration: true,
         ),
       );
-      
+
       // Reminder channel
       await androidPlugin.createNotificationChannel(
         const AndroidNotificationChannel(
@@ -62,7 +69,7 @@ class NotificationService {
         ),
       );
     }
-    
+
     debugPrint('NotificationService initialized successfully');
   }
 
@@ -84,7 +91,7 @@ class NotificationService {
     if (Platform.isAndroid) {
       final status = await Permission.scheduleExactAlarm.status;
       debugPrint('Exact alarm permission status: $status');
-      
+
       if (status.isDenied || status.isPermanentlyDenied) {
         final result = await Permission.scheduleExactAlarm.request();
         debugPrint('Exact alarm permission request result: $result');
@@ -100,9 +107,11 @@ class NotificationService {
     if (Platform.isAndroid) {
       final notificationStatus = await Permission.notification.status;
       final exactAlarmStatus = await Permission.scheduleExactAlarm.status;
-      
-      debugPrint('Notification: $notificationStatus, Exact Alarm: $exactAlarmStatus');
-      
+
+      debugPrint(
+        'Notification: $notificationStatus, Exact Alarm: $exactAlarmStatus',
+      );
+
       return notificationStatus.isGranted && exactAlarmStatus.isGranted;
     }
     return true;
@@ -110,9 +119,9 @@ class NotificationService {
 
   /// Request all required permissions
   Future<bool> requestAllPermissions() async {
-    bool notificationGranted = await requestNotificationPermission();
-    bool exactAlarmGranted = await requestExactAlarmPermission();
-    
+    final notificationGranted = await requestNotificationPermission();
+    final exactAlarmGranted = await requestExactAlarmPermission();
+
     return notificationGranted && exactAlarmGranted;
   }
 
@@ -146,7 +155,12 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    await notifications.show(id, title, body, details);
+    await notifications.show(
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: details,
+    );
   }
 
   /// Schedule an alarm notification (Note: Alarms now use the alarm package)
@@ -161,7 +175,7 @@ class NotificationService {
       debugPrint('Alarm date is in the past, skipping: $scheduledDate');
       return;
     }
-    
+
     const androidDetails = AndroidNotificationDetails(
       'smart_assistant_alarms',
       'Alarmlar',
@@ -190,11 +204,11 @@ class NotificationService {
     debugPrint('Scheduling alarm for: $tzScheduledDate (ID: $id)');
 
     await notifications.zonedSchedule(
-      id,
-      title,
-      body,
-      tzScheduledDate,
-      details,
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: tzScheduledDate,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       payload: 'alarm_$id',
     );
@@ -225,7 +239,7 @@ class NotificationService {
         }
       }
     }
-    
+
     const androidDetails = AndroidNotificationDetails(
       'smart_assistant_reminders',
       'Hatırlatıcılar',
@@ -254,11 +268,11 @@ class NotificationService {
 
     try {
       await notifications.zonedSchedule(
-        id,
-        title,
-        body,
-        tzScheduledDate,
-        details,
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: tzScheduledDate,
+        notificationDetails: details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: 'reminder_$id',
       );
@@ -271,13 +285,13 @@ class NotificationService {
   }
 
   Future<void> cancelNotification(int id) async {
-    await notifications.cancel(id);
+    await notifications.cancel(id: id);
   }
 
   Future<void> cancelAllNotifications() async {
     await notifications.cancelAll();
   }
-  
+
   /// Get all pending notifications (for debugging)
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     return await notifications.pendingNotificationRequests();

@@ -1,16 +1,31 @@
-# Flutter Wrapper
--keep class io.flutter.app.** { *; }
--keep class io.flutter.plugin.**  { *; }
--keep class io.flutter.util.**  { *; }
--keep class io.flutter.view.**  { *; }
--keep class io.flutter.**  { *; }
--keep class io.flutter.plugins.**  { *; }
+# Keep all application classes
+-keep class com.abynk.smart_assistant.** { *; }
 
-# PDFBox / ReadPdfText Rules
--dontwarn com.gemalto.jp2.**
--dontwarn com.tom_roush.pdfbox.**
--dontwarn org.bouncycastle.**
+# Keep alarm plugin classes
+-keep class com.gdelataillade.alarm.** { *; }
+
+# Keep connectivity plugin classes
+-keep class dev.fluttercommunity.plus.connectivity.** { *; }
+
+# Keep notification plugin classes
+-keep class com.dexterous.flutterlocalnotifications.** { *; }
+
+# Keep home widget plugin classes
+-keep class es.antonborri.home_widget.** { *; }
+
+# Keep permission handler classes
+-keep class com.baseflow.permissionhandler.** { *; }
+
+# Keep shared preferences classes
+-keep class io.flutter.plugins.sharedpreferences.** { *; }
+
+# Keep path provider classes
+-keep class io.flutter.plugins.pathprovider.** { *; }
+
+# Keep PDF library classes
 -keep class com.tom_roush.pdfbox.** { *; }
 
-# Generic Ignore warnings (Use with caution, but PDF libs often need it)
--ignorewarnings
+# PDF library optional dependencies - suppress warnings
+-dontwarn com.gemalto.jp2.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.apache.commons.logging.**

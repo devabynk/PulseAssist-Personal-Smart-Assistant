@@ -8,7 +8,7 @@ part of 'user_location.dart';
 
 class UserLocationAdapter extends TypeAdapter<UserLocation> {
   @override
-  final int typeId = 8;
+  final typeId = 8;
 
   @override
   UserLocation read(BinaryReader reader) {
@@ -21,16 +21,17 @@ class UserLocationAdapter extends TypeAdapter<UserLocation> {
       country: fields[1] as String,
       state: fields[2] as String?,
       district: fields[3] as String?,
-      latitude: fields[4] as double,
-      longitude: fields[5] as double,
+      latitude: (fields[4] as num).toDouble(),
+      longitude: (fields[5] as num).toDouble(),
       lastUpdated: fields[6] as DateTime,
+      countryCode: fields[7] == null ? 'TR' : fields[7] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserLocation obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.cityName)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class UserLocationAdapter extends TypeAdapter<UserLocation> {
       ..writeByte(5)
       ..write(obj.longitude)
       ..writeByte(6)
-      ..write(obj.lastUpdated);
+      ..write(obj.lastUpdated)
+      ..writeByte(7)
+      ..write(obj.countryCode);
   }
 
   @override

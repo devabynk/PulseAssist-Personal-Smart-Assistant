@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum CustomButtonVariant {
-  primary,
-  secondary,
-  outline,
-  ghost,
-}
+enum CustomButtonVariant { primary, secondary, outline, ghost }
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -30,8 +25,8 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
-    Widget buttonContent = Row(
+
+    final Widget buttonContent = Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -41,7 +36,9 @@ class CustomButton extends StatelessWidget {
             height: 20,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: variant == CustomButtonVariant.outline || variant == CustomButtonVariant.ghost
+              color:
+                  variant == CustomButtonVariant.outline ||
+                      variant == CustomButtonVariant.ghost
                   ? theme.primaryColor
                   : Colors.white,
             ),
@@ -61,9 +58,9 @@ class CustomButton extends StatelessWidget {
       case CustomButtonVariant.primary:
         button = ElevatedButton(
           onPressed: isLoading ? null : onPressed,
-          style: customColor != null 
-            ? ElevatedButton.styleFrom(backgroundColor: customColor) 
-            : null,
+          style: customColor != null
+              ? ElevatedButton.styleFrom(backgroundColor: customColor)
+              : null,
           child: buttonContent,
         );
         break;
@@ -80,28 +77,28 @@ class CustomButton extends StatelessWidget {
       case CustomButtonVariant.outline:
         button = OutlinedButton(
           onPressed: isLoading ? null : onPressed,
-          style: customColor != null 
-            ? OutlinedButton.styleFrom(foregroundColor: customColor, side: BorderSide(color: customColor!)) 
-            : null,
+          style: customColor != null
+              ? OutlinedButton.styleFrom(
+                  foregroundColor: customColor,
+                  side: BorderSide(color: customColor!),
+                )
+              : null,
           child: buttonContent,
         );
         break;
       case CustomButtonVariant.ghost:
         button = TextButton(
           onPressed: isLoading ? null : onPressed,
-          style: customColor != null 
-            ? TextButton.styleFrom(foregroundColor: customColor) 
-            : null,
+          style: customColor != null
+              ? TextButton.styleFrom(foregroundColor: customColor)
+              : null,
           child: buttonContent,
         );
         break;
     }
 
     if (isFullWidth) {
-      return SizedBox(
-        width: double.infinity,
-        child: button,
-      );
+      return SizedBox(width: double.infinity, child: button);
     }
 
     return button;

@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
 
 class DrawingPreview extends StatelessWidget {
   final String drawingData;
@@ -17,25 +18,27 @@ class DrawingPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<DrawingPoint> points = [];
-    
+    final points = <DrawingPoint>[];
+
     try {
       final data = jsonDecode(drawingData) as Map<String, dynamic>;
       final pointsData = data['points'] as List<dynamic>;
-      
+
       for (var pointData in pointsData) {
         if (pointData == null) {
           points.add(DrawingPoint(offset: null, paint: Paint()));
         } else {
           final point = pointData as Map<String, dynamic>;
-          points.add(DrawingPoint(
-            offset: Offset(point['x'] as double, point['y'] as double),
-            paint: Paint()
-              ..color = Color(point['color'] as int)
-              ..strokeWidth = point['width'] as double
-              ..strokeCap = StrokeCap.round
-              ..isAntiAlias = true,
-          ));
+          points.add(
+            DrawingPoint(
+              offset: Offset(point['x'] as double, point['y'] as double),
+              paint: Paint()
+                ..color = Color(point['color'] as int)
+                ..strokeWidth = point['width'] as double
+                ..strokeCap = StrokeCap.round
+                ..isAntiAlias = true,
+            ),
+          );
         }
       }
     } catch (e) {
@@ -49,9 +52,7 @@ class DrawingPreview extends StatelessWidget {
         height: height,
         color: Colors.white,
         child: points.isEmpty
-            ? Center(
-                child: Icon(Icons.draw, color: Colors.grey[400], size: 32),
-              )
+            ? Center(child: Icon(Icons.draw, color: Colors.grey[400], size: 32))
             : CustomPaint(
                 painter: _DrawingPreviewPainter(points: points),
                 size: Size(width, height),
@@ -78,10 +79,10 @@ class _DrawingPreviewPainter extends CustomPainter {
     if (points.isEmpty) return;
 
     // Calculate bounds of the drawing
-    double minX = double.infinity;
-    double minY = double.infinity;
-    double maxX = double.negativeInfinity;
-    double maxY = double.negativeInfinity;
+    var minX = double.infinity;
+    var minY = double.infinity;
+    var maxX = double.negativeInfinity;
+    var maxY = double.negativeInfinity;
 
     for (var point in points) {
       if (point.offset != null) {
@@ -97,7 +98,7 @@ class _DrawingPreviewPainter extends CustomPainter {
     // Calculate scale to fit the drawing in the preview
     final drawingWidth = maxX - minX;
     final drawingHeight = maxY - minY;
-    
+
     if (drawingWidth == 0 || drawingHeight == 0) return;
 
     final scaleX = (size.width * 0.9) / drawingWidth;
@@ -109,7 +110,7 @@ class _DrawingPreviewPainter extends CustomPainter {
     final offsetY = (size.height - drawingHeight * scale) / 2 - minY * scale;
 
     // Draw the scaled and centered drawing
-    for (int i = 0; i < points.length - 1; i++) {
+    for (var i = 0; i < points.length - 1; i++) {
       if (points[i].offset != null && points[i + 1].offset != null) {
         final p1 = Offset(
           points[i].offset!.dx * scale + offsetX,
@@ -119,14 +120,14 @@ class _DrawingPreviewPainter extends CustomPainter {
           points[i + 1].offset!.dx * scale + offsetX,
           points[i + 1].offset!.dy * scale + offsetY,
         );
-        
+
         // Scale stroke width too
         final scaledPaint = Paint()
           ..color = points[i].paint.color
           ..strokeWidth = points[i].paint.strokeWidth * scale
           ..strokeCap = StrokeCap.round
           ..isAntiAlias = true;
-        
+
         canvas.drawLine(p1, p2, scaledPaint);
       }
     }

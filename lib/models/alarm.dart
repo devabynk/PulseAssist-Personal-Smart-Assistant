@@ -1,4 +1,4 @@
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 part 'alarm.g.dart';
 
@@ -58,12 +58,22 @@ class Alarm {
       title: map['title'],
       time: DateTime.parse(map['time']),
       isActive: map['isActive'] == 1,
-      repeatDays: map['repeatDays'].toString().isEmpty 
-          ? [] 
-          : map['repeatDays'].toString().split(',').map((e) => int.parse(e)).toList(),
-      skippedDates: (map['skippedDates'] == null || map['skippedDates'].toString().isEmpty)
+      repeatDays: map['repeatDays'].toString().isEmpty
           ? []
-          : map['skippedDates'].toString().split(',').map((e) => DateTime.parse(e)).toList(),
+          : map['repeatDays']
+                .toString()
+                .split(',')
+                .map((e) => int.parse(e))
+                .toList(),
+      skippedDates:
+          (map['skippedDates'] == null ||
+              map['skippedDates'].toString().isEmpty)
+          ? []
+          : map['skippedDates']
+                .toString()
+                .split(',')
+                .map((e) => DateTime.parse(e))
+                .toList(),
       soundPath: map['soundPath'],
       soundName: map['soundName'],
     );

@@ -4,9 +4,18 @@
 class Preprocessor {
   // Turkish character normalization map
   static const Map<String, String> _turkishNormalize = {
-    'ı': 'i', 'İ': 'i', 'ğ': 'g', 'Ğ': 'g',
-    'ü': 'u', 'Ü': 'u', 'ş': 's', 'Ş': 's',
-    'ö': 'o', 'Ö': 'o', 'ç': 'c', 'Ç': 'c',
+    'ı': 'i',
+    'İ': 'i',
+    'ğ': 'g',
+    'Ğ': 'g',
+    'ü': 'u',
+    'Ü': 'u',
+    'ş': 's',
+    'Ş': 's',
+    'ö': 'o',
+    'Ö': 'o',
+    'ç': 'c',
+    'Ç': 'c',
   };
 
   // Common stop words to filter (Turkish + English)
@@ -42,15 +51,15 @@ class Preprocessor {
   /// Normalize text for matching
   static String normalize(String text) {
     var result = text.toLowerCase().trim();
-    
+
     // Normalize Turkish characters
     _turkishNormalize.forEach((key, value) {
       result = result.replaceAll(key, value);
     });
-    
+
     // Remove extra whitespace
     result = result.replaceAll(RegExp(r'\s+'), ' ');
-    
+
     return result;
   }
 
@@ -113,16 +122,16 @@ class Preprocessor {
   /// Calculate word match score (0.0 - 1.0)
   static double wordMatchScore(String text, List<String> keywords) {
     if (keywords.isEmpty) return 0.0;
-    
+
     final normalized = normalize(text);
-    int matches = 0;
-    
+    var matches = 0;
+
     for (final keyword in keywords) {
       if (normalized.contains(normalize(keyword))) {
         matches++;
       }
     }
-    
+
     return matches / keywords.length;
   }
 }

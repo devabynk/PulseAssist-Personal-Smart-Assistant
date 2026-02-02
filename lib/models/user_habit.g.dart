@@ -8,7 +8,7 @@ part of 'user_habit.dart';
 
 class UserHabitAdapter extends TypeAdapter<UserHabit> {
   @override
-  final int typeId = 7;
+  final typeId = 7;
 
   @override
   UserHabit read(BinaryReader reader) {
@@ -20,7 +20,7 @@ class UserHabitAdapter extends TypeAdapter<UserHabit> {
       id: fields[0] as String,
       intent: fields[1] as String,
       parameters: fields[2] as String,
-      frequency: fields[3] as int,
+      frequency: (fields[3] as num).toInt(),
       lastUsed: fields[4] as DateTime,
     );
   }

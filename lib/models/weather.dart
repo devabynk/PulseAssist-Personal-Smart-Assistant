@@ -8,7 +8,7 @@ class Weather {
   final String cityName;
   final String country;
   final DateTime lastUpdated;
-  
+
   // New fields from OpenWeatherMap
   final int pressure;
   final double uvIndex;
@@ -50,7 +50,8 @@ class Weather {
         humidity: current['humidity'] as int,
         windSpeed: (current['wind_speed'] as num).toDouble(),
         description: current['weather'][0]['description'] as String,
-        icon: 'https://openweathermap.org/img/wn/${current['weather'][0]['icon']}@2x.png',
+        icon:
+            'https://openweathermap.org/img/wn/${current['weather'][0]['icon']}@2x.png',
         cityName: locationName,
         country: country,
         lastUpdated: DateTime.fromMillisecondsSinceEpoch(current['dt'] * 1000),
@@ -61,15 +62,15 @@ class Weather {
         lat: (json['lat'] as num).toDouble(),
         lon: (json['lon'] as num).toDouble(),
       );
-    } 
+    }
     // Otherwise assume Standard 2.5 API (Current Weather)
     else {
       final main = json['main'];
       final weather = json['weather'][0];
       final wind = json['wind'];
-      final sys = json['sys'];
+
       final coord = json['coord'];
-      
+
       return Weather(
         temperature: (main['temp'] as num).toDouble(),
         feelsLike: (main['feels_like'] as num).toDouble(),
@@ -77,12 +78,15 @@ class Weather {
         windSpeed: (wind['speed'] as num).toDouble(),
         description: weather['description'] as String,
         icon: 'https://openweathermap.org/img/wn/${weather['icon']}@2x.png',
-        cityName: locationName, // Use provided name as API name might be English only
+        cityName:
+            locationName, // Use provided name as API name might be English only
         country: country,
         lastUpdated: DateTime.fromMillisecondsSinceEpoch(json['dt'] * 1000),
         pressure: main['pressure'] as int,
         uvIndex: 0, // Not available in standard weather API
-        cloudiness: (json['clouds'] != null) ? (json['clouds']['all'] as int) : 0,
+        cloudiness: (json['clouds'] != null)
+            ? (json['clouds']['all'] as int)
+            : 0,
         visibility: (json['visibility'] as num?)?.toInt() ?? 10000,
         lat: (coord != null) ? (coord['lat'] as num).toDouble() : 0,
         lon: (coord != null) ? (coord['lon'] as num).toDouble() : 0,
@@ -94,7 +98,7 @@ class Weather {
   factory Weather.fromJson(Map<String, dynamic> json) {
     final location = json['location'];
     final current = json['current'];
-    
+
     return Weather(
       temperature: (current['temp_c'] as num).toDouble(),
       feelsLike: (current['feelslike_c'] as num).toDouble(),
@@ -147,7 +151,7 @@ class Weather {
       lon: (json['lon'] as num?)?.toDouble() ?? 0,
     );
   }
-  
+
   /// Format weather data for AI consumption
   String toAiContext({bool isTurkish = false}) {
     if (isTurkish) {

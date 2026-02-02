@@ -1,21 +1,21 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../models/message.dart';
-import '../theme/app_theme.dart';
-import '../l10n/app_localizations.dart';
-import '../utils/extensions.dart';
-import '../utils/responsive.dart';
 
-import '../providers/settings_provider.dart';
-import '../providers/chat_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../l10n/app_localizations.dart';
+import '../models/message.dart';
 import '../providers/alarm_provider.dart';
+import '../providers/chat_provider.dart';
 import '../providers/note_provider.dart';
 import '../providers/reminder_provider.dart';
+import '../providers/settings_provider.dart';
 import '../providers/weather_provider.dart';
-import 'package:flutter_linkify/flutter_linkify.dart'; // Keep for backwards compatibility if needed, but we use Markdown now
-import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../theme/app_theme.dart';
+import '../utils/extensions.dart';
+import '../utils/responsive.dart';
 
 class ChatbotScreen extends StatefulWidget {
   const ChatbotScreen({super.key});
@@ -27,7 +27,7 @@ class ChatbotScreen extends StatefulWidget {
 class _ChatbotScreenState extends State<ChatbotScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  
+
   // Note: Local _messages list is removed in favor of Consumer
 
   @override
@@ -41,25 +41,26 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     final l10n = context.l10n;
     final settings = Provider.of<SettingsProvider>(context, listen: false);
     final chatProvider = Provider.of<ChatProvider>(context, listen: false);
-    
+
     // Wait for settings to be loaded
     if (!settings.isLoaded) {
       await Future.delayed(const Duration(milliseconds: 100));
       if (!mounted) return;
     }
-    
+
     final isTurkish = settings.locale.languageCode == 'tr';
-    
+
     // If there's already an active conversation with messages, don't do anything
     if (chatProvider.messages.isNotEmpty) {
       return;
     }
-    
+
     // If there are conversations but no active one (unlikely after our fix), also return
-    if (chatProvider.conversations.isNotEmpty && chatProvider.activeConversation != null) {
+    if (chatProvider.conversations.isNotEmpty &&
+        chatProvider.activeConversation != null) {
       return;
     }
-    
+
     // Only show welcome message if truly fresh start (no conversations ever)
     if (chatProvider.conversations.isEmpty) {
       // Start a conversation for the welcome message
@@ -69,13 +70,13 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         isTurkish: isTurkish,
         userName: settings.userName,
       );
-      
+
       String welcomeMsg;
-      
+
       // Only ask for name if we haven't asked before AND no name is set
       if (!settings.hasAskedForName && settings.userName == null) {
-        welcomeMsg = isTurkish 
-            ? "Merhaba! Ben Mina, senin kişisel asistanınım. 🌟\n\nSana nasıl hitap etmemi istersin?"
+        welcomeMsg = isTurkish
+            ? 'Merhaba! Ben Mina, senin kişisel asistanınım. 🌟\n\nSana nasıl hitap etmemi istersin?'
             : "Hello! I'm Mina, your personal assistant. 🌟\n\nHow should I call you?";
         // Mark that we've asked for name
         await settings.setHasAskedForName(true);
@@ -84,27 +85,25 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         final name = settings.userName ?? '';
         if (name.isNotEmpty) {
           welcomeMsg = isTurkish
-              ? "Merhaba $name! 👋 Bugün sana nasıl yardımcı olabilirim?"
-              : "Hello $name! 👋 How can I help you today?";
+              ? 'Merhaba $name! 👋 Bugün sana nasıl yardımcı olabilirim?'
+              : 'Hello $name! 👋 How can I help you today?';
         } else {
           welcomeMsg = isTurkish
-              ? "Merhaba! 👋 Bugün sana nasıl yardımcı olabilirim?"
-              : "Hello! 👋 How can I help you today?";
+              ? 'Merhaba! 👋 Bugün sana nasıl yardımcı olabilirim?'
+              : 'Hello! 👋 How can I help you today?';
         }
       }
-      
-      await chatProvider.addSystemMessage(welcomeMsg, chatProvider.activeConversation?.id);
+
+      await chatProvider.addSystemMessage(
+        welcomeMsg,
+        chatProvider.activeConversation?.id,
+      );
     }
   }
-  
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-  }
-
-  // Helper moved to build method or provider
-  void _scrollToBottom() {
-    // Scroll handled in consumer listener
   }
 
   Future<void> _sendMessage() async {
@@ -112,15 +111,15 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     if (text.isEmpty) return;
 
     _controller.clear();
-    
+
     // Get current locale and user name
     final settings = Provider.of<SettingsProvider>(context, listen: false);
     final isTurkish = settings.locale.languageCode == 'tr';
     final userName = settings.userName;
 
     await Provider.of<ChatProvider>(context, listen: false).sendMessage(
-      text, 
-      isTurkish: isTurkish, 
+      text,
+      isTurkish: isTurkish,
       userName: userName,
       settings: settings,
       l10n: context.l10n,
@@ -129,16 +128,16 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       reminderProvider: Provider.of<ReminderProvider>(context, listen: false),
       weatherProvider: Provider.of<WeatherProvider>(context, listen: false),
     );
-    
+
     // Scroll handled by consumer update usually, or force it here
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    
+
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
@@ -152,7 +151,11 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                     gradient: AppColors.primaryGradient,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.smart_toy, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.smart_toy,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -161,19 +164,25 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                     children: [
                       Text(
                         chatProvider.activeConversation?.title ?? l10n.chatbot,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         l10n.online,
-                        style: TextStyle(fontSize: 12, color: Theme.of(context).primaryColor),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).primaryColor,
+                        ),
                       ),
                     ],
                   ),
                 ),
               ],
             );
-          }
+          },
         ),
         backgroundColor: theme.appBarTheme.backgroundColor,
         foregroundColor: theme.appBarTheme.foregroundColor,
@@ -183,11 +192,17 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
             icon: const Icon(Icons.add_comment_outlined),
             tooltip: l10n.newChat,
             onPressed: () {
-               final settings = Provider.of<SettingsProvider>(context, listen: false);
-               Provider.of<ChatProvider>(context, listen: false).startNewConversation(
-                 isTurkish: settings.locale.languageCode == 'tr',
-                 title: l10n.newChat,
-               );
+              final settings = Provider.of<SettingsProvider>(
+                context,
+                listen: false,
+              );
+              Provider.of<ChatProvider>(
+                context,
+                listen: false,
+              ).startNewConversation(
+                isTurkish: settings.locale.languageCode == 'tr',
+                title: l10n.newChat,
+              );
             },
           ),
           IconButton(
@@ -200,30 +215,30 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
           final messages = chatProvider.messages;
-             WidgetsBinding.instance.addPostFrameCallback((_) {
-                 if (_scrollController.hasClients) {
-                    _scrollController.animateTo(
-                      _scrollController.position.maxScrollExtent,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOut,
-                    );
-                 }
-             });
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_scrollController.hasClients) {
+              _scrollController.animateTo(
+                _scrollController.position.maxScrollExtent,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            }
+          });
 
           if (chatProvider.isLoading) {
-             return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (messages.isEmpty) {
-             return Center(
-               child: Text(
-                 l10n.startConversation,
-                 style: TextStyle(color: Theme.of(context).hintColor),
-               ),
-             );
+            return Center(
+              child: Text(
+                l10n.startConversation,
+                style: TextStyle(color: Theme.of(context).hintColor),
+              ),
+            );
           }
 
-           return Column(
+          return Column(
             children: [
               Expanded(
                 child: ListView.builder(
@@ -250,57 +265,57 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   }
 
   Widget _buildQuickReplies(AppLocalizations l10n) {
-      final settings = Provider.of<SettingsProvider>(context, listen: false);
-      final isTurkish = settings.locale.languageCode == 'tr';
-      
-      final chips = [
-        l10n.qaAlarm,
-        l10n.qaReminder,
-        l10n.qaNote,
-        l10n.qaPharmacy,
-        l10n.qaEvents,
-      ];
-      
-      // Icons for each chip type
-      final icons = [
-        Icons.alarm,
-        Icons.notification_important,
-        Icons.edit_note,
-        Icons.local_pharmacy,
-        Icons.event,
-      ];
-         
-      return Container(
-          height: 50,
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              scrollDirection: Axis.horizontal,
-              itemCount: chips.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                  return ActionChip(
-                      label: Text(chips[index]),
-                      backgroundColor: Theme.of(context).cardColor,
-                      labelStyle: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontSize: 13),
-                      avatar: Icon(
-                          icons[index],
-                          size: 16,
-                          color: AppColors.primary,
-                      ),
-                      onPressed: () {
-                          _controller.text = chips[index];
-                          _sendMessage();
-                      },
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20), 
-                          side: BorderSide(color: Theme.of(context).dividerColor.withAlpha(50))
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                  );
-              }
-          )
-      );
+
+
+    final chips = [
+      l10n.qaAlarm,
+      l10n.qaReminder,
+      l10n.qaNote,
+      l10n.qaPharmacy,
+      l10n.qaEvents,
+    ];
+
+    // Icons for each chip type
+    final icons = [
+      Icons.alarm,
+      Icons.notification_important,
+      Icons.edit_note,
+      Icons.local_pharmacy,
+      Icons.event,
+    ];
+
+    return Container(
+      height: 50,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        scrollDirection: Axis.horizontal,
+        itemCount: chips.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          return ActionChip(
+            label: Text(chips[index]),
+            backgroundColor: Theme.of(context).cardColor,
+            labelStyle: TextStyle(
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+              fontSize: 13,
+            ),
+            avatar: Icon(icons[index], size: 16, color: AppColors.primary),
+            onPressed: () {
+              _controller.text = chips[index];
+              _sendMessage();
+            },
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: BorderSide(
+                color: Theme.of(context).dividerColor.withAlpha(50),
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildInputArea(AppLocalizations l10n) {
@@ -334,20 +349,27 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                           decoration: BoxDecoration(
                             color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.withAlpha(50)),
+                            border: Border.all(
+                              color: Colors.grey.withAlpha(50),
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
-                                chatProvider.attachmentType == 'image' ? Icons.image : 
-                                (chatProvider.attachmentType == 'audio' ? Icons.mic : Icons.insert_drive_file),
+                                chatProvider.attachmentType == 'image'
+                                    ? Icons.image
+                                    : (chatProvider.attachmentType == 'audio'
+                                          ? Icons.mic
+                                          : Icons.insert_drive_file),
                                 size: 16,
                                 color: Theme.of(context).primaryColor,
                               ),
                               const SizedBox(width: 8),
                               ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 150),
+                                constraints: const BoxConstraints(
+                                  maxWidth: 150,
+                                ),
                                 child: Text(
                                   chatProvider.attachmentPath!.split('/').last,
                                   style: const TextStyle(fontSize: 12),
@@ -369,9 +391,14 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                           side: BorderSide(
-                            color: Theme.of(context).brightness == Brightness.dark
-                                ? Colors.white.withOpacity(0.8)  // Çok daha belirgin beyaz
-                                : Colors.black.withOpacity(0.6), // Çok daha belirgin siyah
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white.withAlpha(
+                                    204,
+                                  ) // Çok daha belirgin beyaz
+                                : Colors.black.withAlpha(
+                                    153,
+                                  ), // Çok daha belirgin siyah
                             width: 2.0,
                           ),
                         ),
@@ -383,7 +410,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                                 maxLines: 4,
                                 minLines: 1,
                                 style: TextStyle(
-                                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                                  color: Theme.of(
+                                    context,
+                                  ).textTheme.bodyLarge?.color,
                                 ),
                                 decoration: InputDecoration(
                                   hintText: l10n.typeMessage,
@@ -432,7 +461,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 ),
               ],
             );
-          }
+          },
         ),
       ),
     );
@@ -440,9 +469,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 
   void _showAttachmentOptions(BuildContext context) {
     final l10n = context.l10n;
-    
+
     showModalBottomSheet(
-      context: context, 
+      context: context,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
@@ -469,7 +498,10 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 title: Text(l10n.attachmentImageGallery),
                 onTap: () {
                   Navigator.pop(context);
-                  Provider.of<ChatProvider>(context, listen: false).pickAttachment('image', context);
+                  Provider.of<ChatProvider>(
+                    context,
+                    listen: false,
+                  ).pickAttachment('image', context);
                 },
               ),
               ListTile(
@@ -477,7 +509,10 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 title: Text(l10n.attachmentCamera),
                 onTap: () {
                   Navigator.pop(context);
-                  Provider.of<ChatProvider>(context, listen: false).pickAttachment('camera', context);
+                  Provider.of<ChatProvider>(
+                    context,
+                    listen: false,
+                  ).pickAttachment('camera', context);
                 },
               ),
               ListTile(
@@ -485,106 +520,161 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 title: Text(l10n.attachmentAudio),
                 onTap: () {
                   Navigator.pop(context);
-                  Provider.of<ChatProvider>(context, listen: false).pickAttachment('audio', context);
+                  Provider.of<ChatProvider>(
+                    context,
+                    listen: false,
+                  ).pickAttachment('audio', context);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.insert_drive_file, color: Colors.orange),
+                leading: const Icon(
+                  Icons.insert_drive_file,
+                  color: Colors.orange,
+                ),
                 title: Text(l10n.attachmentDocument),
                 onTap: () {
                   Navigator.pop(context);
-                  Provider.of<ChatProvider>(context, listen: false).pickAttachment('file', context);
+                  Provider.of<ChatProvider>(
+                    context,
+                    listen: false,
+                  ).pickAttachment('file', context);
                 },
               ),
             ],
           ),
         );
-      }
+      },
     );
   }
 
   void _showHistorySheet(BuildContext context) {
-      showModalBottomSheet(
-          context: context, 
-          builder: (context) {
-             return Consumer<ChatProvider>(
-                builder: (context, chatProvider, child) {
-                  final l10n = context.l10n;
-                  return Container(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(l10n.conversationHistory, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                  IconButton(
-                                    icon: const Icon(Icons.close),
-                                    onPressed: () => Navigator.pop(context),
-                                  )
-                                ]
-                              ),
-                              const SizedBox(height: 10),
-                              if (chatProvider.conversations.isNotEmpty)
-                                Align(
-                                    alignment: Alignment.centerRight,
-                                    child: TextButton.icon(
-                                        icon: const Icon(Icons.delete_forever, color: Colors.red),
-                                        label: Text(l10n.clearHistory, style: const TextStyle(color: Colors.red)),
-                                        onPressed: () {
-                                            // Handle Clear All
-                                            showDialog(context: context, builder: (ctx) => AlertDialog(
-                                                title: Text(l10n.clearHistory),
-                                                content: Text(l10n.clearHistoryConfirm),
-                                                actions: [
-                                                    TextButton(child: Text(MaterialLocalizations.of(context).cancelButtonLabel), onPressed: () => Navigator.pop(ctx)),
-                                                    TextButton(child: Text(MaterialLocalizations.of(context).deleteButtonTooltip, style: const TextStyle(color: Colors.red)), onPressed: () {
-                                                        chatProvider.clearAllHistory();
-                                                        Navigator.pop(ctx); // Close Dialog
-                                                        Navigator.pop(context); // Close Sheet
-                                                    })
-                                                ]
-                                            ));
-                                        }
-                                    )
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Consumer<ChatProvider>(
+          builder: (context, chatProvider, child) {
+            final l10n = context.l10n;
+            return Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n.conversationHistory,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  if (chatProvider.conversations.isNotEmpty)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        icon: const Icon(
+                          Icons.delete_forever,
+                          color: Colors.red,
+                        ),
+                        label: Text(
+                          l10n.clearHistory,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                        onPressed: () {
+                          // Handle Clear All
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: Text(l10n.clearHistory),
+                              content: Text(l10n.clearHistoryConfirm),
+                              actions: [
+                                TextButton(
+                                  child: Text(
+                                    MaterialLocalizations.of(
+                                      context,
+                                    ).cancelButtonLabel,
+                                  ),
+                                  onPressed: () => Navigator.pop(ctx),
                                 ),
-                              Expanded(
-                                  child: chatProvider.conversations.isEmpty 
-                                  ? Center(child: Text(l10n.noHistory))
-                                  : ListView.builder(
-                                      itemCount: chatProvider.conversations.length,
-                                      itemBuilder: (context, index) {
-                                          final conv = chatProvider.conversations[index];
-                                          final isSelected = conv.id == chatProvider.activeConversation?.id;
-                                          return ListTile(
-                                              title: Text(conv.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-                                              subtitle: Text(conv.lastMessageAt.toString().substring(0, 16)),
-                                              leading: Icon(Icons.chat_bubble_outline, color: isSelected ? AppColors.primary : null),
-                                              selected: isSelected,
-                                              trailing: IconButton(
-                                                icon: const Icon(Icons.delete_outline, size: 20),
-                                                onPressed: () {
-                                                   chatProvider.deleteConversation(conv.id);
-                                                },
-                                              ),
-                                              onTap: () {
-                                                  chatProvider.selectConversation(conv.id);
-                                                  Navigator.pop(context);
-                                              },
-                                          );
-                                      }
-                                  )
-                              )
-                          ]
-                      )
-                  );
-                }
-             );
-          }
-      );
+                                TextButton(
+                                  child: Text(
+                                    MaterialLocalizations.of(
+                                      context,
+                                    ).deleteButtonTooltip,
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                  onPressed: () {
+                                    chatProvider.clearAllHistory();
+                                    Navigator.pop(ctx); // Close Dialog
+                                    Navigator.pop(context); // Close Sheet
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  Expanded(
+                    child: chatProvider.conversations.isEmpty
+                        ? Center(child: Text(l10n.noHistory))
+                        : ListView.builder(
+                            itemCount: chatProvider.conversations.length,
+                            itemBuilder: (context, index) {
+                              final conv = chatProvider.conversations[index];
+                              final isSelected =
+                                  conv.id ==
+                                  chatProvider.activeConversation?.id;
+                              return ListTile(
+                                title: Text(
+                                  conv.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                subtitle: Text(
+                                  conv.lastMessageAt.toString().substring(
+                                    0,
+                                    16,
+                                  ),
+                                ),
+                                leading: Icon(
+                                  Icons.chat_bubble_outline,
+                                  color: isSelected ? AppColors.primary : null,
+                                ),
+                                selected: isSelected,
+                                trailing: IconButton(
+                                  icon: const Icon(
+                                    Icons.delete_outline,
+                                    size: 20,
+                                  ),
+                                  onPressed: () {
+                                    chatProvider.deleteConversation(conv.id);
+                                  },
+                                ),
+                                onTap: () {
+                                  chatProvider.selectConversation(conv.id);
+                                  Navigator.pop(context);
+                                },
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
-
 
   Widget _buildMessageBubble(Message message) {
     final isUser = message.isUser;
@@ -593,7 +683,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
-        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isUser
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isUser) ...[
@@ -631,7 +723,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (message.attachmentPath != null && message.attachmentType == 'image')
+                  if (message.attachmentPath != null &&
+                      message.attachmentType == 'image')
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: ClipRRect(
@@ -641,17 +734,21 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                           height: 150,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image),
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.broken_image),
                         ),
                       ),
                     ),
-                  if (message.attachmentPath != null && message.attachmentType != 'image')
+                  if (message.attachmentPath != null &&
+                      message.attachmentType != 'image')
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: Row(
                         children: [
                           Icon(
-                            message.attachmentType == 'audio' ? Icons.mic : Icons.insert_drive_file,
+                            message.attachmentType == 'audio'
+                                ? Icons.mic
+                                : Icons.insert_drive_file,
                             size: 20,
                             color: isUser ? Colors.white70 : Colors.grey,
                           ),
@@ -679,10 +776,13 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                         try {
                           final uri = Uri.parse(href);
                           if (await canLaunchUrl(uri)) {
-                            await launchUrl(uri, mode: LaunchMode.externalApplication);
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
                           } else {
                             // Try processing as tel: or other schemes explicitly if needed
-                            await launchUrl(uri); 
+                            await launchUrl(uri);
                           }
                         } catch (e) {
                           debugPrint('Error launching URL: $e');
@@ -691,7 +791,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                     },
                     styleSheet: MarkdownStyleSheet(
                       p: TextStyle(
-                        color: isUser ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
+                        color: isUser
+                            ? Colors.white
+                            : Theme.of(context).textTheme.bodyLarge?.color,
                         fontSize: 15,
                       ),
                       a: TextStyle(
@@ -701,7 +803,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                       ),
                       // Ensure lists and headers look good
                       listBullet: TextStyle(
-                        color: isUser ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
+                        color: isUser
+                            ? Colors.white
+                            : Theme.of(context).textTheme.bodyLarge?.color,
                       ),
                     ),
                   ),
@@ -751,8 +855,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     );
   }
 
-
-
   @override
   void dispose() {
     _controller.dispose();
@@ -769,7 +871,8 @@ class _TypingDot extends StatefulWidget {
   State<_TypingDot> createState() => _TypingDotState();
 }
 
-class _TypingDotState extends State<_TypingDot> with SingleTickerProviderStateMixin {
+class _TypingDotState extends State<_TypingDot>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -780,9 +883,10 @@ class _TypingDotState extends State<_TypingDot> with SingleTickerProviderStateMi
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _animation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     Future.delayed(Duration(milliseconds: widget.delay), () {
       if (mounted) {
         _controller.repeat(reverse: true);
@@ -799,7 +903,11 @@ class _TypingDotState extends State<_TypingDot> with SingleTickerProviderStateMi
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: Color.lerp(Theme.of(context).disabledColor, Theme.of(context).primaryColor, _animation.value),
+            color: Color.lerp(
+              Theme.of(context).disabledColor,
+              Theme.of(context).primaryColor,
+              _animation.value,
+            ),
             shape: BoxShape.circle,
           ),
         );

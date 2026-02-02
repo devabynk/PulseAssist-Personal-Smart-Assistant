@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 part 'reminder.g.dart';
 
@@ -14,18 +14,10 @@ class Subtask {
   @HiveField(2)
   final bool isCompleted;
 
-  Subtask({
-    required this.id,
-    required this.title,
-    this.isCompleted = false,
-  });
+  Subtask({required this.id, required this.title, this.isCompleted = false});
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'title': title,
-      'isCompleted': isCompleted,
-    };
+    return {'id': id, 'title': title, 'isCompleted': isCompleted};
   }
 
   factory Subtask.fromMap(Map<String, dynamic> map) {
@@ -36,11 +28,7 @@ class Subtask {
     );
   }
 
-  Subtask copyWith({
-    String? id,
-    String? title,
-    bool? isCompleted,
-  }) {
+  Subtask copyWith({String? id, String? title, bool? isCompleted}) {
     return Subtask(
       id: id ?? this.id,
       title: title ?? this.title,
@@ -110,7 +98,7 @@ class Reminder {
   }
 
   factory Reminder.fromMap(Map<String, dynamic> map) {
-    List<Subtask> subtasksList = [];
+    var subtasksList = <Subtask>[];
     if (map['subtasks'] != null && map['subtasks'].toString().isNotEmpty) {
       try {
         final decoded = jsonDecode(map['subtasks']);
@@ -164,7 +152,7 @@ class Reminder {
 
   int get completedSubtasksCount => subtasks.where((s) => s.isCompleted).length;
   int get totalSubtasksCount => subtasks.length;
-  double get subtasksProgress => totalSubtasksCount > 0 
-      ? completedSubtasksCount / totalSubtasksCount 
+  double get subtasksProgress => totalSubtasksCount > 0
+      ? completedSubtasksCount / totalSubtasksCount
       : 0.0;
 }

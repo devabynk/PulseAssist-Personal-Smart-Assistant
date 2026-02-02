@@ -14,19 +14,21 @@ enum FailureType {
 class KeyManager {
   final List<String> _keys;
   final String serviceName;
-  
+
   int _currentIndex = 0;
-  
+
   // Track failed keys with cooldown
   final Map<String, DateTime> _failedKeys = {};
-  
+
   // Cooldown duration for rate-limited keys
   static const Duration _cooldown = Duration(minutes: 5);
 
-  KeyManager(List<String> keys, {required this.serviceName}) 
-      : _keys = List.unmodifiable(keys) {
+  KeyManager(List<String> keys, {required this.serviceName})
+    : _keys = List.unmodifiable(keys) {
     if (_keys.isEmpty) {
-      debugPrint('⚠️ KeyManager for $serviceName initialized with empty key list!');
+      debugPrint(
+        '⚠️ KeyManager for $serviceName initialized with empty key list!',
+      );
     }
   }
 
@@ -42,7 +44,7 @@ class KeyManager {
     if (_keys.length == 1) return _keys[0];
 
     final start = _currentIndex;
-    int next = (_currentIndex + 1) % _keys.length;
+    var next = (_currentIndex + 1) % _keys.length;
 
     // Try to find a non-failed key
     while (next != start) {
@@ -57,13 +59,15 @@ class KeyManager {
 
     // If all keys are failed, just force rotate to next one to try anyway
     _currentIndex = (_currentIndex + 1) % _keys.length;
-    debugPrint('⚠️ $serviceName: All keys in cooldown, forcing rotation to $_currentIndex');
+    debugPrint(
+      '⚠️ $serviceName: All keys in cooldown, forcing rotation to $_currentIndex',
+    );
     return _keys[_currentIndex];
   }
 
   bool _isKeyInCooldown(String key) {
     if (!_failedKeys.containsKey(key)) return false;
-    
+
     if (DateTime.now().isAfter(_failedKeys[key]!)) {
       _failedKeys.remove(key); // Cooldown expired
       return false;
@@ -74,15 +78,17 @@ class KeyManager {
   /// Report a failure on the current key
   void reportFailure(FailureType type) {
     if (_keys.isEmpty) return;
-    
+
     final key = currentKey;
-    debugPrint('❌ $serviceName: Failure reported ($type) on key ...${key.substring(key.length > 5 ? key.length - 5 : 0)}');
+    debugPrint(
+      '❌ $serviceName: Failure reported ($type) on key ...${key.substring(key.length > 5 ? key.length - 5 : 0)}',
+    );
 
     if (type == FailureType.rateLimit || type == FailureType.unauthorized) {
       _failedKeys[key] = DateTime.now().add(_cooldown);
       rotate();
-    } 
-    // For connection/server errors, we might want to rotate only after N failures, 
+    }
+    // For connection/server errors, we might want to rotate only after N failures,
     // but for simplicity, we provide a rotate() method to be called manually by user if needed,
     // or we can auto-rotate here.
     // Let's auto-rotate for server error 500 too as it might be account related in some APIs.
@@ -96,10 +102,12 @@ class KeyManager {
     Future<T> Function(String apiKey) action, {
     int maxAttempts = 3,
   }) async {
-    int attempts = 0;
-    
+    var attempts = 0;
+
     // We try at least as many times as we have keys, or maxAttempts, whichever is greater (capped reasonable)
-    final effectiveMax = _keys.length > maxAttempts ? _keys.length : maxAttempts;
+    final effectiveMax = _keys.length > maxAttempts
+        ? _keys.length
+        : maxAttempts;
 
     while (attempts < effectiveMax) {
       final key = currentKey;
@@ -108,16 +116,22 @@ class KeyManager {
         return await action(key);
       } catch (e) {
         final errorStr = e.toString().toLowerCase();
-        FailureType type = FailureType.unknown;
+        var type = FailureType.unknown;
 
         // Auto-detect failure type from standard HTTP error conventions
         if (errorStr.contains('429') || errorStr.contains('rate limit')) {
           type = FailureType.rateLimit;
-        } else if (errorStr.contains('401') || errorStr.contains('403') || errorStr.contains('unauthorized')) {
+        } else if (errorStr.contains('401') ||
+            errorStr.contains('403') ||
+            errorStr.contains('unauthorized')) {
           type = FailureType.unauthorized;
-        } else if (errorStr.contains('500') || errorStr.contains('502') || errorStr.contains('503')) {
+        } else if (errorStr.contains('500') ||
+            errorStr.contains('502') ||
+            errorStr.contains('503')) {
           type = FailureType.serverError;
-        } else if (errorStr.contains('socket') || errorStr.contains('timeout') || errorStr.contains('connection')) {
+        } else if (errorStr.contains('socket') ||
+            errorStr.contains('timeout') ||
+            errorStr.contains('connection')) {
           type = FailureType.connection;
         }
 
@@ -126,10 +140,10 @@ class KeyManager {
 
         // Report failure and rotate if needed
         reportFailure(type);
-        
+
         // If connection error, wait a bit before retry
         if (type == FailureType.connection) {
-             await Future.delayed(const Duration(seconds: 1));
+          await Future.delayed(const Duration(seconds: 1));
         }
       }
     }

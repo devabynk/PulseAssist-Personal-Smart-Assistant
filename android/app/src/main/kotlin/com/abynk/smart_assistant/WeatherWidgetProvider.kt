@@ -23,19 +23,19 @@ class WeatherWidgetProvider : HomeWidgetProvider() {
                 
                 if (isTransparent) {
                     setInt(R.id.widget_background, "setBackgroundResource", R.drawable.widget_background_transparent)
-                    // For transparent dark bg, text should be white
-                    setTextColor(R.id.widget_city, android.graphics.Color.WHITE)
-                    setTextColor(R.id.widget_temp, android.graphics.Color.WHITE)
-                    setTextColor(R.id.widget_condition, android.graphics.Color.LTGRAY)
-                    setTextColor(R.id.widget_updated, android.graphics.Color.LTGRAY)
                 } else {
                     setInt(R.id.widget_background, "setBackgroundResource", R.drawable.widget_background_solid)
-                    // For solid white bg, text should be black
-                    setTextColor(R.id.widget_city, android.graphics.Color.BLACK)
-                    setTextColor(R.id.widget_temp, android.graphics.Color.BLACK)
-                    setTextColor(R.id.widget_condition, android.graphics.Color.DKGRAY)
-                    setTextColor(R.id.widget_updated, android.graphics.Color.DKGRAY)
                 }
+                
+                // Use system color resources that adapt to dark/light mode
+                val textPrimary = context.getColor(R.color.widget_text_primary)
+                val textSecondary = context.getColor(R.color.widget_text_secondary)
+                val accentColor = context.getColor(R.color.widget_accent)
+                
+                setTextColor(R.id.widget_city, textPrimary)
+                setTextColor(R.id.widget_temp, accentColor)
+                setTextColor(R.id.widget_condition, textSecondary)
+                setTextColor(R.id.widget_updated, textSecondary)
             }
             appWidgetManager.updateAppWidget(widgetId, views)
         }

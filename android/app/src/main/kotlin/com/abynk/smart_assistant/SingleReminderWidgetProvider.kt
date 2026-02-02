@@ -24,12 +24,12 @@ class SingleReminderWidgetProvider : HomeWidgetProvider() {
                 setTextViewText(R.id.reminder_datetime, reminderDateTime)
                 setTextViewText(R.id.reminder_due_in, reminderDueIn)
                 
-                // Set priority color
+                // Set priority color using system resources
                 val priorityColor = when (priority) {
-                    "high" -> Color.parseColor("#F44336")
-                    "medium" -> Color.parseColor("#FF9800")
-                    "low" -> Color.parseColor("#4CAF50")
-                    else -> Color.parseColor("#FF9800")
+                    "high" -> context.getColor(R.color.widget_priority_high)
+                    "medium" -> context.getColor(R.color.widget_priority_medium)
+                    "low" -> context.getColor(R.color.widget_priority_low)
+                    else -> context.getColor(R.color.widget_priority_medium)
                 }
                 setInt(R.id.reminder_priority_indicator, "setBackgroundColor", priorityColor)
             }

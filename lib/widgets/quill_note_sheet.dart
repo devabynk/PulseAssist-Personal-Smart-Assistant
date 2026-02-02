@@ -1,29 +1,35 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart' as quill;
-import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
+
+import '../l10n/app_localizations.dart';
 import '../models/note.dart';
 import '../providers/note_provider.dart';
-import '../l10n/app_localizations.dart';
-import '../utils/extensions.dart';
 import '../screens/drawing_screen.dart';
 import '../screens/voice_note_screen.dart';
-import '../widgets/voice_player.dart';
-import '../widgets/drawing_preview.dart';
+import '../utils/extensions.dart';
 import '../widgets/common/custom_text_field.dart';
 import '../widgets/common/sheet_handle.dart';
 import '../widgets/common/sheet_header.dart'; // Import shared widget
+import '../widgets/drawing_preview.dart';
+import '../widgets/voice_player.dart';
 
 class QuillNoteSheet extends StatefulWidget {
   final Note? note;
   final List<String> colors;
   final String? template;
-  
-  const QuillNoteSheet({super.key, this.note, required this.colors, this.template});
+
+  const QuillNoteSheet({
+    super.key,
+    this.note,
+    required this.colors,
+    this.template,
+  });
 
   @override
   State<QuillNoteSheet> createState() => _QuillNoteSheetState();
@@ -40,8 +46,8 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
   late String? _drawingData;
   late String? _voiceNotePath;
   late List<String> _tags;
-  bool _isToolbarExpanded = false; 
-  
+  bool _isToolbarExpanded = false;
+
   final FocusNode _titleFocus = FocusNode();
   final FocusNode _editorFocus = FocusNode();
   final TextEditingController _tagController = TextEditingController();
@@ -59,7 +65,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
       _drawingData = widget.note!.drawingData;
       _voiceNotePath = widget.note!.voiceNotePath;
       _tags = List.from(widget.note!.tags);
-      
+
       try {
         final doc = quill.Document.fromJson(jsonDecode(widget.note!.content));
         _quillController = quill.QuillController(
@@ -85,7 +91,9 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (widget.note == null && widget.template != null && _quillController.document.isEmpty()) {
+    if (widget.note == null &&
+        widget.template != null &&
+        _quillController.document.isEmpty()) {
       _initializeTemplate();
     }
   }
@@ -94,60 +102,109 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
     // ... (Keep existing template logic)
     final l10n = context.l10n;
     List<Map<String, dynamic>>? deltaOps;
-    
+
     if (widget.template == 'shopping') {
       _titleController.text = l10n.templateShopping;
       deltaOps = [
         {'insert': l10n.templateShoppingDesc},
-        {'insert': '\n', 'attributes': {'header': 2}},
+        {
+          'insert': '\n',
+          'attributes': {'header': 2},
+        },
         {'insert': '\n'},
         {'insert': l10n.shoppingItem1},
-        {'insert': '\n', 'attributes': {'list': 'unchecked'}},
+        {
+          'insert': '\n',
+          'attributes': {'list': 'unchecked'},
+        },
         {'insert': l10n.shoppingItem2},
-        {'insert': '\n', 'attributes': {'list': 'unchecked'}},
+        {
+          'insert': '\n',
+          'attributes': {'list': 'unchecked'},
+        },
         {'insert': l10n.shoppingItem3},
-        {'insert': '\n', 'attributes': {'list': 'unchecked'}},
+        {
+          'insert': '\n',
+          'attributes': {'list': 'unchecked'},
+        },
         {'insert': ''},
-        {'insert': '\n', 'attributes': {'list': 'unchecked'}},
+        {
+          'insert': '\n',
+          'attributes': {'list': 'unchecked'},
+        },
       ];
     } else if (widget.template == 'todo') {
       _titleController.text = l10n.templateTodo;
       deltaOps = [
         {'insert': l10n.templateTodoDesc},
-        {'insert': '\n', 'attributes': {'header': 2}},
+        {
+          'insert': '\n',
+          'attributes': {'header': 2},
+        },
         {'insert': '\n'},
         {'insert': l10n.todoItem1},
-        {'insert': '\n', 'attributes': {'list': 'unchecked'}},
+        {
+          'insert': '\n',
+          'attributes': {'list': 'unchecked'},
+        },
         {'insert': l10n.todoItem2},
-        {'insert': '\n', 'attributes': {'list': 'unchecked'}},
+        {
+          'insert': '\n',
+          'attributes': {'list': 'unchecked'},
+        },
         {'insert': l10n.todoItem3},
-        {'insert': '\n', 'attributes': {'list': 'unchecked'}},
+        {
+          'insert': '\n',
+          'attributes': {'list': 'unchecked'},
+        },
         {'insert': ''},
-        {'insert': '\n', 'attributes': {'list': 'unchecked'}},
+        {
+          'insert': '\n',
+          'attributes': {'list': 'unchecked'},
+        },
       ];
     } else if (widget.template == 'meeting') {
       _titleController.text = l10n.templateMeeting;
       final today = DateTime.now();
-      final dateStr = '${today.day.toString().padLeft(2, '0')}.${today.month.toString().padLeft(2, '0')}.${today.year}';
+      final dateStr =
+          '${today.day.toString().padLeft(2, '0')}.${today.month.toString().padLeft(2, '0')}.${today.year}';
       deltaOps = [
-        {'insert': '${l10n.meetingDate}: ', 'attributes': {'bold': true}},
+        {
+          'insert': '${l10n.meetingDate}: ',
+          'attributes': {'bold': true},
+        },
         {'insert': '$dateStr\n'},
         {'insert': '\n'},
-        {'insert': '${l10n.meetingParticipants}:\n', 'attributes': {'bold': true}},
+        {
+          'insert': '${l10n.meetingParticipants}:\n',
+          'attributes': {'bold': true},
+        },
         {'insert': '• '},
         {'insert': '\n\n'},
-        {'insert': '${l10n.meetingAgenda}:\n', 'attributes': {'bold': true}},
+        {
+          'insert': '${l10n.meetingAgenda}:\n',
+          'attributes': {'bold': true},
+        },
         {'insert': '1. '},
         {'insert': '\n\n'},
-        {'insert': '${l10n.meetingNotes}:\n', 'attributes': {'bold': true}},
+        {
+          'insert': '${l10n.meetingNotes}:\n',
+          'attributes': {'bold': true},
+        },
         {'insert': '• '},
         {'insert': '\n\n'},
-        {'insert': '${l10n.meetingActionItems}:\n', 'attributes': {'bold': true}},
+        {
+          'insert': '${l10n.meetingActionItems}:\n',
+          'attributes': {'bold': true},
+        },
         {'insert': ''},
-        {'insert': '\n', 'attributes': {'list': 'unchecked'}},
+        {
+          'insert': '\n',
+          'attributes': {'list': 'unchecked'},
+        },
       ];
     }
-    
+
     if (deltaOps != null) {
       _quillController.document = quill.Document.fromJson(deltaOps);
     }
@@ -157,18 +214,19 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
-    
+
     return Container(
-      height: MediaQuery.of(context).size.height * 0.70, // Reduced from 0.92 to 0.70
+      height:
+          MediaQuery.of(context).size.height *
+          0.70, // Reduced from 0.92 to 0.70
       decoration: BoxDecoration(
         color: theme.cardColor,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [
           // Drag Handle
           const SheetHandle(), // Replaced
-          
           // Top Toolbar
           SheetHeader(
             title: widget.note == null ? l10n.newNote : l10n.editNote,
@@ -181,13 +239,13 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
             deleteTooltip: l10n.delete,
             saveTooltip: l10n.save,
           ), // Replaced
-          
-          Divider(height: 1),
-          
+
+          const Divider(height: 1),
+
           // Scrollable Content
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -195,51 +253,55 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
                   TextField(
                     controller: _titleController,
                     focusNode: _titleFocus,
-                    // Use standard titleLarge for notes, or adjusted if needed. 
+                    // Use standard titleLarge for notes, or adjusted if needed.
                     // Keeping titleLarge as it's the standard for notes usually, but reminders was too big.
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                     decoration: InputDecoration(
                       hintText: l10n.noteTitle,
                       border: InputBorder.none,
-                      hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
+                      hintStyle: Theme.of(
+                        context,
+                      ).inputDecorationTheme.hintStyle,
                     ),
                   ),
-                  SizedBox(height: 12),
-                  
+                  const SizedBox(height: 12),
+
                   // Tags
                   if (_tags.isNotEmpty) _buildTags(theme),
-                  
+
                   // Add tag field
                   _buildTagInput(l10n),
-                  
-                  Divider(),
-                  
+
+                  const Divider(),
+
                   // Attachments
                   if (_imagePaths.isNotEmpty) _buildImages(),
                   if (_voiceNotePath != null) _buildVoiceNote(),
                   if (_drawingData != null) _buildDrawingPreview(l10n),
-                  
+
                   // Quill Editor
                   Container(
-                    constraints: BoxConstraints(minHeight: 120),
+                    constraints: const BoxConstraints(minHeight: 120),
                     child: quill.QuillEditor.basic(
                       controller: _quillController,
                       focusNode: _editorFocus,
                       config: quill.QuillEditorConfig(
-                        placeholder: l10n.noteContent, // Key exists in arb? Yes, 'noteContent'
+                        placeholder: l10n
+                            .noteContent, // Key exists in arb? Yes, 'noteContent'
                       ),
                     ),
                   ),
-                  SizedBox(height: 20), // Reduced from 200
-
+                  const SizedBox(height: 20), // Reduced from 200
                 ],
               ),
             ),
           ),
-          
+
           // Quill Toolbar
           _buildQuillToolbar(),
-          
+
           // Action Toolbar
           _buildActionToolbar(l10n),
         ],
@@ -251,12 +313,16 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: _tags.map((tag) => Chip(
-        label: Text('#$tag', style: TextStyle(fontSize: 13)),
-        deleteIcon: Icon(Icons.close, size: 16),
-        onDeleted: () => setState(() => _tags.remove(tag)),
-        backgroundColor: theme.primaryColor.withAlpha(30),
-      )).toList(),
+      children: _tags
+          .map(
+            (tag) => Chip(
+              label: Text('#$tag', style: const TextStyle(fontSize: 13)),
+              deleteIcon: const Icon(Icons.close, size: 16),
+              onDeleted: () => setState(() => _tags.remove(tag)),
+              backgroundColor: theme.primaryColor.withAlpha(30),
+            ),
+          )
+          .toList(),
     );
   }
 
@@ -264,7 +330,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
     return CustomTextField(
       controller: _tagController,
       hintText: l10n.addTag,
-      prefixIcon: Icon(Icons.tag),
+      prefixIcon: const Icon(Icons.tag),
       onSubmitted: (value) {
         if (value.isNotEmpty && !_tags.contains(value)) {
           setState(() => _tags.add(value));
@@ -285,7 +351,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
             itemBuilder: (context, index) => Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.only(right: 8),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.file(
@@ -302,12 +368,16 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
                   child: GestureDetector(
                     onTap: () => setState(() => _imagePaths.removeAt(index)),
                     child: Container(
-                      padding: EdgeInsets.all(4),
-                      decoration: BoxDecoration(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
                         color: Colors.black54,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.close, color: Colors.white, size: 16),
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 16,
+                      ),
                     ),
                   ),
                 ),
@@ -315,7 +385,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
             ),
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -328,7 +398,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
           isDark: Theme.of(context).brightness == Brightness.dark,
           onDelete: () => setState(() => _voiceNotePath = null),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -339,7 +409,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
         GestureDetector(
           onTap: _openDrawing,
           child: Container(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.purple.withAlpha(30),
               borderRadius: BorderRadius.circular(12),
@@ -353,25 +423,41 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
                   height: 80,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.draw, color: Colors.purple, size: 20),
-                          SizedBox(width: 6),
-                          Text(l10n.drawingAttached, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          const Icon(
+                            Icons.draw,
+                            color: Colors.purple,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            l10n.drawingAttached,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
                         ],
                       ),
-                      SizedBox(height: 4),
-                      Text('Düzenlemek için dokunun', style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodySmall?.color)),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Düzenlemek için dokunun',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).textTheme.bodySmall?.color,
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.close, size: 20),
+                  icon: const Icon(Icons.close, size: 20),
                   onPressed: () => setState(() => _drawingData = null),
                   tooltip: 'Çizimi Sil',
                 ),
@@ -379,16 +465,16 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
             ),
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
       ],
     );
   }
 
   Widget _buildQuillToolbar() {
     final l10n = context.l10n;
-    
+
     return AnimatedContainer(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -399,42 +485,54 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
         children: [
           // Toolbar toggle button
           InkWell(
-            onTap: () => setState(() => _isToolbarExpanded = !_isToolbarExpanded),
+            onTap: () =>
+                setState(() => _isToolbarExpanded = !_isToolbarExpanded),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
                   Icon(
-                    _isToolbarExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                    _isToolbarExpanded
+                        ? Icons.keyboard_arrow_down
+                        : Icons.keyboard_arrow_up,
                     size: 20,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     _isToolbarExpanded ? l10n.hideTools : l10n.formattingTools,
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   if (!_isToolbarExpanded) ...[
-                    Icon(Icons.format_bold, size: 16, color: Colors.grey),
-                    SizedBox(width: 4),
-                    Icon(Icons.format_italic, size: 16, color: Colors.grey),
-                    SizedBox(width: 4),
-                    Icon(Icons.format_list_bulleted, size: 16, color: Colors.grey),
+                    const Icon(Icons.format_bold, size: 16, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    const Icon(
+                      Icons.format_italic,
+                      size: 16,
+                      color: Colors.grey,
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(
+                      Icons.format_list_bulleted,
+                      size: 16,
+                      color: Colors.grey,
+                    ),
                   ],
                 ],
               ),
             ),
           ),
-          
+
           // Expandable toolbar
           if (_isToolbarExpanded) ...[
-            Divider(height: 1),
+            const Divider(height: 1),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: quill.QuillSimpleToolbar(
-                controller: _quillController,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: quill.QuillSimpleToolbar(controller: _quillController),
             ),
           ],
         ],
@@ -448,17 +546,17 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
         color: Theme.of(context).cardColor,
         border: Border(top: BorderSide(color: Colors.grey.withAlpha(50))),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
             _actionButton(Icons.image, l10n.addImage, _pickImage),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             _actionButton(Icons.draw, l10n.draw, _openDrawing),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             _actionButton(Icons.mic, l10n.voiceNote, _recordVoice),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             _actionButton(Icons.palette, l10n.color, _showColorPicker),
           ],
         ),
@@ -471,7 +569,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
       onTap: onPressed,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor.withAlpha(30),
           borderRadius: BorderRadius.circular(16),
@@ -480,8 +578,8 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 20, color: Theme.of(context).primaryColor),
-            SizedBox(width: 6),
-            Text(label, style: TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(width: 6),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -493,34 +591,63 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
     const maxFileSize = 2 * 1024 * 1024; // 2MB
     const validImageExt = ['jpg', 'jpeg', 'png', 'webp'];
 
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1920, maxHeight: 1920, imageQuality: 85);
-    
+    final picker = ImagePicker();
+    final image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 85,
+    );
+
     if (image != null) {
       final file = File(image.path);
       final size = await file.length();
       if (size > maxFileSize) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.fileSizeError), backgroundColor: Colors.red));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.fileSizeError),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
         return;
       }
 
       final ext = image.path.split('.').last.toLowerCase();
       if (!validImageExt.contains(ext)) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.fileFormatError(validImageExt.join(', '))), backgroundColor: Colors.red));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.fileFormatError(validImageExt.join(', '))),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
         return;
       }
-      
+
       setState(() => _imagePaths.add(image.path));
     }
   }
 
   Future<void> _openDrawing() async {
-    final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => DrawingScreen(initialData: _drawingData)));
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DrawingScreen(initialData: _drawingData),
+      ),
+    );
     if (result != null) setState(() => _drawingData = result);
   }
 
   Future<void> _recordVoice() async {
-    final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => VoiceNoteScreen(existingPath: _voiceNotePath)));
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VoiceNoteScreen(existingPath: _voiceNotePath),
+      ),
+    );
     if (result != null) setState(() => _voiceNotePath = result);
   }
 
@@ -530,9 +657,12 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         height: 100,
-        margin: EdgeInsets.all(16),
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(20)),
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: widget.colors.length,
@@ -547,13 +677,22 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
               child: Container(
                 width: 50,
                 height: 50,
-                margin: EdgeInsets.only(right: 12),
+                margin: const EdgeInsets.only(right: 12),
                 decoration: BoxDecoration(
-                  color: Color(int.parse(color.substring(1), radix: 16) + 0xFF000000),
+                  color: Color(
+                    int.parse(color.substring(1), radix: 16) + 0xFF000000,
+                  ),
                   shape: BoxShape.circle,
-                  border: isSelected ? Border.all(color: Theme.of(context).primaryColor, width: 3) : null,
+                  border: isSelected
+                      ? Border.all(
+                          color: Theme.of(context).primaryColor,
+                          width: 3,
+                        )
+                      : null,
                 ),
-                child: isSelected ? Icon(Icons.check, color: Colors.white) : null,
+                child: isSelected
+                    ? const Icon(Icons.check, color: Colors.white)
+                    : null,
               ),
             );
           },
@@ -567,16 +706,22 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
     if (!_quillController.document.toPlainText().endsWith('\n')) {
       _quillController.document.insert(_quillController.document.length, '\n');
     }
-    final contentJson = jsonEncode(_quillController.document.toDelta().toJson());
-    
-    if (title.isEmpty && _quillController.document.isEmpty() && _imagePaths.isEmpty && _voiceNotePath == null && _drawingData == null) {
+    final contentJson = jsonEncode(
+      _quillController.document.toDelta().toJson(),
+    );
+
+    if (title.isEmpty &&
+        _quillController.document.isEmpty() &&
+        _imagePaths.isEmpty &&
+        _voiceNotePath == null &&
+        _drawingData == null) {
       Navigator.pop(context);
       return;
     }
 
     final now = DateTime.now();
     final note = Note(
-      id: widget.note?.id ?? Uuid().v4(),
+      id: widget.note?.id ?? const Uuid().v4(),
       title: title,
       content: contentJson,
       createdAt: widget.note?.createdAt ?? now,
@@ -590,7 +735,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
       voiceNotePath: _voiceNotePath,
       tags: _tags,
     );
-    
+
     if (widget.note == null) {
       Provider.of<NoteProvider>(context, listen: false).addNote(note);
     } else {
@@ -608,18 +753,26 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
           title: Text(l10n.deleteNote),
           content: Text(l10n.deleteNoteConfirm),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.cancel)),
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.cancel),
+            ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
               child: Text(l10n.delete),
             ),
           ],
         ),
       );
-      
+
       if (confirmed == true && mounted) {
-        await Provider.of<NoteProvider>(context, listen: false).deleteNote(widget.note!);
+        await Provider.of<NoteProvider>(
+          context,
+          listen: false,
+        ).deleteNote(widget.note!);
         if (mounted) Navigator.pop(context);
       }
     } else {

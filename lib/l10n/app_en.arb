@@ -5,7 +5,7 @@
   "chatbot": "Assistant",
   "alarm": "Alarm",
   "alarmPageTitle": "Alarms",
-  "versionLabel": "v1.3.3",
+  "versionLabel": "Version 1.3.3",
   "notes": "Notes",
   "reminders": "Reminders",
   "settings": "Settings",
@@ -300,6 +300,14 @@
   "currentLocation": "Current Location",
   "weatherUpdated": "Updated",
   
+  "country": "Country",
+  "selectCountry": "Select Country",
+  "selectLocationForWeather": "Select country and location for weather.",
+  "state": "State",
+  "saveAndContinue": "Save and Continue",
+  "pharmacyServiceTurkeyOnly": "Pharmacy service is only available for Turkey.\n\nPlease set your weather location to a city in Turkey.",
+  "eventsServiceTurkeyOnly": "Events service is only available for Turkey.\n\nPlease set your weather location to a city in Turkey.",
+  
   "duplicateAlarmTitle": "Duplicate Alarm",
   "duplicateAlarmMessage": "An alarm already exists for {time} on {days}. What would you like to do?",
   "@duplicateAlarmMessage": {
@@ -355,5 +363,12 @@
   "totalNotes": "Total Notes",
   "totalReminders": "Total Reminders",
   "activeItems": "Active",
-  "completedItems": "Completed"
+  "completedItems": "Completed",
+  "country": "Country",
+  "selectCountry": "Select Country",
+  "selectLocationForWeather": "Select country and location for weather.",
+  "state": "State",
+  "saveAndContinue": "Save and Continue",
+  "pharmacyServiceTurkeyOnly": "Pharmacy service is only available for Turkey.\\n\\nPlease set your weather location to a city in Turkey.",
+  "eventsServiceTurkeyOnly": "Events service is only available for Turkey.\\n\\nPlease set your weather location to a city in Turkey."
 }

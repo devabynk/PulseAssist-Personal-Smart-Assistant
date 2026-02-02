@@ -64,15 +64,27 @@ class CustomTextField extends StatelessWidget {
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
             // Theme data handles borders and colors, but we can override radius
-            border: borderRadius != null 
-              ? OutlineInputBorder(borderRadius: BorderRadius.circular(borderRadius!), borderSide: BorderSide.none)
-              : null,
+            border: borderRadius != null
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(borderRadius!),
+                    borderSide: BorderSide.none,
+                  )
+                : null,
             enabledBorder: borderRadius != null
-              ? OutlineInputBorder(borderRadius: BorderRadius.circular(borderRadius!), borderSide: BorderSide(color: Colors.transparent))
-              : null,
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(borderRadius!),
+                    borderSide: const BorderSide(color: Colors.transparent),
+                  )
+                : null,
             focusedBorder: borderRadius != null
-              ? OutlineInputBorder(borderRadius: BorderRadius.circular(borderRadius!), borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2))
-              : null,
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(borderRadius!),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).primaryColor,
+                      width: 2,
+                    ),
+                  )
+                : null,
           ),
           style: Theme.of(context).textTheme.bodyLarge,
           obscureText: obscureText,

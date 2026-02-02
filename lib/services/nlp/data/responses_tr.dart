@@ -488,4 +488,3 @@ Bu hedefler için hatırlatıcı kuralım mı? 🎯''',
     ],
   };
 }
-

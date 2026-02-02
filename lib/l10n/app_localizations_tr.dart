@@ -24,7 +24,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get alarmPageTitle => 'Alarmlar';
 
   @override
-  String get versionLabel => 'v1.3.1';
+  String get versionLabel => 'Sürüm 1.3.3';
 
   @override
   String get notes => 'Notlar';
@@ -162,28 +162,33 @@ class AppLocalizationsTr extends AppLocalizations {
   String get permissionsTitle => 'İzinler';
 
   @override
-  String get permissionsSubtitle => 'Uygulamanın düzgün çalışması için aşağıdaki izinlere ihtiyacımız var';
+  String get permissionsSubtitle =>
+      'Uygulamanın düzgün çalışması için aşağıdaki izinlere ihtiyacımız var';
 
   @override
   String get permissionsOptional => 'Tüm izinler isteğe bağlıdır';
 
   @override
-  String get permissionsSkipInfo => 'İzinleri daha sonra ayarlardan verebilirsiniz';
+  String get permissionsSkipInfo =>
+      'İzinleri daha sonra ayarlardan verebilirsiniz';
 
   @override
   String get notificationPermission => 'Bildirim İzni';
 
   @override
-  String get notificationPermissionDesc => 'Alarm ve hatırlatıcı bildirimleri için gerekli';
+  String get notificationPermissionDesc =>
+      'Alarm ve hatırlatıcı bildirimleri için gerekli';
 
   @override
-  String get notificationPermissionUsage => 'Alarmlar ve hatırlatıcılar için bildirim göstermek';
+  String get notificationPermissionUsage =>
+      'Alarmlar ve hatırlatıcılar için bildirim göstermek';
 
   @override
   String get cameraPermission => 'Kamera İzni';
 
   @override
-  String get cameraPermissionDesc => 'Notlarınıza fotoğraf eklemek için gerekli';
+  String get cameraPermissionDesc =>
+      'Notlarınıza fotoğraf eklemek için gerekli';
 
   @override
   String get cameraPermissionUsage => 'Notlarınıza fotoğraf çekmek ve eklemek';
@@ -195,16 +200,19 @@ class AppLocalizationsTr extends AppLocalizations {
   String get microphonePermissionDesc => 'Sesli not kaydetmek için gerekli';
 
   @override
-  String get microphonePermissionUsage => 'Sesli not kaydetmek ve sesli hatırlatıcılar oluşturmak';
+  String get microphonePermissionUsage =>
+      'Sesli not kaydetmek ve sesli hatırlatıcılar oluşturmak';
 
   @override
   String get schedulerPermission => 'Zamanlayıcı İzni';
 
   @override
-  String get schedulerPermissionDesc => 'Bildirimleri tam zamanında göndermek için gerekli';
+  String get schedulerPermissionDesc =>
+      'Bildirimleri tam zamanında göndermek için gerekli';
 
   @override
-  String get schedulerPermissionUsage => 'Alarmların ve hatırlatıcıların tam zamanında çalması';
+  String get schedulerPermissionUsage =>
+      'Alarmların ve hatırlatıcıların tam zamanında çalması';
 
   @override
   String get storagePermission => 'Depolama İzni';
@@ -213,7 +221,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get storagePermissionDesc => 'Notlarınıza resim eklemek için gerekli';
 
   @override
-  String get storagePermissionUsage => 'Notlarınıza resim eklemek ve sesli notları kaydetmek';
+  String get storagePermissionUsage =>
+      'Notlarınıza resim eklemek ve sesli notları kaydetmek';
 
   @override
   String get grantAllPermissions => 'Tüm İzinleri Ver';
@@ -322,10 +331,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get todoItem3 => 'Yapılacak görev 3';
 
   @override
-  String get chatWelcome => '🤖 Merhaba! Ben senin akıllı asistanınım.\n\nSana şu konularda yardımcı olabilirim:\n• ⏰ Alarm kurma\n• 📝 Not alma\n• 🔔 Hatırlatıcı oluşturma\n\nBir şey sor veya alt menüden istediğin özelliği seç!';
+  String get chatWelcome =>
+      '🤖 Merhaba! Ben senin akıllı asistanınım.\n\nSana şu konularda yardımcı olabilirim:\n• ⏰ Alarm kurma\n• 📝 Not alma\n• 🔔 Hatırlatıcı oluşturma\n\nBir şey sor veya alt menüden istediğin özelliği seç!';
 
   @override
-  String get helpResponse => '🤖 **Yapabileceğim şeyler:**\n\n⏰ **Alarm kurma:**\n\"Alarm kur\" veya \"Alarm ekle\"\n\n📝 **Not alma:**\n\"Not al\" veya \"Not yaz\"\n\n🔔 **Hatırlatıcı:**\n\"Hatırlatıcı oluştur\"\n\n💬 Daha fazla yardım için herhangi bir şey sor!';
+  String get helpResponse =>
+      '🤖 **Yapabileceğim şeyler:**\n\n⏰ **Alarm kurma:**\n\"Alarm kur\" veya \"Alarm ekle\"\n\n📝 **Not alma:**\n\"Not al\" veya \"Not yaz\"\n\n🔔 **Hatırlatıcı:**\n\"Hatırlatıcı oluştur\"\n\n💬 Daha fazla yardım için herhangi bir şey sor!';
 
   @override
   String get qaAlarm => 'Alarm kur';
@@ -392,7 +403,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get deleteAlarm => 'Alarmı Sil';
 
   @override
-  String get deleteAlarmConfirm => 'Bu alarmı silmek istediğinize emin misiniz?';
+  String get deleteAlarmConfirm =>
+      'Bu alarmı silmek istediğinize emin misiniz?';
 
   @override
   String get noteContent => 'Yazmaya başlayın...';
@@ -425,7 +437,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get clearHistory => 'Geçmişi Temizle';
 
   @override
-  String get clearHistoryConfirm => 'Tüm sohbetleri silmek istediğinize emin misiniz? (Öğrenilen veriler saklanır)';
+  String get clearHistoryConfirm =>
+      'Tüm sohbetleri silmek istediğinize emin misiniz? (Öğrenilen veriler saklanır)';
 
   @override
   String get startConversation => 'Yeni bir sohbet başlat!';
@@ -689,6 +702,30 @@ class AppLocalizationsTr extends AppLocalizations {
   String get weatherUpdated => 'Güncellendi';
 
   @override
+  String get country => 'Ülke';
+
+  @override
+  String get selectCountry => 'Ülke Seçin';
+
+  @override
+  String get selectLocationForWeather =>
+      'Hava durumu için ülke ve konum seçin.';
+
+  @override
+  String get state => 'Eyalet';
+
+  @override
+  String get saveAndContinue => 'Kaydet ve Devam Et';
+
+  @override
+  String get pharmacyServiceTurkeyOnly =>
+      'Nöbetçi eczane hizmeti sadece Türkiye için kullanılabilir.\\n\\nLütfen hava durumu konumunuzu Türkiye\'deki bir şehre ayarlayın.';
+
+  @override
+  String get eventsServiceTurkeyOnly =>
+      'Etkinlik hizmeti sadece Türkiye için kullanılabilir.\\n\\nLütfen hava durumu konumunuzu Türkiye\'deki bir şehre ayarlayın.';
+
+  @override
   String get duplicateAlarmTitle => 'Tekrar Eden Alarm';
 
   @override
@@ -732,7 +769,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get actionCancelled => 'İptal edildi. Başka nasıl yardımcı olabilirim?';
+  String get actionCancelled =>
+      'İptal edildi. Başka nasıl yardımcı olabilirim?';
 
   @override
   String get askAlarmTime => 'Alarmı saat kaça kurayım?';

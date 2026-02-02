@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:record/record.dart';
 import 'package:smart_assistant/providers/settings_provider.dart';
 
 class VoiceNoteScreen extends StatefulWidget {
   final String? existingPath;
-  
+
   const VoiceNoteScreen({super.key, this.existingPath});
 
   @override
@@ -28,7 +28,8 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isTr = Provider.of<SettingsProvider>(context).locale.languageCode == 'tr';
+    final isTr =
+        Provider.of<SettingsProvider>(context).locale.languageCode == 'tr';
 
     return Scaffold(
       appBar: AppBar(
@@ -36,7 +37,7 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
         actions: [
           if (_recordingPath != null)
             IconButton(
-              icon: Icon(Icons.check),
+              icon: const Icon(Icons.check),
               onPressed: () => Navigator.pop(context, _recordingPath),
             ),
         ],
@@ -50,40 +51,51 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
             // Recording Status
             if (_isRecording) ...[
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withAlpha(26),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.fiber_manual_record, color: Colors.red, size: 16),
-                    SizedBox(width: 8),
+                    const Icon(
+                      Icons.fiber_manual_record,
+                      color: Colors.red,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
                     Text(
-                      _isPaused 
-                          ? (isTr ? 'DURAKLATILDI' : 'PAUSED') 
+                      _isPaused
+                          ? (isTr ? 'DURAKLATILDI' : 'PAUSED')
                           : (isTr ? 'KAYDEDİLİYOR' : 'RECORDING'),
-                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
             ],
-            
+
             // Timer
             Text(
               _formatDuration(_duration),
-              style: TextStyle(
-                fontSize: 64, 
+              style: const TextStyle(
+                fontSize: 64,
                 fontWeight: FontWeight.w200,
                 fontFeatures: [FontFeature.tabularFigures()],
               ),
             ),
-            
-            SizedBox(height: 64),
-            
+
+            const SizedBox(height: 64),
+
             // Controls
             if (!_isRecording && _recordingPath == null)
               // Initial State: Start Button
@@ -96,10 +108,14 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
                     color: Colors.red,
                     shape: BoxShape.circle,
                     boxShadow: [
-                      BoxShadow(color: Colors.red.withOpacity(0.4), blurRadius: 12, spreadRadius: 4)
+                      BoxShadow(
+                        color: Colors.red.withAlpha(102),
+                        blurRadius: 12,
+                        spreadRadius: 4,
+                      ),
                     ],
                   ),
-                  child: Icon(Icons.mic, color: Colors.white, size: 36),
+                  child: const Icon(Icons.mic, color: Colors.white, size: 36),
                 ),
               )
             else if (_isRecording)
@@ -107,26 +123,31 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                   IconButton(
+                  IconButton(
                     onPressed: _togglePause,
                     icon: Container(
-                      padding: EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.2),
+                        color: Colors.grey.withAlpha(51),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(_isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded, size: 32),
+                      child: Icon(
+                        _isPaused
+                            ? Icons.play_arrow_rounded
+                            : Icons.pause_rounded,
+                        size: 32,
+                      ),
                     ),
                     iconSize: 56,
                   ),
-                  SizedBox(width: 32),
+                  const SizedBox(width: 32),
                   GestureDetector(
                     onTap: _stopRecording,
                     child: Container(
                       width: 72,
                       height: 72,
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
+                        color: Colors.red.withAlpha(26),
                         border: Border.all(color: Colors.red, width: 3),
                         shape: BoxShape.circle,
                       ),
@@ -148,25 +169,37 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
               // Review State
               Column(
                 children: [
-                  Text(isTr ? 'Kayıt Yapıldı' : "Recording Saved", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 24),
+                  Text(
+                    isTr ? 'Kayıt Yapıldı' : 'Recording Saved',
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       TextButton.icon(
                         onPressed: () => setState(() => _recordingPath = null),
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        label: Text(isTr ? 'Sil' : "Discard", style: TextStyle(color: Colors.red)),
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        label: Text(
+                          isTr ? 'Sil' : 'Discard',
+                          style: const TextStyle(color: Colors.red),
+                        ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       ElevatedButton.icon(
                         onPressed: () => Navigator.pop(context, _recordingPath),
-                        icon: Icon(Icons.check),
-                        label: Text(isTr ? 'Kaydı Kullan' : "Use Recording"),
+                        icon: const Icon(Icons.check),
+                        label: Text(isTr ? 'Kaydı Kullan' : 'Use Recording'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
                         ),
                       ),
                     ],
@@ -183,9 +216,12 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
     try {
       // Check and request permission
       if (!await _recorder.hasPermission()) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Microphone permission is required to record voice notes'),
+            content: const Text(
+              'Microphone permission is required to record voice notes',
+            ),
             action: SnackBarAction(
               label: 'Settings',
               onPressed: () {
@@ -196,28 +232,31 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
         );
         return;
       }
-      
+
       final dir = await getApplicationDocumentsDirectory();
-      final path = '${dir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
-      
+      final path =
+          '${dir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
       await _recorder.start(
         const RecordConfig(encoder: AudioEncoder.aacLc),
         path: path,
       );
-      
+
+      if (!mounted) return;
+
       setState(() {
         _isRecording = true;
         _recordingPath = path;
         _duration = Duration.zero;
       });
-      
+
       // Start duration timer
       _startTimer();
     } catch (e) {
       debugPrint('Error starting recording: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to start recording: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to start recording: $e')));
     }
   }
 
@@ -250,12 +289,12 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
     Future.doWhile(() async {
       if (!_isRecording) return false;
       if (!_isPaused) {
-        await Future.delayed(Duration(seconds: 1));
+        await Future.delayed(const Duration(seconds: 1));
         if (mounted && _isRecording) {
-          setState(() => _duration += Duration(seconds: 1));
+          setState(() => _duration += const Duration(seconds: 1));
         }
       } else {
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
       }
       return _isRecording;
     });

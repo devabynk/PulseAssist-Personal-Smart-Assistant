@@ -1,18 +1,19 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
+
 import 'package:alarm/alarm.dart' as alarm_pkg;
+import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
+
 import '../models/alarm.dart' as app_alarm;
 import '../models/notification_log.dart';
 import '../services/database_service.dart';
 import '../services/widget_service.dart';
 
-import 'package:uuid/uuid.dart';
-
 class AlarmProvider with ChangeNotifier {
   final DatabaseService _db = DatabaseService.instance;
   final Uuid _uuid = const Uuid();
-  
+
   List<app_alarm.Alarm> _alarms = [];
   bool _isLoading = true;
 
@@ -25,19 +26,21 @@ class AlarmProvider with ChangeNotifier {
     for (final existing in _alarms) {
       // Skip if comparing with itself (during edit)
       if (existing.id == newAlarm.id) continue;
-      
+
       // Check if times match (hour and minute)
-      if (existing.time.hour != newAlarm.time.hour || 
+      if (existing.time.hour != newAlarm.time.hour ||
           existing.time.minute != newAlarm.time.minute) {
         continue;
       }
-      
+
       // For repeating alarms: check if repeat days overlap
       if (newAlarm.repeatDays.isNotEmpty && existing.repeatDays.isNotEmpty) {
-        final hasOverlap = newAlarm.repeatDays.any((day) => existing.repeatDays.contains(day));
+        final hasOverlap = newAlarm.repeatDays.any(
+          (day) => existing.repeatDays.contains(day),
+        );
         if (hasOverlap) return existing;
       }
-      
+
       // For one-time alarms: check if same date
       if (newAlarm.repeatDays.isEmpty && existing.repeatDays.isEmpty) {
         if (existing.time.year == newAlarm.time.year &&
@@ -51,24 +54,35 @@ class AlarmProvider with ChangeNotifier {
   }
 
   /// Snooze an alarm for a specific duration
-  Future<void> snoozeAlarm(int alarmId, Duration duration, String? title, String? body) async {
+  Future<void> snoozeAlarm(
+    int alarmId,
+    Duration duration,
+    String? title,
+    String? body,
+  ) async {
     // Stop the ringing alarm
     await stopRingingAlarm(alarmId);
-    
+
     // Schedule a new one-time alarm
     final now = DateTime.now();
     final snoozeTime = now.add(duration);
-    
+
     final snoozedAlarm = app_alarm.Alarm(
       id: _uuid.v4(),
-      title: title != null && title.isNotEmpty ? '$title (Erte)' : 'Ertelenmiş Alarm',
+      title: title != null && title.isNotEmpty
+          ? '$title (Erte)'
+          : 'Ertelenmiş Alarm',
       time: snoozeTime,
       isActive: true, // Auto active
       repeatDays: [], // One-time
-      soundPath: _alarms.firstWhere((a) => a.id == alarmId).soundPath,
-      soundName: _alarms.firstWhere((a) => a.id == alarmId).soundName,
+      soundPath: _alarms
+          .firstWhere((a) => a.id.hashCode.abs() == alarmId)
+          .soundPath,
+      soundName: _alarms
+          .firstWhere((a) => a.id.hashCode.abs() == alarmId)
+          .soundName,
     );
-    
+
     await addAlarm(snoozedAlarm);
     debugPrint('Alarm snoozed until $snoozeTime');
   }
@@ -76,30 +90,39 @@ class AlarmProvider with ChangeNotifier {
   /// Skip the next occurrence of a repeating alarm without disabling it entirely
   Future<void> skipNextAlarm(app_alarm.Alarm alarm) async {
     if (alarm.repeatDays.isEmpty) return; // Cannot skip non-repeating
-    
+
     // Find next valid occurrence
     final now = DateTime.now();
-    DateTime next = DateTime(now.year, now.month, now.day, alarm.time.hour, alarm.time.minute);
-    
+    var next = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      alarm.time.hour,
+      alarm.time.minute,
+    );
+
     // If today's time passed, start checking from tomorrow
     if (next.isBefore(now)) {
       next = next.add(const Duration(days: 1));
     }
-    
+
     // Find next valid repeating day
     while (!alarm.repeatDays.contains(next.weekday)) {
       next = next.add(const Duration(days: 1));
     }
-    
+
     // Add date only (normlized to midnight) to skippedDates to avoid time confusion
     final dateToSkip = DateTime(next.year, next.month, next.day);
-    final updatedSkipped = List<DateTime>.from(alarm.skippedDates)..add(dateToSkip);
-    
+    final updatedSkipped = List<DateTime>.from(alarm.skippedDates)
+      ..add(dateToSkip);
+
     // Clean up old skipped dates (older than yesterday)
-    updatedSkipped.removeWhere((d) => d.isBefore(DateTime(now.year, now.month, now.day - 1)));
-    
+    updatedSkipped.removeWhere(
+      (d) => d.isBefore(DateTime(now.year, now.month, now.day - 1)),
+    );
+
     final updatedAlarm = alarm.copyWith(skippedDates: updatedSkipped);
-    
+
     await updateAlarm(updatedAlarm);
   }
 
@@ -122,25 +145,27 @@ class AlarmProvider with ChangeNotifier {
   /// Handle alarm ring event (called from main.dart)
   Future<void> handleAlarmRing(alarm_pkg.AlarmSettings alarmSettings) async {
     debugPrint('Alarm ringing (handled by provider): ${alarmSettings.id}');
-    
+
     // Find the alarm in our list by matching the ID
     try {
       final alarm = _alarms.firstWhere(
         (a) => a.id.hashCode.abs() == alarmSettings.id,
       );
-      
+
       // Log notification
       try {
         final now = DateTime.now();
-        await _db.insertNotificationLog(NotificationLog(
-          id: DateTime.now().millisecondsSinceEpoch.toString(), // Simple ID
-          title: 'Alarm',
-          body: '${alarm.title.isNotEmpty ? alarm.title : 'Alarm'} çalıyor!',
-          timestamp: now,
-          isRead: false,
-          type: 'alarm',
-          payload: alarm.id,
-        ));
+        await _db.insertNotificationLog(
+          NotificationLog(
+            id: DateTime.now().millisecondsSinceEpoch.toString(), // Simple ID
+            title: 'Alarm',
+            body: '${alarm.title.isNotEmpty ? alarm.title : 'Alarm'} çalıyor!',
+            timestamp: now,
+            isRead: false,
+            type: 'alarm',
+            payload: alarm.id,
+          ),
+        );
       } catch (e) {
         debugPrint('Failed to log alarm notification: $e');
       }
@@ -177,52 +202,54 @@ class AlarmProvider with ChangeNotifier {
     try {
       // 1. Load alarms from DB first to have a base
       await loadAlarms();
-      
+
       final dbAlarms = _alarms;
       final systemAlarms = await alarm_pkg.Alarm.getAlarms();
-      
+
       // Create a set of system alarm IDs for quick lookup
       final systemAlarmIds = systemAlarms.map((a) => a.id).toSet();
-      
+
       // 2. Reschedule any DB alarms that match system alarms but might be missing in system (re-ensure)
       // OR remove alarms from DB that are definitely gone from system is risky if system alarm cleared on reboot?
       // Actually Android AlarmManager might persist across reboots but alarm_pkg handles it.
       // If alarm_pkg says it's gone, it's probably gone.
-      
+
       // However, to be safe against data loss:
       // If DB has alarm but System doesn't:
       // - If it's active and future, reschedule it! (Don't delete)
       // - If it's past, then maybe delete or deactivate.
-      
+
       final now = DateTime.now();
 
       for (var dbAlarm in dbAlarms) {
         final alarmId = dbAlarm.id.hashCode.abs();
-        
+
         if (!systemAlarmIds.contains(alarmId)) {
           // Alarm is in DB but not in System.
           if (dbAlarm.isActive) {
-             // It should be running. Check if it's in the future or repeating.
-             bool shouldReschedule = false;
-             if (dbAlarm.repeatDays.isNotEmpty) {
-               shouldReschedule = true;
-             } else if (dbAlarm.time.isAfter(now)) {
-               shouldReschedule = true;
-             }
-             
-             if (shouldReschedule) {
-               debugPrint('Rescheduling missing system alarm found in DB: ${dbAlarm.title}');
-               await _scheduleAlarm(dbAlarm);
-             } else {
-               // It's old and one-time, simple deactivate
-               debugPrint('Deactivating expired orphan alarm: ${dbAlarm.title}');
-               final deactivated = dbAlarm.copyWith(isActive: false);
-               await _db.updateAlarm(deactivated);
-             }
+            // It should be running. Check if it's in the future or repeating.
+            var shouldReschedule = false;
+            if (dbAlarm.repeatDays.isNotEmpty) {
+              shouldReschedule = true;
+            } else if (dbAlarm.time.isAfter(now)) {
+              shouldReschedule = true;
+            }
+
+            if (shouldReschedule) {
+              debugPrint(
+                'Rescheduling missing system alarm found in DB: ${dbAlarm.title}',
+              );
+              await _scheduleAlarm(dbAlarm);
+            } else {
+              // It's old and one-time, simple deactivate
+              debugPrint('Deactivating expired orphan alarm: ${dbAlarm.title}');
+              final deactivated = dbAlarm.copyWith(isActive: false);
+              await _db.updateAlarm(deactivated);
+            }
           }
         }
       }
-      
+
       // Reload alarms after cleanup/reschedule
       await loadAlarms();
     } catch (e) {
@@ -282,17 +309,27 @@ class AlarmProvider with ChangeNotifier {
         alarm.time.minute,
       );
 
-      while (scheduledTime.isBefore(now) || !alarm.repeatDays.contains(scheduledTime.weekday)) {
+      while (scheduledTime.isBefore(now) ||
+          !alarm.repeatDays.contains(scheduledTime.weekday)) {
         scheduledTime = scheduledTime.add(const Duration(days: 1));
       }
-      
+
       // Check if this date is skipped
-      final scheduledDateOnly = DateTime(scheduledTime.year, scheduledTime.month, scheduledTime.day);
-      if (alarm.skippedDates.any((d) => d.year == scheduledDateOnly.year && d.month == scheduledDateOnly.month && d.day == scheduledDateOnly.day)) {
+      final scheduledDateOnly = DateTime(
+        scheduledTime.year,
+        scheduledTime.month,
+        scheduledTime.day,
+      );
+      if (alarm.skippedDates.any(
+        (d) =>
+            d.year == scheduledDateOnly.year &&
+            d.month == scheduledDateOnly.month &&
+            d.day == scheduledDateOnly.day,
+      )) {
         debugPrint('Skipping alarm ${alarm.title} for $scheduledDateOnly');
         scheduledTime = scheduledTime.add(const Duration(days: 1));
         while (!alarm.repeatDays.contains(scheduledTime.weekday)) {
-           scheduledTime = scheduledTime.add(const Duration(days: 1));
+          scheduledTime = scheduledTime.add(const Duration(days: 1));
         }
       }
     } else {
@@ -322,8 +359,10 @@ class AlarmProvider with ChangeNotifier {
       ),
     );
 
-    debugPrint('Scheduling alarm: ${alarm.title} for $scheduledTime (ID: ${alarmSettings.id})');
-    
+    debugPrint(
+      'Scheduling alarm: ${alarm.title} for $scheduledTime (ID: ${alarmSettings.id})',
+    );
+
     try {
       await alarm_pkg.Alarm.set(alarmSettings: alarmSettings);
       debugPrint('Alarm scheduled successfully');
@@ -343,7 +382,7 @@ class AlarmProvider with ChangeNotifier {
   /// Stop a ringing alarm
   Future<void> stopRingingAlarm(int alarmId) async {
     await alarm_pkg.Alarm.stop(alarmId);
-    
+
     // Explicitly check and deactivate if it's a one-time alarm
     // This is a safety fallback in case the ring stream listener didn't catch it
     try {
@@ -351,12 +390,16 @@ class AlarmProvider with ChangeNotifier {
       if (_alarms.isEmpty) {
         await loadAlarms();
       }
-      
-      final alarmIndex = _alarms.indexWhere((a) => a.id.hashCode.abs() == alarmId);
+
+      final alarmIndex = _alarms.indexWhere(
+        (a) => a.id.hashCode.abs() == alarmId,
+      );
       if (alarmIndex != -1) {
         final alarm = _alarms[alarmIndex];
         if (alarm.repeatDays.isEmpty && alarm.isActive) {
-          debugPrint('Stopping one-time alarm manually, deactivating: ${alarm.title}');
+          debugPrint(
+            'Stopping one-time alarm manually, deactivating: ${alarm.title}',
+          );
           final deactivated = alarm.copyWith(isActive: false);
           await _db.updateAlarm(deactivated);
           await loadAlarms();

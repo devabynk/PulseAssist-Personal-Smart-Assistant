@@ -10,12 +10,12 @@ class FuzzyMatcher {
     if (s1.isEmpty) return s2.length;
     if (s2.isEmpty) return s1.length;
 
-    List<int> v0 = List<int>.generate(s2.length + 1, (i) => i);
-    List<int> v1 = List<int>.filled(s2.length + 1, 0);
+    var v0 = List<int>.generate(s2.length + 1, (i) => i);
+    var v1 = List<int>.filled(s2.length + 1, 0);
 
-    for (int i = 0; i < s1.length; i++) {
+    for (var i = 0; i < s1.length; i++) {
       v1[0] = i + 1;
-      for (int j = 0; j < s2.length; j++) {
+      for (var j = 0; j < s2.length; j++) {
         final cost = s1[i] == s2[j] ? 0 : 1;
         v1[j + 1] = [v1[j] + 1, v0[j + 1] + 1, v0[j] + cost].reduce(min);
       }
@@ -43,7 +43,11 @@ class FuzzyMatcher {
   }
 
   /// Find best match from a list of candidates
-  static FuzzyMatch? findBestMatch(String query, List<String> candidates, {double minScore = 0.6}) {
+  static FuzzyMatch? findBestMatch(
+    String query,
+    List<String> candidates, {
+    double minScore = 0.6,
+  }) {
     if (candidates.isEmpty) return null;
 
     FuzzyMatch? bestMatch;
@@ -61,7 +65,11 @@ class FuzzyMatcher {
   }
 
   /// Find all matches above threshold
-  static List<FuzzyMatch> findAllMatches(String query, List<String> candidates, {double minScore = 0.6}) {
+  static List<FuzzyMatch> findAllMatches(
+    String query,
+    List<String> candidates, {
+    double minScore = 0.6,
+  }) {
     final matches = <FuzzyMatch>[];
 
     for (final candidate in candidates) {
@@ -76,7 +84,11 @@ class FuzzyMatcher {
   }
 
   /// Find word in text with fuzzy matching
-  static bool containsFuzzy(String text, String word, {double threshold = 0.8}) {
+  static bool containsFuzzy(
+    String text,
+    String word, {
+    double threshold = 0.8,
+  }) {
     final words = text.toLowerCase().split(RegExp(r'\s+'));
     final target = word.toLowerCase();
 
@@ -89,7 +101,11 @@ class FuzzyMatcher {
   }
 
   /// Find any matching word from list in text
-  static String? findFuzzyMatch(String text, List<String> words, {double threshold = 0.75}) {
+  static String? findFuzzyMatch(
+    String text,
+    List<String> words, {
+    double threshold = 0.75,
+  }) {
     final textWords = text.toLowerCase().split(RegExp(r'\s+'));
 
     for (final word in words) {
@@ -123,7 +139,7 @@ class FuzzyMatcher {
 
   static Set<String> _getNgrams(String text, int n) {
     final ngrams = <String>{};
-    for (int i = 0; i <= text.length - n; i++) {
+    for (var i = 0; i <= text.length - n; i++) {
       ngrams.add(text.substring(i, i + n));
     }
     return ngrams;

@@ -12,16 +12,19 @@ class LearningService {
   LearningService._init();
 
   /// Record a successful user action to learn from it
-  Future<void> recordHabit(IntentType intent, Map<String, dynamic> entities) async {
+  Future<void> recordHabit(
+    IntentType intent,
+    Map<String, dynamic> entities,
+  ) async {
     // We only care about specific intents
     if (intent != IntentType.alarm && intent != IntentType.reminder) return;
-    
+
     // We only care about repeatable parameters (e.g. time)
     // Content of a note is usually unique, so we don't learn "Buy milk".
     // But for ALARM, "07:00" is a habit.
-    
-    Map<String, dynamic> relevantParams = {};
-    
+
+    final relevantParams = <String, dynamic>{};
+
     if (intent == IntentType.alarm) {
       if (entities['time'] != null) {
         // Store as simple string to match easily: "07:00"
@@ -29,10 +32,10 @@ class LearningService {
         relevantParams['time'] = time.formatted; // e.g., "07:00"
       }
     } else if (intent == IntentType.reminder) {
-       // For reminders, maybe we learn preferred times?
-       // e.g. "Remind me in the morning" -> usually means 09:00
-       // But this is complex. Let's stick to Alarm for MVP.
-       return; 
+      // For reminders, maybe we learn preferred times?
+      // e.g. "Remind me in the morning" -> usually means 09:00
+      // But this is complex. Let's stick to Alarm for MVP.
+      return;
     }
 
     if (relevantParams.isEmpty) return;
@@ -76,9 +79,9 @@ class LearningService {
 
     // Get the most frequent habit
     final bestHabit = habits.first;
-    
+
     // Minimum frequency threshold to consider it a "habit"
-    if (bestHabit.frequency < 2) return null; 
+    if (bestHabit.frequency < 2) return null;
 
     try {
       final params = jsonDecode(bestHabit.parameters) as Map<String, dynamic>;

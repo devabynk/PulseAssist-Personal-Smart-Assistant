@@ -8,7 +8,7 @@ part of 'note.dart';
 
 class NoteAdapter extends TypeAdapter<Note> {
   @override
-  final int typeId = 3;
+  final typeId = 3;
 
   @override
   Note read(BinaryReader reader) {
@@ -22,14 +22,16 @@ class NoteAdapter extends TypeAdapter<Note> {
       content: fields[2] as String,
       createdAt: fields[3] as DateTime,
       updatedAt: fields[4] as DateTime,
-      color: fields[5] as String,
-      orderIndex: fields[6] as int,
-      isPinned: fields[7] as bool,
-      isFullWidth: fields[8] as bool,
-      imagePaths: (fields[9] as List).cast<String>(),
+      color: fields[5] == null ? '#FFB74D' : fields[5] as String,
+      orderIndex: fields[6] == null ? 0 : (fields[6] as num).toInt(),
+      isPinned: fields[7] == null ? false : fields[7] as bool,
+      isFullWidth: fields[8] == null ? false : fields[8] as bool,
+      imagePaths: fields[9] == null
+          ? const []
+          : (fields[9] as List).cast<String>(),
       drawingData: fields[10] as String?,
       voiceNotePath: fields[11] as String?,
-      tags: (fields[12] as List).cast<String>(),
+      tags: fields[12] == null ? const [] : (fields[12] as List).cast<String>(),
     );
   }
 

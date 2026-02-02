@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
 
 class DrawingScreen extends StatefulWidget {
   final String? initialData;
-  
+
   const DrawingScreen({super.key, this.initialData});
 
   @override
@@ -23,7 +24,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
       try {
         _loadDrawing(widget.initialData!);
       } catch (e) {
-        print('Error loading drawing: $e');
+        debugPrint('Error loading drawing: $e');
       }
     }
   }
@@ -32,27 +33,29 @@ class _DrawingScreenState extends State<DrawingScreen> {
     try {
       final data = jsonDecode(jsonData) as Map<String, dynamic>;
       final pointsData = data['points'] as List<dynamic>;
-      
+
       _points.clear();
       for (var pointData in pointsData) {
         if (pointData == null) {
           _points.add(DrawingPoint(offset: null, paint: Paint()));
         } else {
           final point = pointData as Map<String, dynamic>;
-          _points.add(DrawingPoint(
-            offset: Offset(point['x'] as double, point['y'] as double),
-            paint: Paint()
-              ..color = Color(point['color'] as int)
-              ..strokeWidth = point['width'] as double
-              ..strokeCap = StrokeCap.round
-              ..isAntiAlias = true,
-          ));
+          _points.add(
+            DrawingPoint(
+              offset: Offset(point['x'] as double, point['y'] as double),
+              paint: Paint()
+                ..color = Color(point['color'] as int)
+                ..strokeWidth = point['width'] as double
+                ..strokeCap = StrokeCap.round
+                ..isAntiAlias = true,
+            ),
+          );
         }
       }
-      
+
       // Rebuild strokes from points
       _strokes.clear();
-      List<DrawingPoint> currentStroke = [];
+      final currentStroke = <DrawingPoint>[];
       for (var point in _points) {
         if (point.offset == null) {
           if (currentStroke.isNotEmpty) {
@@ -63,10 +66,10 @@ class _DrawingScreenState extends State<DrawingScreen> {
           currentStroke.add(point);
         }
       }
-      
+
       setState(() {});
     } catch (e) {
-      print('Error parsing drawing data: $e');
+      debugPrint('Error parsing drawing data: $e');
     }
   }
 
@@ -75,23 +78,26 @@ class _DrawingScreenState extends State<DrawingScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Çizim', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Çizim',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.undo),
+            icon: const Icon(Icons.undo),
             onPressed: _undo,
             tooltip: 'Geri Al',
           ),
           IconButton(
-            icon: Icon(Icons.delete_outline),
+            icon: const Icon(Icons.delete_outline),
             onPressed: _clear,
             tooltip: 'Temizle',
           ),
           IconButton(
-            icon: Icon(Icons.check),
+            icon: const Icon(Icons.check),
             onPressed: _save,
             tooltip: 'Kaydet',
           ),
@@ -102,81 +108,102 @@ class _DrawingScreenState extends State<DrawingScreen> {
           // Color picker
           Container(
             height: 70,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withAlpha(10),
                   blurRadius: 4,
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
             child: Row(
               children: [
-                Text('Renk: ', style: TextStyle(fontWeight: FontWeight.w600)),
-                SizedBox(width: 8),
+                const Text(
+                  'Renk: ',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(width: 8),
                 Expanded(
                   child: ListView(
                     scrollDirection: Axis.horizontal,
-                    children: [
-                      Colors.black,
-                      Colors.red,
-                      Colors.blue,
-                      Colors.green,
-                      Colors.yellow,
-                      Colors.orange,
-                      Colors.purple,
-                      Colors.pink,
-                      Colors.brown,
-                      Colors.grey,
-                      Colors.teal,
-                      Colors.indigo,
-                    ].map((color) => GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedColor = color;
-                        });
-                      },
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        margin: EdgeInsets.only(right: 8),
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                          border: _selectedColor == color
-                              ? Border.all(color: Colors.white, width: 3)
-                              : Border.all(color: Colors.grey.shade300, width: 1),
-                          boxShadow: _selectedColor == color ? [
-                            BoxShadow(
-                              color: color.withAlpha(100),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ] : [],
-                        ),
-                        child: _selectedColor == color 
-                          ? Icon(Icons.check, color: Colors.white, size: 20)
-                          : null,
-                      ),
-                    )).toList(),
+                    children:
+                        [
+                              Colors.black,
+                              Colors.red,
+                              Colors.blue,
+                              Colors.green,
+                              Colors.yellow,
+                              Colors.orange,
+                              Colors.purple,
+                              Colors.pink,
+                              Colors.brown,
+                              Colors.grey,
+                              Colors.teal,
+                              Colors.indigo,
+                            ]
+                            .map(
+                              (color) => GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedColor = color;
+                                  });
+                                },
+                                child: Container(
+                                  width: 44,
+                                  height: 44,
+                                  margin: const EdgeInsets.only(right: 8),
+                                  decoration: BoxDecoration(
+                                    color: color,
+                                    shape: BoxShape.circle,
+                                    border: _selectedColor == color
+                                        ? Border.all(
+                                            color: Colors.white,
+                                            width: 3,
+                                          )
+                                        : Border.all(
+                                            color: Colors.grey.shade300,
+                                            width: 1,
+                                          ),
+                                    boxShadow: _selectedColor == color
+                                        ? [
+                                            BoxShadow(
+                                              color: color.withAlpha(100),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ]
+                                        : [],
+                                  ),
+                                  child: _selectedColor == color
+                                      ? const Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                          size: 20,
+                                        )
+                                      : null,
+                                ),
+                              ),
+                            )
+                            .toList(),
                   ),
                 ),
               ],
             ),
           ),
-          
+
           // Stroke width
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(color: Theme.of(context).cardColor),
             child: Row(
               children: [
-                Text('Kalınlık: ', style: TextStyle(fontWeight: FontWeight.w600)),
+                const Text(
+                  'Kalınlık: ',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 Expanded(
                   child: Slider(
                     value: _strokeWidth,
@@ -197,15 +224,15 @@ class _DrawingScreenState extends State<DrawingScreen> {
                   alignment: Alignment.center,
                   child: Text(
                     '${_strokeWidth.round()}',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
             ),
           ),
-          
-          Divider(height: 1),
-          
+
+          const Divider(height: 1),
+
           // Drawing canvas
           Expanded(
             child: Container(
@@ -281,7 +308,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
       Navigator.pop(context);
       return;
     }
-    
+
     // Serialize drawing points to JSON
     final pointsData = _points.map((point) {
       if (point.offset == null) {
@@ -290,16 +317,16 @@ class _DrawingScreenState extends State<DrawingScreen> {
       return {
         'x': point.offset!.dx,
         'y': point.offset!.dy,
-        'color': point.paint.color.value,
+        'color': point.paint.color.toARGB32(),
         'width': point.paint.strokeWidth,
       };
     }).toList();
-    
+
     final data = jsonEncode({
       'points': pointsData,
       'timestamp': DateTime.now().toIso8601String(),
     });
-    
+
     Navigator.pop(context, data);
   }
 
@@ -323,7 +350,7 @@ class DrawingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (int i = 0; i < points.length - 1; i++) {
+    for (var i = 0; i < points.length - 1; i++) {
       if (points[i].offset != null && points[i + 1].offset != null) {
         canvas.drawLine(
           points[i].offset!,

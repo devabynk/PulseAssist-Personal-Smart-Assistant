@@ -1,8 +1,8 @@
 // Intent Classifier for NLP
 // Recognizes user intents from text using keyword scoring and pattern matching
 
-import 'preprocessor.dart';
 import 'fuzzy_matcher.dart';
+import 'preprocessor.dart';
 
 enum IntentType {
   alarm,
@@ -86,11 +86,23 @@ class IntentClassifier {
       'hatırlat': 1.0, 'hatirla': 0.9, 'anımsat': 0.9, 'animsat': 0.9,
       'hatırlatıcı': 1.0, 'hatirlatici': 1.0, 'hatırlatıcı oluştur': 1.0,
       'unutma': 0.8, 'unutturma': 0.9, 'aklına gel': 0.7, 'aklina gel': 0.7,
-      'haber ver': 0.8, 'bildir': 0.7, 'uyar': 0.7, 'aklımda tut': 0.8, 'aklimda tut': 0.8,
+      'haber ver': 0.8,
+      'bildir': 0.7,
+      'uyar': 0.7,
+      'aklımda tut': 0.8,
+      'aklimda tut': 0.8,
       // Turkish - Context-specific
-      'randevu': 0.7, 'toplantı': 0.6, 'toplanti': 0.6, 'buluşma': 0.6, 'bulusma': 0.6,
+      'randevu': 0.7,
+      'toplantı': 0.6,
+      'toplanti': 0.6,
+      'buluşma': 0.6,
+      'bulusma': 0.6,
       // Turkish - Medium weight
-      'etkinlik': 0.6, 'plan': 0.4, 'program': 0.4, 'ajanda': 0.5, 'işim var': 0.5,
+      'etkinlik': 0.6,
+      'plan': 0.4,
+      'program': 0.4,
+      'ajanda': 0.5,
+      'işim var': 0.5,
       'yapılacak': 0.5, 'yapilacak': 0.5,
       // English - High weight
       'remind': 1.0, 'reminder': 1.0, "don't forget": 0.9, 'dont forget': 0.9,
@@ -109,8 +121,14 @@ class IntentClassifier {
       'not et': 1.0, 'kenara yaz': 0.8, 'şunu kaydet': 0.9, 'sunu kaydet': 0.9,
       // Turkish - List-specific
       'liste': 0.7, 'listesi': 0.8, 'liste yap': 0.9, 'liste oluştur': 0.9,
-      'alışveriş': 0.8, 'alisveris': 0.8, 'alışveriş listesi': 1.0, 'alisveris listesi': 1.0,
-      'market': 0.7, 'market listesi': 0.9, 'süpermarket': 0.7, 'supermarket': 0.7,
+      'alışveriş': 0.8,
+      'alisveris': 0.8,
+      'alışveriş listesi': 1.0,
+      'alisveris listesi': 1.0,
+      'market': 0.7,
+      'market listesi': 0.9,
+      'süpermarket': 0.7,
+      'supermarket': 0.7,
       'yapılacaklar': 0.8, 'yapilacaklar': 0.8, 'yapılacaklar listesi': 1.0,
       // Turkish - Medium weight
       'defteri': 0.7, 'memo': 0.8, 'görev': 0.5, 'gorev': 0.5,
@@ -178,7 +196,9 @@ class IntentClassifier {
     },
     IntentType.deleteReminder: {
       // Turkish
-      'hatırlatıcıyı sil': 1.0, 'hatirlaticiyi sil': 1.0, 'hatırlatıcı sil': 0.9,
+      'hatırlatıcıyı sil': 1.0,
+      'hatirlaticiyi sil': 1.0,
+      'hatırlatıcı sil': 0.9,
       'hatırlatıcıyı iptal': 0.9, 'hatırlatıcıyı kaldır': 0.9,
       'hatirlaticiyi kaldir': 0.9, 'hatırlatıcıyı temizle': 0.8,
       'görevi sil': 0.8, 'gorevi sil': 0.8, 'randevuyu iptal': 0.7,
@@ -199,7 +219,7 @@ class IntentClassifier {
       // English
       'hello': 1.0, 'hi': 0.9, 'greetings': 1.0,
       'good morning': 1.0, 'good afternoon': 1.0, 'good evening': 1.0,
-      "how are you": 0.8, "what's up": 0.7, 'whats up': 0.7,
+      'how are you': 0.8, "what's up": 0.7, 'whats up': 0.7,
       'howdy': 0.7, 'sup': 0.6, 'yo': 0.5, 'hey there': 0.8,
       'hiya': 0.7,
     },
@@ -257,7 +277,10 @@ class IntentClassifier {
     IntentType.time: {
       // Turkish
       'saat kaç': 1.0, 'saat kac': 1.0, 'kaç saat': 0.7, 'kac saat': 0.7,
-      'şu an saat': 1.0, 'su an saat': 1.0, 'saati söyle': 0.9, 'saati soyle': 0.9,
+      'şu an saat': 1.0,
+      'su an saat': 1.0,
+      'saati söyle': 0.9,
+      'saati soyle': 0.9,
       'vakit': 0.6, 'zaman': 0.5,
       // English
       'what time': 1.0, 'current time': 1.0, 'time is it': 0.9,
@@ -278,7 +301,10 @@ class IntentClassifier {
     IntentType.compliment: {
       // Turkish
       'harikasın': 1.0, 'harikasin': 1.0, 'süpersin': 1.0, 'supersin': 1.0,
-      'mükemmelsin': 1.0, 'mukemmelsin': 1.0, 'çok iyisin': 0.9, 'cok iyisin': 0.9,
+      'mükemmelsin': 1.0,
+      'mukemmelsin': 1.0,
+      'çok iyisin': 0.9,
+      'cok iyisin': 0.9,
       'teşekkürler harika': 0.9, 'bravo': 0.8, 'aferin': 0.8,
       'başarılı': 0.7, 'basarili': 0.7, 'güzelmiş': 0.7, 'guzelmis': 0.7,
       'seviyorum': 0.6, 'sevdim': 0.6,
@@ -399,7 +425,7 @@ class IntentClassifier {
   /// Classify intent from text
   static Intent classify(String text) {
     final normalized = Preprocessor.normalize(text);
-    
+
     // Check for Math Regex first (e.g. "2+2", "5*10", "10/2")
     // Matches digits, operator, digits. Allows spaces.
     final mathRegex = RegExp(r'\d+\s*[\+\-\*\/x]\s*\d+');
@@ -410,58 +436,63 @@ class IntentClassifier {
         metadata: {'matchType': 'regex'},
       );
     }
-    
-    Map<IntentType, double> scores = {};
-    
+
+    final scores = <IntentType, double>{};
+
     // Calculate scores for each intent
     for (final entry in _intentKeywords.entries) {
       double score = 0;
-      int matches = 0;
-      
+      var matches = 0;
+
       for (final keyword in entry.value.entries) {
         // Exact match of the WHOLE text (high confidence for single words like "Oğlak")
         if (normalized == keyword.key) {
-           score += keyword.value * 2.0; // Double weight for exact full string match
-           matches++;
-        } 
+          score +=
+              keyword.value * 2.0; // Double weight for exact full string match
+          matches++;
+        }
         // Substring match
         else if (normalized.contains(keyword.key)) {
           score += keyword.value;
           matches++;
         } else {
           // Fuzzy match
-          if (FuzzyMatcher.containsFuzzy(normalized, keyword.key, threshold: 0.85)) {
+          if (FuzzyMatcher.containsFuzzy(
+            normalized,
+            keyword.key,
+            threshold: 0.85,
+          )) {
             score += keyword.value * 0.7; // Reduce score for fuzzy matches
             matches++;
           }
         }
       }
-      
+
       if (matches > 0) {
         // Boost score if matches are found, don't punish for single matches
         // Old formula: score / (matches + 1) punished single matches
-        scores[entry.key] = score; 
+        scores[entry.key] = score;
       }
     }
-    
+
     if (scores.isEmpty) {
       return Intent(type: IntentType.unclear, confidence: 0.0);
     }
-    
+
     // Find best match
     var bestIntent = IntentType.unclear;
     var bestScore = 0.0;
-    
+
     scores.forEach((type, score) {
       if (score > bestScore) {
         bestScore = score;
         bestIntent = type;
       }
     });
-    
+
     // Normalize confidence to 0-1 range (cap at 1.0)
-    final confidence = (bestScore).clamp(0.0, 1.0);
-    
+    final confidence = bestScore.clamp(0.0, 1.0);
+
     return Intent(
       type: bestIntent,
       confidence: confidence,
@@ -472,74 +503,140 @@ class IntentClassifier {
   /// Get secondary intents (for compound commands)
   static List<Intent> classifyMultiple(String text, {int maxResults = 3}) {
     final normalized = Preprocessor.normalize(text);
-    Map<IntentType, double> scores = {};
-    
+    final scores = <IntentType, double>{};
+
     for (final entry in _intentKeywords.entries) {
       double score = 0;
-      int matches = 0;
-      
+      var matches = 0;
+
       for (final keyword in entry.value.entries) {
         if (normalized.contains(keyword.key)) {
           score += keyword.value;
           matches++;
         }
       }
-      
+
       if (matches > 0) {
         scores[entry.key] = score / (matches + 1);
       }
     }
-    
+
     // Sort by score and take top N
     final sortedEntries = scores.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    
+
     return sortedEntries
         .take(maxResults)
-        .map((e) => Intent(
-              type: e.key,
-              confidence: (e.value / 2.0).clamp(0.0, 1.0),
-            ))
+        .map(
+          (e) =>
+              Intent(type: e.key, confidence: (e.value / 2.0).clamp(0.0, 1.0)),
+        )
         .toList();
   }
 
   /// Check if text is a question
   static bool isQuestion(String text) {
     final normalized = Preprocessor.normalize(text);
-    
+
     // Turkish question words
-    final trQuestionWords = ['mi', 'mı', 'mu', 'mü', 'ne ', 'nasıl', 'neden', 'niçin', 'kim', 'nerede', 'hangi', 'kaç'];
+    final trQuestionWords = [
+      'mi',
+      'mı',
+      'mu',
+      'mü',
+      'ne ',
+      'nasıl',
+      'neden',
+      'niçin',
+      'kim',
+      'nerede',
+      'hangi',
+      'kaç',
+    ];
     // English question words
-    final enQuestionWords = ['what', 'how', 'why', 'when', 'where', 'who', 'which', 'whose', 'whom', 'can', 'could', 'would', 'should', 'do', 'does', 'did', 'is', 'are', 'was', 'were', 'will'];
-    
+    final enQuestionWords = [
+      'what',
+      'how',
+      'why',
+      'when',
+      'where',
+      'who',
+      'which',
+      'whose',
+      'whom',
+      'can',
+      'could',
+      'would',
+      'should',
+      'do',
+      'does',
+      'did',
+      'is',
+      'are',
+      'was',
+      'were',
+      'will',
+    ];
+
     // Check for question mark
     if (text.contains('?')) return true;
-    
+
     // Check for question words at start
     for (final word in [...trQuestionWords, ...enQuestionWords]) {
       if (normalized.startsWith(word) || normalized.contains(' $word ')) {
         return true;
       }
     }
-    
+
     return false;
   }
 
   /// Check if text is a command
   static bool isCommand(String text) {
     final normalized = Preprocessor.normalize(text);
-    
+
     // Turkish command verbs (imperative)
-    final trCommands = ['kur', 'ayarla', 'yaz', 'ekle', 'sil', 'düzenle', 'aç', 'kapat', 'göster', 'bul', 'ara', 'hatırlat', 'kaydet', 'oluştur'];
+    final trCommands = [
+      'kur',
+      'ayarla',
+      'yaz',
+      'ekle',
+      'sil',
+      'düzenle',
+      'aç',
+      'kapat',
+      'göster',
+      'bul',
+      'ara',
+      'hatırlat',
+      'kaydet',
+      'oluştur',
+    ];
     // English command verbs
-    final enCommands = ['set', 'create', 'add', 'delete', 'remove', 'edit', 'open', 'close', 'show', 'find', 'search', 'remind', 'save', 'write', 'make'];
-    
+    final enCommands = [
+      'set',
+      'create',
+      'add',
+      'delete',
+      'remove',
+      'edit',
+      'open',
+      'close',
+      'show',
+      'find',
+      'search',
+      'remind',
+      'save',
+      'write',
+      'make',
+    ];
+
     for (final cmd in [...trCommands, ...enCommands]) {
       if (normalized.contains(cmd)) {
         return true;
       }
     }
-    
+
     return false;
   }
 }

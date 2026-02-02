@@ -1,17 +1,15 @@
 import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-
-
-import '../models/conversation.dart';
-import '../models/alarm.dart';
-import '../models/note.dart';
-import '../models/reminder.dart';
-import '../models/message.dart';
-import '../models/user_habit.dart';
-import '../models/notification_log.dart';
-import '../models/user_location.dart';
-
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../models/alarm.dart';
+import '../models/conversation.dart';
+import '../models/message.dart';
+import '../models/note.dart';
+import '../models/notification_log.dart';
+import '../models/reminder.dart';
+import '../models/user_habit.dart';
+import '../models/user_location.dart';
 
 class DatabaseService {
   static DatabaseService? _instance;
@@ -32,14 +30,13 @@ class DatabaseService {
 
   Future<void> init() async {
     if (_isInitialized) return;
-    
+
     // EXPLICIT PATH: Ensure data persists across restarts
     final appDocumentDir = await getApplicationDocumentsDirectory();
     debugPrint('📂 Hive DB Directory: ${appDocumentDir.path}');
     await Hive.initFlutter(appDocumentDir.path);
     // await Hive.initFlutter(); // OLD MIGRATION: might default to temp on some configs
 
-    
     // Register Adapters
     Hive.registerAdapter(ConversationAdapter());
     Hive.registerAdapter(MessageAdapter());
@@ -54,25 +51,31 @@ class DatabaseService {
     // Open Boxes
     _messagesBox = await Hive.openBox<Message>('messages');
     debugPrint('📦 Hive Box Opened: messages at ${_messagesBox.path}');
-    
+
     _conversationsBox = await Hive.openBox<Conversation>('conversations');
     _alarmsBox = await Hive.openBox<Alarm>('alarms');
-    debugPrint('📦 Hive Box Opened: alarms at ${_alarmsBox.path} (Count: ${_alarmsBox.length})');
-    
+    debugPrint(
+      '📦 Hive Box Opened: alarms at ${_alarmsBox.path} (Count: ${_alarmsBox.length})',
+    );
+
     _notesBox = await Hive.openBox<Note>('notes');
     debugPrint('📦 Hive Box Opened: notes (Count: ${_notesBox.length})');
-    
+
     _remindersBox = await Hive.openBox<Reminder>('reminders');
-    debugPrint('📦 Hive Box Opened: reminders (Count: ${_remindersBox.length})');
-    
-    _notificationLogsBox = await Hive.openBox<NotificationLog>('notification_logs');
+    debugPrint(
+      '📦 Hive Box Opened: reminders (Count: ${_remindersBox.length})',
+    );
+
+    _notificationLogsBox = await Hive.openBox<NotificationLog>(
+      'notification_logs',
+    );
     _userHabitsBox = await Hive.openBox<UserHabit>('user_habits');
     _userLocationBox = await Hive.openBox<UserLocation>('user_location');
 
     _isInitialized = true;
     debugPrint('✅ DatabaseService Initialized Successfully');
   }
-  
+
   // Helper to ensure init is called if accessed lazily (though explicit init is better)
   Future<void> _ensureInitialized() async {
     if (!_isInitialized) {
@@ -129,20 +132,22 @@ class DatabaseService {
   Future<void> deleteConversation(String id) async {
     await _ensureInitialized();
     await _conversationsBox.delete(id);
-    
+
     // Also delete messages for this conversation
     final messagesToDelete = _messagesBox.values
         .where((m) => m.conversationId == id)
         .map((m) => m.id)
         .toList();
     await _messagesBox.deleteAll(messagesToDelete);
-    
+
     // Flush both boxes
     await _conversationsBox.flush();
     await _messagesBox.flush();
   }
 
-  Future<List<Message>> getMessagesForConversation(String conversationId) async {
+  Future<List<Message>> getMessagesForConversation(
+    String conversationId,
+  ) async {
     await _ensureInitialized();
     final messages = _messagesBox.values
         .where((m) => m.conversationId == conversationId)
@@ -156,7 +161,9 @@ class DatabaseService {
     await _ensureInitialized();
     await _alarmsBox.put(alarm.id, alarm);
     await _alarmsBox.flush();
-    debugPrint('💾 Inserted Alarm: ${alarm.id} (Title: ${alarm.title}). Total: ${_alarmsBox.length}');
+    debugPrint(
+      '💾 Inserted Alarm: ${alarm.id} (Title: ${alarm.title}). Total: ${_alarmsBox.length}',
+    );
   }
 
   Future<void> updateAlarm(Alarm alarm) async {
@@ -169,13 +176,13 @@ class DatabaseService {
   Future<void> deleteAlarm(String id) async {
     await _ensureInitialized();
     if (_alarmsBox.containsKey(id)) {
-       await _alarmsBox.delete(id);
-       await _alarmsBox.flush();
-       debugPrint('🗑️ Deleted Alarm: $id. Remaining: ${_alarmsBox.length}');
+      await _alarmsBox.delete(id);
+      await _alarmsBox.flush();
+      debugPrint('🗑️ Deleted Alarm: $id. Remaining: ${_alarmsBox.length}');
     } else {
-       debugPrint('⚠️ Delete Failed: Alarm ID $id not found in box.');
-       // Dump keys
-       debugPrint('Keys available: ${_alarmsBox.keys.toList()}');
+      debugPrint('⚠️ Delete Failed: Alarm ID $id not found in box.');
+      // Dump keys
+      debugPrint('Keys available: ${_alarmsBox.keys.toList()}');
     }
   }
 
@@ -210,7 +217,7 @@ class DatabaseService {
     final notes = _notesBox.values.toList();
     // Sort by orderIndex ASC, then updatedAt DESC
     notes.sort((a, b) {
-      int comparison = a.orderIndex.compareTo(b.orderIndex);
+      final comparison = a.orderIndex.compareTo(b.orderIndex);
       if (comparison != 0) return comparison;
       return b.updatedAt.compareTo(a.updatedAt);
     });
@@ -219,9 +226,9 @@ class DatabaseService {
 
   Future<void> updateNoteOrder(List<Note> notes) async {
     await _ensureInitialized();
-    for (int i = 0; i < notes.length; i++) {
-        final note = notes[i].copyWith(orderIndex: i);
-        await _notesBox.put(note.id, note);
+    for (var i = 0; i < notes.length; i++) {
+      final note = notes[i].copyWith(orderIndex: i);
+      await _notesBox.put(note.id, note);
     }
     await _notesBox.flush();
   }
@@ -250,7 +257,7 @@ class DatabaseService {
     final reminders = _remindersBox.values.toList();
     // Sort by orderIndex ASC, then dateTime ASC
     reminders.sort((a, b) {
-      int comparison = a.orderIndex.compareTo(b.orderIndex);
+      final comparison = a.orderIndex.compareTo(b.orderIndex);
       if (comparison != 0) return comparison;
       return a.dateTime.compareTo(b.dateTime);
     });
@@ -259,9 +266,9 @@ class DatabaseService {
 
   Future<void> updateReminderOrder(List<Reminder> reminders) async {
     await _ensureInitialized();
-    for (int i = 0; i < reminders.length; i++) {
-        final reminder = reminders[i].copyWith(orderIndex: i);
-        await _remindersBox.put(reminder.id, reminder);
+    for (var i = 0; i < reminders.length; i++) {
+      final reminder = reminders[i].copyWith(orderIndex: i);
+      await _remindersBox.put(reminder.id, reminder);
     }
     await _remindersBox.flush();
   }
@@ -284,7 +291,9 @@ class DatabaseService {
     final habits = _userHabitsBox.values
         .where((h) => h.intent == intent)
         .toList();
-    habits.sort((a, b) => b.frequency.compareTo(a.frequency)); // Most frequent first
+    habits.sort(
+      (a, b) => b.frequency.compareTo(a.frequency),
+    ); // Most frequent first
     return habits;
   }
 
@@ -341,9 +350,15 @@ class DatabaseService {
       country: locationMap['country'],
       state: locationMap['state'],
       district: locationMap['district'],
-      latitude: locationMap['latitude'] is double ? locationMap['latitude'] : (locationMap['latitude'] as num).toDouble(),
-      longitude: locationMap['longitude'] is double ? locationMap['longitude'] : (locationMap['longitude'] as num).toDouble(),
+      latitude: locationMap['latitude'] is double
+          ? locationMap['latitude']
+          : (locationMap['latitude'] as num).toDouble(),
+      longitude: locationMap['longitude'] is double
+          ? locationMap['longitude']
+          : (locationMap['longitude'] as num).toDouble(),
       lastUpdated: DateTime.parse(locationMap['last_updated']),
+      countryCode:
+          locationMap['country_code'] ?? 'TR', // Default to TR for migration
     );
     // Using key 'current' since we only allow one location
     await _userLocationBox.put('current', location);
@@ -362,6 +377,7 @@ class DatabaseService {
         'latitude': location.latitude,
         'longitude': location.longitude,
         'last_updated': location.lastUpdated.toIso8601String(),
+        'country_code': location.countryCode,
       };
     }
     return null;

@@ -1,6 +1,7 @@
+import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:alarm/alarm.dart';
+
 import '../l10n/app_localizations.dart';
 import '../providers/alarm_provider.dart';
 import '../theme/app_theme.dart';
@@ -20,11 +21,7 @@ class AlarmRingScreen extends StatelessWidget {
           children: [
             const Spacer(),
             // Animated Icon or Image
-            const Icon(
-              Icons.alarm,
-              size: 100,
-              color: Colors.white,
-            ),
+            const Icon(Icons.alarm, size: 100, color: Colors.white),
             const SizedBox(height: 30),
             // Time
             Text(
@@ -39,23 +36,17 @@ class AlarmRingScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
-                alarmSettings.notificationSettings.title ?? 'Alarm',
+                alarmSettings.notificationSettings.title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 24,
-                  color: Colors.white70,
-                ),
+                style: const TextStyle(fontSize: 24, color: Colors.white70),
               ),
             ),
-             Padding(
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
-                alarmSettings.notificationSettings.body ?? '',
+                alarmSettings.notificationSettings.body,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 18,
-                  color: Colors.white60,
-                ),
+                style: const TextStyle(fontSize: 18, color: Colors.white60),
               ),
             ),
             const Spacer(),
@@ -64,7 +55,7 @@ class AlarmRingScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Column(
                 children: [
-                   // Snooze Button
+                  // Snooze Button
                   SizedBox(
                     width: double.infinity,
                     height: 60,
@@ -72,14 +63,21 @@ class AlarmRingScreen extends StatelessWidget {
                       onPressed: () async {
                         try {
                           // Snooze for 5 minutes
-                          final duration = const Duration(minutes: 5);
-                          await Provider.of<AlarmProvider>(context, listen: false)
-                              .snoozeAlarm(alarmSettings.id, duration, alarmSettings.notificationSettings.title, alarmSettings.notificationSettings.body);
+                          const duration = Duration(minutes: 5);
+                          await Provider.of<AlarmProvider>(
+                            context,
+                            listen: false,
+                          ).snoozeAlarm(
+                            alarmSettings.id,
+                            duration,
+                            alarmSettings.notificationSettings.title,
+                            alarmSettings.notificationSettings.body,
+                          );
                         } catch (e) {
                           debugPrint('Error snoozing alarm: $e');
                         }
                         if (context.mounted) {
-                           Navigator.of(context).pop();
+                          Navigator.of(context).pop();
                         }
                       },
                       icon: const Icon(Icons.snooze, size: 28),
@@ -104,13 +102,15 @@ class AlarmRingScreen extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: () async {
                         try {
-                          await Provider.of<AlarmProvider>(context, listen: false)
-                              .stopRingingAlarm(alarmSettings.id);
+                          await Provider.of<AlarmProvider>(
+                            context,
+                            listen: false,
+                          ).stopRingingAlarm(alarmSettings.id);
                         } catch (e) {
                           debugPrint('Error stopping alarm: $e');
                         }
-                         if (context.mounted) {
-                           Navigator.of(context).pop();
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
                         }
                       },
                       icon: const Icon(Icons.stop_circle_outlined, size: 28),

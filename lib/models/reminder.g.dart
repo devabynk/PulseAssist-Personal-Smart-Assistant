@@ -8,7 +8,7 @@ part of 'reminder.dart';
 
 class SubtaskAdapter extends TypeAdapter<Subtask> {
   @override
-  final int typeId = 5;
+  final typeId = 5;
 
   @override
   Subtask read(BinaryReader reader) {
@@ -19,7 +19,7 @@ class SubtaskAdapter extends TypeAdapter<Subtask> {
     return Subtask(
       id: fields[0] as String,
       title: fields[1] as String,
-      isCompleted: fields[2] as bool,
+      isCompleted: fields[2] == null ? false : fields[2] as bool,
     );
   }
 
@@ -48,7 +48,7 @@ class SubtaskAdapter extends TypeAdapter<Subtask> {
 
 class ReminderAdapter extends TypeAdapter<Reminder> {
   @override
-  final int typeId = 4;
+  final typeId = 4;
 
   @override
   Reminder read(BinaryReader reader) {
@@ -59,14 +59,16 @@ class ReminderAdapter extends TypeAdapter<Reminder> {
     return Reminder(
       id: fields[0] as String,
       title: fields[1] as String,
-      description: fields[2] as String,
+      description: fields[2] == null ? '' : fields[2] as String,
       dateTime: fields[3] as DateTime,
-      isCompleted: fields[4] as bool,
-      priority: fields[5] as String,
-      orderIndex: fields[6] as int,
-      isPinned: fields[7] as bool,
+      isCompleted: fields[4] == null ? false : fields[4] as bool,
+      priority: fields[5] == null ? 'medium' : fields[5] as String,
+      orderIndex: fields[6] == null ? 0 : (fields[6] as num).toInt(),
+      isPinned: fields[7] == null ? false : fields[7] as bool,
       voiceNotePath: fields[8] as String?,
-      subtasks: (fields[9] as List).cast<Subtask>(),
+      subtasks: fields[9] == null
+          ? const []
+          : (fields[9] as List).cast<Subtask>(),
     );
   }
 

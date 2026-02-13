@@ -18,9 +18,13 @@ class ApiConfig {
 
   // Ticketmaster (Events) Key
   // Get yours from: https://developer.ticketmaster.com
-  static const String eventApiKey = 'YOUR_TICKETMASTER_API_KEY';
+  static const List<String> eventApiKeys = [
+    'YOUR_TICKETMASTER_API_KEY',
+  ];
 
   // OpenWeatherMap API Key
   // Get yours from: https://home.openweathermap.org/api_keys
-  static const String weatherApiKey = 'YOUR_OPENWEATHERMAP_API_KEY';
+  static const List<String> weatherApiKeys = [
+    'YOUR_OPENWEATHERMAP_API_KEY',
+  ];
 }

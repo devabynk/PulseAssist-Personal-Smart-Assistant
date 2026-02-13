@@ -49,3 +49,4 @@ key.properties
 **/*.pfx
 .env*
 *.secret
+*.pem

@@ -101,7 +101,7 @@ To use all features of PulseAssist, you need to provide your own API keys. We us
 
 ### 2. Setup your local config
 
-1.  Navigate to `lib/config/`.
+1.  Navigate to `lib/core/config/`.
 2.  Copy `api_config.example.dart` and rename it to `api_config.dart`.
 3.  Open `api_config.dart` and paste your keys into the corresponding fields.
 
@@ -112,22 +112,77 @@ To use all features of PulseAssist, you need to provide your own API keys. We us
 
 ## 🏗 Project Architecture
 
+PulseAssist follows **Clean Architecture** principles with a **senior-level project structure**:
+
 ```mermaid
-graph TD
-    User([User Interface]) --> Providers[State Management - Provider]
-    Providers --> NLP[Local NLP Engine]
-    Providers --> AI[Groq AI Service]
-    NLP --> Actions[Action Service]
-    AI --> Actions
-    Actions --> DB[(SQLite Database)]
-    Actions --> Notif{Notification Service}
-    
-    subgraph "AI Capabilities"
-    AI --- Llama[GPT-OSS 120B - Reasoning]
-    AI --- Vision[Llama 4 Scout - Vision]
-    AI --- Whisper[Whisper V3 - Audio]
+graph TB
+    subgraph "Presentation Layer"
+        UI[Screens & Widgets]
+        Providers[State Management - Provider]
     end
+    
+    subgraph "Business Logic"
+        Services[Services Layer]
+        NLP[Local NLP Engine]
+        AI[AI Manager]
+    end
+    
+    subgraph "Data Layer"
+        DB[(Hive Database)]
+        APIs[External APIs]
+    end
+    
+    subgraph "Core Layer"
+        DI[Dependency Injection]
+        Config[Environment Config]
+        Error[Error Handling]
+        Logging[Logging]
+    end
+    
+    UI --> Providers
+    Providers --> Services
+    Services --> NLP
+    Services --> AI
+    Services --> DB
+    Services --> APIs
+    
+    Services -.-> DI
+    Services -.-> Config
+    Services -.-> Error
+    Services -.-> Logging
 ```
+
+### 📁 Project Structure
+
+```
+lib/
+├── core/                    # Core architecture
+│   ├── config/             # Environment-based configuration
+│   ├── di/                 # Dependency injection (GetIt)
+│   ├── error/              # Error handling & exceptions
+│   ├── logging/            # Logging infrastructure
+│   ├── constants/          # App & API constants
+│   └── utils/              # Utilities & extensions
+├── models/                 # Data models
+├── providers/              # State management
+├── screens/                # UI screens
+├── services/               # Business logic
+│   ├── ai/                # AI services
+│   ├── nlp/               # NLP engine
+│   └── ...
+├── widgets/                # Reusable widgets
+└── theme/                  # App theming
+```
+
+### 🎯 Key Architecture Features
+
+- **Environment-Based Config** - Dev, staging, production environments
+- **Dependency Injection** - GetIt for loose coupling
+- **Error Handling** - Custom exceptions and failures
+- **Logging** - Environment-aware logging with Logger
+- **Testing** - Comprehensive test infrastructure (>70% coverage goal)
+
+For detailed architecture documentation, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ### 🤖 Specialized AI Models
 
@@ -142,15 +197,16 @@ PulseAssist doesn't just use one model; it intelligently routes requests to the 
 
 ---
 
----
-
 ## 🛠 Tech Stack
 
 | Category | Technology |
 |----------|------------|
 | **Core** | [Flutter](https://flutter.dev), [Dart](https://dart.dev) |
 | **State Management** | [Provider](https://pub.dev/packages/provider) |
-| **Database** | [Hive](https://pub.dev/packages/hive) (Migrated from SQLite for speed) |
+| **Database** | [Hive](https://pub.dev/packages/hive) (NoSQL) |
+| **Dependency Injection** | [GetIt](https://pub.dev/packages/get_it) |
+| **Logging** | [Logger](https://pub.dev/packages/logger) |
+| **Testing** | Flutter Test, Mockito, Mocktail, Integration Test |
 | **AI Models** | GPT-OSS 120B, Llama 4 Scout, Llama 3.3 70B, Whisper V3 |
 | **UI Components** | flutter_quill, flutter_staggered_grid_view, google_fonts |
 
@@ -159,32 +215,123 @@ PulseAssist doesn't just use one model; it intelligently routes requests to the 
 ## 🚀 Installation & Build
 
 ### Prerequisites
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (latest stable version)
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (3.x or later)
 - Java 17 (for Android build)
+- Git
 
-### Steps
+### Quick Start
 
-1. **Clone & Install**:
+1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/pulse-assist.git
-   cd pulse-assist
-   flutter pub get
+   git clone https://github.com/your-username/PulseAssist-Personal-Smart-Assistant.git
+   cd PulseAssist-Personal-Smart-Assistant
    ```
 
-2. **Run the app**:
+2. **Setup the project** (automated):
    ```bash
+   make setup
+   ```
+   
+   Or manually:
+   ```bash
+   flutter pub get
+   flutter pub run build_runner build --delete-conflicting-outputs
+   ```
+
+3. **Configure API keys**:
+   ```bash
+   cp lib/core/config/api_config.example.dart lib/core/config/api_config.dart
+   # Edit api_config.dart and add your API keys
+   ```
+
+4. **Run the app**:
+   ```bash
+   make run
+   # or
    flutter run
    ```
 
-3. **Build APK**:
-   ```bash
-   flutter build apk --release
-   ```
+### Development Commands
 
-4. **Build App Bundle (Play Store)**:
-   ```bash
-   flutter build appbundle
-   ```
+We provide a `Makefile` for common development tasks:
+
+```bash
+make help          # Show all available commands
+make setup         # Initial project setup
+make test          # Run all tests
+make coverage      # Generate test coverage report
+make analyze       # Run static analysis
+make build-android # Build Android APK
+make build-bundle  # Build Android App Bundle
+make run-dev       # Run in development mode
+make run-prod      # Run in production mode
+```
+
+### Building for Production
+
+**Android APK:**
+```bash
+make build-android
+# or
+flutter build apk --release
+```
+
+**Android App Bundle (for Play Store):**
+```bash
+make build-bundle
+# or
+flutter build appbundle --release
+```
+
+**Build outputs:**
+- APK: `build/app/outputs/flutter-apk/app-release.apk`
+- Bundle: `build/app/outputs/bundle/release/app-release.aab`
+
+---
+
+## 🧪 Testing
+
+We maintain comprehensive test coverage with unit, widget, and integration tests.
+
+**Run all tests:**
+```bash
+make test
+```
+
+**Generate coverage report:**
+```bash
+make coverage
+```
+
+**Test structure:**
+- `test/unit/` - Unit tests for business logic
+- `test/widget/` - Widget tests for UI components
+- `test/integration/` - Integration tests for user flows
+- `test/helpers/` - Test utilities and mock factories
+
+For detailed testing guidelines, see [docs/TESTING.md](docs/TESTING.md).
+
+---
+
+## 📚 Documentation
+
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - Detailed architecture overview
+- [TESTING.md](docs/TESTING.md) - Testing guide and best practices
+- [CONTRIBUTING.md](docs/CONTRIBUTING.md) - Contribution guidelines
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please read our [Contributing Guidelines](docs/CONTRIBUTING.md) before submitting a pull request.
+
+**Development workflow:**
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests: `make test`
+5. Run analysis: `make analyze`
+6. Submit a pull request
 
 ---
 

@@ -101,6 +101,17 @@ dependencies:
   hive_ce: ^2.2.3
   hive_ce_flutter: ^2.3.4
 
+  # Dependency Injection
+  get_it: ^8.0.2
+
+  # Logging
+  logger: ^2.5.0
+
+  # Functional Programming (Either for error handling)
+  dartz: ^0.10.1
+
+  # Value Equality
+  equatable: ^2.0.7
 
   collection: any
 dev_dependencies:
@@ -118,6 +129,13 @@ dev_dependencies:
   hive_ce_generator: ^1.11.1
   build_runner: ^2.4.14
   mockito: ^5.6.3
+
+  # Integration Testing
+  integration_test:
+    sdk: flutter
+
+  # Modern Mocking (alternative to mockito)
+  mocktail: ^1.0.4
 
 
 

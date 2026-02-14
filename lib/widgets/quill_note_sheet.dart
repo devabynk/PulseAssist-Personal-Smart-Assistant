@@ -7,12 +7,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../core/utils/extensions.dart';
 import '../l10n/app_localizations.dart';
 import '../models/note.dart';
 import '../providers/note_provider.dart';
 import '../screens/drawing_screen.dart';
 import '../screens/voice_note_screen.dart';
-import '../utils/extensions.dart';
 import '../widgets/common/custom_text_field.dart';
 import '../widgets/common/sheet_handle.dart';
 import '../widgets/common/sheet_header.dart'; // Import shared widget

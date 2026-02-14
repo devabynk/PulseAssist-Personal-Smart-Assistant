@@ -19,4 +19,6 @@ export 'logging/app_logger.dart';
 
 // Core Utils Exports
 export 'utils/extensions.dart';
+export 'utils/key_manager.dart';
+export 'utils/responsive.dart';
 export 'utils/validators.dart';

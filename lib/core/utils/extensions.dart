@@ -1,4 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+
+import '../../l10n/app_localizations.dart';
 
 /// Extension methods for String
 extension StringExtensions on String {
@@ -215,4 +218,9 @@ extension DoubleExtensions on double {
     final mod = 10.0 * decimals;
     return (this * mod).round() / mod;
   }
+}
+
+/// Extension for easy access to localizations
+extension AppLocalizationsX on BuildContext {
+  AppLocalizations get l10n => AppLocalizations.of(this)!;
 }

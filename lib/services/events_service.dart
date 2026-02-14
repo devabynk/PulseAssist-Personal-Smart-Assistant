@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart'; // For debugPrint
 import 'package:http/http.dart' as http;
 
-import '../config/api_config.dart';
+import '../core/config/api_config.dart';
+import '../core/utils/key_manager.dart';
 import '../models/event.dart';
-import '../utils/key_manager.dart';
 
 class EventsService {
   final KeyManager _keyManager = KeyManager(

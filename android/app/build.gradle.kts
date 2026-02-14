@@ -26,7 +26,7 @@ val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "
 android {
     namespace = "com.abynk.smart_assistant"
     compileSdk = 36  // Required by plugins
-    // ndkVersion = "28.2.13676358"  // Flutter 3.38 requirement for 16KB page support - Commented out to fix strip issues
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true

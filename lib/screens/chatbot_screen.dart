@@ -5,6 +5,8 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../core/utils/extensions.dart';
+import '../core/utils/responsive.dart';
 import '../l10n/app_localizations.dart';
 import '../models/message.dart';
 import '../providers/alarm_provider.dart';
@@ -14,8 +16,6 @@ import '../providers/reminder_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/weather_provider.dart';
 import '../theme/app_theme.dart';
-import '../utils/extensions.dart';
-import '../utils/responsive.dart';
 
 class ChatbotScreen extends StatefulWidget {
   const ChatbotScreen({super.key});

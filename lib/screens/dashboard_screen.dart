@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../core/utils/extensions.dart';
+import '../core/utils/responsive.dart';
 import '../models/alarm.dart';
 import '../models/note.dart';
 import '../models/notification_log.dart';
@@ -14,8 +16,6 @@ import '../providers/reminder_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/weather_provider.dart';
 import '../theme/app_theme.dart';
-import '../utils/extensions.dart';
-import '../utils/responsive.dart';
 import '../widgets/location_selector_dialog.dart';
 import '../widgets/quill_note_viewer.dart';
 

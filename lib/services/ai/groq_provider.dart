@@ -10,8 +10,8 @@ import 'package:justkawal_excel_updated/justkawal_excel_updated.dart'
 import 'package:openai_dart/openai_dart.dart';
 import 'package:read_pdf_text/read_pdf_text.dart';
 
-import '../../config/api_config.dart';
-import '../../utils/key_manager.dart';
+import '../../core/config/api_config.dart';
+import '../../core/utils/key_manager.dart';
 import 'ai_provider.dart';
 
 /// Free tier per key: 30 RPM, 14400 RPD, 40000 TPM

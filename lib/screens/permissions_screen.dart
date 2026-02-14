@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../core/utils/extensions.dart';
 import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
-import '../utils/extensions.dart';
 import 'home_screen.dart';
 
 class PermissionsScreen extends StatefulWidget {

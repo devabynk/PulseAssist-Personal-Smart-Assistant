@@ -5,13 +5,13 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../core/utils/extensions.dart';
+import '../core/utils/responsive.dart';
 import '../l10n/app_localizations.dart';
 import '../models/note.dart';
 import '../providers/note_provider.dart';
 import '../providers/settings_provider.dart';
 import '../theme/app_theme.dart';
-import '../utils/extensions.dart';
-import '../utils/responsive.dart';
 import '../widgets/common/confirmation_dialog.dart';
 import '../widgets/drawing_preview.dart';
 import '../widgets/quill_note_sheet.dart';

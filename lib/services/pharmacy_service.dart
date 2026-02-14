@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart'; // For debugPrint
 import 'package:http/http.dart' as http;
 
-import '../config/api_config.dart';
+import '../core/config/api_config.dart';
+import '../core/utils/key_manager.dart';
 import '../models/pharmacy.dart';
-import '../utils/key_manager.dart';
 
 class PharmacyService {
   final KeyManager _keyManager = KeyManager(

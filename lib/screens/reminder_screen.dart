@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../core/utils/extensions.dart';
+import '../core/utils/responsive.dart';
 import '../l10n/app_localizations.dart';
 import '../models/reminder.dart';
 import '../providers/reminder_provider.dart';
@@ -15,8 +17,6 @@ import '../screens/voice_note_screen.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
-import '../utils/extensions.dart';
-import '../utils/responsive.dart';
 import '../widgets/common/confirmation_dialog.dart';
 import '../widgets/common/sheet_handle.dart';
 import '../widgets/common/sheet_header.dart'; // Import shared widget

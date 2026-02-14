@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../data/turkish_cities.dart';
-import '../data/usa_states.dart';
+import '../core/data/turkish_cities.dart';
+import '../core/data/usa_states.dart';
+import '../core/utils/extensions.dart';
 import '../providers/weather_provider.dart';
-import '../utils/extensions.dart';
 
 class LocationSelectorDialog extends StatefulWidget {
   const LocationSelectorDialog({super.key});

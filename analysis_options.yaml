@@ -29,8 +29,6 @@ linter:
     control_flow_in_finally: true
     empty_statements: true
     hash_and_equals: true
-    iterable_contains_unrelated_type: true
-    list_remove_unrelated_type: true
     no_duplicate_case_values: true
     unrelated_type_equality_checks: true
     valid_regexps: true
@@ -38,7 +36,6 @@ linter:
     # Style rules
     always_declare_return_types: true
     always_put_control_body_on_new_line: false
-    always_require_non_null_named_parameters: true
     annotate_overrides: true
     avoid_init_to_null: true
     avoid_multiple_declarations_per_line: true
@@ -69,7 +66,6 @@ linter:
     prefer_const_declarations: true
     prefer_const_literals_to_create_immutables: true
     prefer_contains: true
-    prefer_equal_for_default_values: true
     prefer_final_fields: true
     prefer_final_locals: true
     prefer_for_elements_to_map_fromIterable: true

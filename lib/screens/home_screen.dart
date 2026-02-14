@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../core/utils/extensions.dart';
+import '../core/utils/responsive.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
-import '../utils/extensions.dart';
-import '../utils/responsive.dart';
 import 'alarm_screen.dart';
 import 'chatbot_screen.dart';
 import 'dashboard_screen.dart';

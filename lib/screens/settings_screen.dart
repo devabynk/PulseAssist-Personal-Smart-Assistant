@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../core/utils/extensions.dart';
+import '../core/utils/responsive.dart';
 import '../providers/settings_provider.dart';
 import '../services/data_service.dart';
 import '../theme/app_theme.dart';
-import '../utils/extensions.dart';
-import '../utils/responsive.dart';
 import 'legal/privacy_policy_screen.dart';
 import 'legal/terms_of_use_screen.dart';
 import 'permissions_screen.dart';

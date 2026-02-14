@@ -6,11 +6,11 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../core/utils/extensions.dart';
 import '../models/note.dart';
 import '../providers/note_provider.dart';
 import '../screens/drawing_screen.dart';
 import '../screens/voice_note_screen.dart';
-import '../utils/extensions.dart';
 import '../widgets/common/custom_text_field.dart';
 import 'drawing_preview.dart';
 import 'voice_player.dart';

@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-import '../config/api_config.dart';
+import '../core/config/api_config.dart';
+import '../core/utils/key_manager.dart';
 import '../models/weather.dart';
-import '../utils/key_manager.dart';
 
 class WeatherService {
   final KeyManager _keyManager = KeyManager(

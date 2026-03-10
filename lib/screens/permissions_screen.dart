@@ -49,10 +49,12 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
         _storageGranted = storageStatus.isGranted;
       });
     } else if (Platform.isIOS) {
+      final notificationStatus = await Permission.notification.status;
       final microphoneStatus = await Permission.microphone.status;
       final cameraStatus = await Permission.camera.status;
       final storageStatus = await Permission.photos.status;
       setState(() {
+        _notificationGranted = notificationStatus.isGranted;
         _microphoneGranted = microphoneStatus.isGranted;
         _cameraGranted = cameraStatus.isGranted;
         _storageGranted = storageStatus.isGranted;
@@ -64,9 +66,14 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final granted = await NotificationService.instance
-          .requestNotificationPermission();
-      setState(() => _notificationGranted = granted);
+      if (Platform.isIOS) {
+        final status = await Permission.notification.request();
+        setState(() => _notificationGranted = status.isGranted);
+      } else {
+        final granted = await NotificationService.instance
+            .requestNotificationPermission();
+        setState(() => _notificationGranted = granted);
+      }
     } catch (e) {
       debugPrint('Notification permission error: $e');
     }
@@ -131,7 +138,11 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await NotificationService.instance.requestAllPermissions();
+      if (Platform.isAndroid) {
+        await NotificationService.instance.requestAllPermissions();
+      } else {
+        await Permission.notification.request();
+      }
       await Permission.microphone.request();
       await Permission.camera.request();
       await Permission.photos.request();
@@ -514,6 +525,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     VoidCallback? onTap,
   }) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -632,23 +644,53 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                 );
               },
             ),
-            const SizedBox(width: 8),
+          const SizedBox(width: 8),
             if (isGranted)
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () async {
+                  await openAppSettings();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withAlpha(20),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppColors.primary.withAlpha(50),
+                    ),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.settings,
+                        color: AppColors.primary,
+                        size: 14,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        'Yönet',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: const Icon(Icons.check, color: Colors.white, size: 16),
               )
             else
               GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: onTap,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+                    horizontal: 16,
+                    vertical: 10,
                   ),
                   decoration: BoxDecoration(
                     gradient: AppColors.primaryGradient,

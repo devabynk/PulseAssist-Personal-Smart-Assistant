@@ -52,83 +52,12 @@ class _AlarmScreenState extends State<AlarmScreen> {
       final isTurkish = l10n.localeName == 'tr';
 
       try {
-        // Check for duplicate alarms
-        final duplicate = alarmsProvider.checkDuplicateAlarm(result);
-
-        if (duplicate != null && mounted) {
-          // Format time and days for display
-          final timeStr =
-              '${result.time.hour.toString().padLeft(2, '0')}:${result.time.minute.toString().padLeft(2, '0')}';
-          String daysStr;
-
-          if (result.repeatDays.isEmpty) {
-            // One-time alarm - show date
-            final now = DateTime.now();
-            final isToday =
-                result.time.day == now.day && result.time.month == now.month;
-            final isTomorrow =
-                result.time.day == now.add(const Duration(days: 1)).day;
-
-            if (isToday) {
-              daysStr = l10n.today;
-            } else if (isTomorrow) {
-              daysStr = l10n.tomorrow;
-            } else {
-              daysStr =
-                  '${result.time.day}/${result.time.month}/${result.time.year}';
-            }
-          } else {
-            // Repeating alarm - show days
-            if (result.repeatDays.length == 7) {
-              daysStr = l10n.everyDay;
-            } else {
-              daysStr = l10n.custom;
-            }
-          }
-
-          // Show confirmation dialog
-          final choice = await showDialog<String>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: Text(l10n.duplicateAlarmTitle),
-              content: Text(l10n.duplicateAlarmMessage(timeStr, daysStr)),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, 'replace'),
-                  child: Text(l10n.duplicateAlarmReplace),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, 'keep_both'),
-                  child: Text(l10n.duplicateAlarmKeepBoth),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, 'cancel'),
-                  child: Text(l10n.cancel),
-                ),
-              ],
-            ),
-          );
-
-          if (choice == 'replace') {
-            // Delete the old alarm and add the new one
-            await alarmsProvider.deleteAlarm(duplicate);
-            await alarmsProvider.addAlarm(result);
-          } else if (choice == 'keep_both') {
-            // Just add the new alarm
-            if (alarm == null) {
-              await alarmsProvider.addAlarm(result);
-            } else {
-              await alarmsProvider.updateAlarm(result);
-            }
-          }
-          // If 'cancel', do nothing
+        // We bypass duplicate checking to allow users to set multiple alarms
+        // even if they share the same time (e.g., one for weekdays, one for weekend).
+        if (alarm == null) {
+          await alarmsProvider.addAlarm(result);
         } else {
-          // No duplicate, proceed normally
-          if (alarm == null) {
-            await alarmsProvider.addAlarm(result);
-          } else {
-            await alarmsProvider.updateAlarm(result);
-          }
+          await alarmsProvider.updateAlarm(result);
         }
       } catch (e) {
         debugPrint('Error saving alarm: $e');
@@ -763,12 +692,12 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
     if (_repeatDays.length == 7) return l10n.everyDay;
     if (_repeatDays.length == 5 &&
         [1, 2, 3, 4, 5].every((d) => _repeatDays.contains(d))) {
-      return 'Weekdays'; // todo localize
+      return l10n.weekdays;
     }
     if (_repeatDays.length == 2 && [6, 7].every((d) => _repeatDays.contains(d))) {
-      return 'Weekends';
+      return l10n.weekends;
     }
-    return '${_repeatDays.length} days';
+    return '${_repeatDays.length} gün'; // todo properly format this if needed, keeping simple for now
   }
 
   Widget _buildSoundSection(AppLocalizations l10n) {

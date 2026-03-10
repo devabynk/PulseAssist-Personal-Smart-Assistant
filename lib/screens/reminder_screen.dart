@@ -603,16 +603,17 @@ class _ReminderScreenState extends State<ReminderScreen> {
         ),
         const SizedBox(width: 8),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withAlpha(51),
+            color: Theme.of(context).primaryColor.withAlpha(25),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
             count.toString(),
             style: TextStyle(
+              fontSize: 14,
               color: Theme.of(context).primaryColor,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),
@@ -654,7 +655,20 @@ class _ReminderScreenState extends State<ReminderScreen> {
           await _togglePin(reminder);
           return false;
         }
-        return true;
+        
+        // Show confirmation before deleting
+        final confirmed = await ConfirmationDialog.show(
+          context: context,
+          title: context.l10n.deleteReminder,
+          message: context.l10n.deleteConfirmation,
+          confirmText: context.l10n.delete,
+          cancelText: context.l10n.cancel,
+        );
+
+        if (confirmed == true) {
+          return true; // Dismiss
+        }
+        return false; // Cancel
       },
       onDismissed: (_) => _deleteReminder(reminder),
       child: Container(
@@ -662,12 +676,13 @@ class _ReminderScreenState extends State<ReminderScreen> {
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: reminder.isCompleted
-                ? Theme.of(context).dividerColor.withAlpha(20)
-                : priorityColor.withAlpha(127),
-            width: 1,
-          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(Theme.of(context).brightness == Brightness.dark ? 40 : 10),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: InkWell(
           onTap: () => _editReminder(reminder),
@@ -675,26 +690,28 @@ class _ReminderScreenState extends State<ReminderScreen> {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 GestureDetector(
                   onTap: () => _toggleComplete(reminder),
                   child: Container(
-                    width: 24,
-                    height: 24,
+                    width: 28,
+                    height: 28,
+                    margin: const EdgeInsets.only(top: 2),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: reminder.isCompleted
                             ? Theme.of(context).primaryColor
-                            : Theme.of(context).disabledColor,
-                        width: 2,
+                            : Theme.of(context).iconTheme.color?.withAlpha(80) ?? Colors.grey,
+                        width: reminder.isCompleted ? 0 : 1.5,
                       ),
                       color: reminder.isCompleted
                           ? Theme.of(context).primaryColor
                           : Colors.transparent,
                     ),
                     child: reminder.isCompleted
-                        ? const Icon(Icons.check, size: 16, color: Colors.white)
+                        ? const Icon(Icons.check, size: 18, color: Colors.white)
                         : null,
                   ),
                 ),
@@ -731,77 +748,88 @@ class _ReminderScreenState extends State<ReminderScreen> {
                               ),
                             ),
                           ),
+                          if (reminder.priority != 'low' && reminder.priority != 'none') ...[
+                             const SizedBox(width: 8),
+                             Icon(
+                               _getPriorityIcon(reminder.priority),
+                               size: 16,
+                               color: priorityColor,
+                             ),
+                          ]
                         ],
                       ),
                       if (reminder.description.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         QuillNoteViewer(
                           content: reminder.description,
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       Row(
                         children: [
-                          Icon(
-                            Icons.access_time,
-                            size: 14,
-                            color: isPast && !reminder.isCompleted
-                                ? Theme.of(context).colorScheme.error
-                                : Theme.of(context).hintColor,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            DateFormat(
-                              'dd MMM, HH:mm',
-                              Provider.of<SettingsProvider>(
-                                context,
-                                listen: false,
-                              ).locale.languageCode,
-                            ).format(reminder.dateTime),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isPast && !reminder.isCompleted
-                                  ? Theme.of(context).colorScheme.error
-                                  : Theme.of(context).hintColor,
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                               color: isPast && !reminder.isCompleted
+                                   ? Theme.of(context).colorScheme.error.withAlpha(20)
+                                   : Theme.of(context).primaryColor.withAlpha(15),
+                               borderRadius: BorderRadius.circular(6),
                             ),
+                            child: Row(
+                              children: [
+                                  Icon(
+                                    Icons.access_time,
+                                    size: 14,
+                                    color: isPast && !reminder.isCompleted
+                                        ? Theme.of(context).colorScheme.error
+                                        : Theme.of(context).primaryColor.withAlpha(200),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    DateFormat(
+                                      'dd MMM, HH:mm',
+                                      Provider.of<SettingsProvider>(
+                                        context,
+                                        listen: false,
+                                      ).locale.languageCode,
+                                    ).format(reminder.dateTime),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: isPast && !reminder.isCompleted
+                                          ? Theme.of(context).colorScheme.error
+                                          : Theme.of(context).primaryColor.withAlpha(200),
+                                    ),
+                                  ),
+                              ],
+                            )
                           ),
                           if (reminder.voiceNotePath != null) ...[
-                            const SizedBox(width: 8),
-                            const Icon(Icons.mic, size: 14, color: Colors.blue),
+                            const SizedBox(width: 12),
+                            const Icon(Icons.mic, size: 16, color: Colors.blue),
                           ],
                           if (reminder.subtasks.isNotEmpty) ...[
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 12),
                             const Icon(
                               Icons.checklist,
-                              size: 14,
+                              size: 16,
                               color: Colors.green,
                             ),
-                            const SizedBox(width: 2),
+                            const SizedBox(width: 4),
                             Text(
                               '${reminder.completedSubtasksCount}/${reminder.totalSubtasksCount}',
                               style: const TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: Colors.green,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ],
                       ),
                     ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: priorityColor.withAlpha(38),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    _getPriorityIcon(reminder.priority),
-                    size: 16,
-                    color: priorityColor,
                   ),
                 ),
               ],
@@ -869,9 +897,9 @@ class _ReminderSheetState extends State<_ReminderSheet> {
     return Container(
       height:
           MediaQuery.of(context).size.height *
-          0.70, // Reduced from 0.92 to 0.70
+          0.80, // Slightly increased from 0.70 to give more breathing room
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).scaffoldBackgroundColor, // Use scaffold background for cleaner look
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -898,52 +926,59 @@ class _ReminderSheetState extends State<_ReminderSheet> {
           // Scrollable Content
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Reminder Title
                   TextField(
                     controller: _titleController,
-                    // Reduced font size from titleLarge to titleMedium (~16sp) or slightly larger custom.
                     style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
                     ),
                     decoration: InputDecoration(
                       hintText: widget.l10n.reminderTitle,
                       border: InputBorder.none,
-                      hintStyle: Theme.of(
-                        context,
-                      ).inputDecorationTheme.hintStyle,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                      hintStyle: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).hintColor.withAlpha(120),
+                      ),
                     ),
                     textInputAction: TextInputAction.next,
                   ),
-                  const SizedBox(height: 12),
-
-                  // Tags? No tags in reminders yet, skipping.
+                  const SizedBox(height: 20),
 
                   // Reminder Content Editor
-                  // Removed box decoration to match Notes style
                   Container(
-                    constraints: const BoxConstraints(minHeight: 100),
-                    child: quill.QuillEditor.basic(
-                      controller: _quillController,
-                      config: quill.QuillEditorConfig(
-                        placeholder: widget.l10n.description,
+                    constraints: const BoxConstraints(minHeight: 80),
+                    child: Theme(
+                       data: Theme.of(context).copyWith(
+                         canvasColor: Colors.transparent,
+                       ),
+                       child: quill.QuillEditor.basic(
+                        controller: _quillController,
+                        config: quill.QuillEditorConfig(
+                          placeholder: widget.l10n.description,
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Divider(),
+                  Divider(color: Theme.of(context).dividerColor.withAlpha(40)),
                   const SizedBox(height: 16),
+                  
                   // Date & Time
                   Text(
-                    widget.l10n.dateTime,
+                    widget.l10n.dateTime.toUpperCase(),
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).textTheme.bodyMedium?.color,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                      color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(150),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -951,7 +986,7 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                     children: [
                       Expanded(
                         child: _buildDateTimeButton(
-                          icon: Icons.calendar_today,
+                          icon: Icons.calendar_today_rounded,
                           text: DateFormat(
                             'dd MMM yyyy',
                             Provider.of<SettingsProvider>(
@@ -965,7 +1000,7 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildDateTimeButton(
-                          icon: Icons.access_time,
+                          icon: Icons.access_time_rounded,
                           text: DateFormat('HH:mm').format(_selectedDate),
                           onTap: _selectTime,
                         ),
@@ -976,11 +1011,12 @@ class _ReminderSheetState extends State<_ReminderSheet> {
 
                   // Priority
                   Text(
-                    widget.l10n.priority,
+                    widget.l10n.priority.toUpperCase(),
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).textTheme.bodyMedium?.color,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                      color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(150),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -989,17 +1025,18 @@ class _ReminderSheetState extends State<_ReminderSheet> {
 
                   // Voice Note
                   Text(
-                    Provider.of<SettingsProvider>(
+                    (Provider.of<SettingsProvider>(
                               context,
                               listen: false,
                             ).locale.languageCode ==
                             'tr'
                         ? 'Sesli Not'
-                        : 'Voice Note',
+                        : 'Voice Note').toUpperCase(),
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).textTheme.bodyMedium?.color,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                      color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(150),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -1012,23 +1049,24 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                   else
                     InkWell(
                       onTap: _recordVoice,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
-                          vertical: 12,
+                          vertical: 14,
                         ),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.blue.withAlpha(25),
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Theme.of(context).dividerColor,
+                            color: Colors.blue.withAlpha(50),
+                            width: 1,
                           ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.mic, color: Colors.blue),
+                            const Icon(Icons.mic_rounded, color: Colors.blue, size: 20),
                             const SizedBox(width: 8),
                             Text(
                               Provider.of<SettingsProvider>(
@@ -1040,7 +1078,8 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                                   : 'Record Voice',
                               style: const TextStyle(
                                 color: Colors.blue,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
                               ),
                             ),
                           ],
@@ -1048,8 +1087,8 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                       ),
                     ),
                   const SizedBox(
-                    height: 20,
-                  ), // Reduced from 200 to 20 for cleaner look
+                    height: 32,
+                  ),
                 ],
               ),
             ),
@@ -1144,12 +1183,22 @@ class _ReminderSheetState extends State<_ReminderSheet> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Theme.of(context).dividerColor.withAlpha(20),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(Theme.of(context).brightness == Brightness.dark ? 20 : 5),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
+            ),
+          ]
         ),
         child: Row(
           children: [
@@ -1158,6 +1207,8 @@ class _ReminderSheetState extends State<_ReminderSheet> {
             Text(
               text,
               style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
                 color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
@@ -1200,17 +1251,21 @@ class _ReminderSheetState extends State<_ReminderSheet> {
       label: Text(
         label,
         style: TextStyle(
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           color: isSelected
               ? Colors.white
               : Theme.of(context).textTheme.bodyMedium?.color,
         ),
       ),
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).cardColor,
       selectedColor: color,
-      checkmarkColor: Colors.white,
+      showCheckmark: false,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: isSelected ? Colors.transparent : color),
+        side: BorderSide(
+            color: isSelected ? Colors.transparent : Theme.of(context).dividerColor.withAlpha(30),
+        ),
       ),
       onSelected: (selected) {
         if (selected) setState(() => _priority = value);

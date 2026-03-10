@@ -16,6 +16,7 @@ import '../providers/reminder_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/weather_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/common/confirmation_dialog.dart';
 
 class ChatbotScreen extends StatefulWidget {
   const ChatbotScreen({super.key});
@@ -655,8 +656,17 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                                     Icons.delete_outline,
                                     size: 20,
                                   ),
-                                  onPressed: () {
-                                    chatProvider.deleteConversation(conv.id);
+                                  onPressed: () async {
+                                    final confirmed = await ConfirmationDialog.show(
+                                      context: context,
+                                      title: l10n.clearHistory, // Reusing clear history translation for now, or 'Delete'
+                                      message: l10n.deleteConfirmation, // Using the general warning
+                                      confirmText: l10n.delete,
+                                      cancelText: l10n.cancel,
+                                    );
+                                    if (confirmed == true) {
+                                      await chatProvider.deleteConversation(conv.id);
+                                    }
                                   },
                                 ),
                                 onTap: () {

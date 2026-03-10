@@ -429,12 +429,14 @@ class ChatProvider with ChangeNotifier {
                     '1. NEVER ask "which city?". Use the Dashboard location above.\n'
                     '2. Return this JSON immediately: {"action": "get_pharmacy", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}';
         } else {
-          // USA or other - no pharmacy/events instructions
+          // Non-Turkey - pharmacy is Turkey-only, events work globally
           locInfo = isTurkish
               ? '\n📍 GEÇERLİ KONUM BİLGİSİ (Dashboard): $fullLocation\n'
-                    '⚠️ NOT: Nöbetçi eczane ve etkinlik hizmetleri sadece Türkiye için kullanılabilir.'
+                    '⚠️ NOT: Nöbetçi eczane hizmeti sadece Türkiye için kullanılabilir.\n'
+                    '✅ Etkinlik hizmeti her ülkede kullanılabilir. Konum: $fullLocation'
               : '\n📍 CURRENT LOCATION (Dashboard): $fullLocation\n'
-                    '⚠️ NOTE: Pharmacy and events services are only available for Turkey.';
+                    '⚠️ NOTE: Pharmacy service is only available for Turkey.\n'
+                    '✅ Events service is available globally. Location: $fullLocation';
         }
 
         weatherContext = (weatherContext ?? '') + locInfo;
@@ -2444,20 +2446,6 @@ class ChatProvider with ChangeNotifier {
     Map<String, dynamic> data,
     bool isTurkish,
   ) async {
-    // Check if user's location is in Turkey
-    try {
-      final locData = await _db.getUserLocation();
-      final countryCode = locData?['country_code']?.toString() ?? 'TR';
-
-      if (countryCode != 'TR') {
-        return isTurkish
-            ? "❌ Etkinlik hizmeti sadece Türkiye için mevcuttur.\n\n💡 Lütfen hava durumu konumunuzu Türkiye'deki bir şehir olarak ayarlayın."
-            : '❌ Events service is only available for Turkey.\n\n💡 Please set your weather location to a city in Turkey.';
-      }
-    } catch (e) {
-      debugPrint('Error checking country for events: $e');
-    }
-
     var location = data['location']?.toString();
 
     // Fallback to saved location if not provided

@@ -11,10 +11,10 @@ import '../l10n/app_localizations.dart';
 import '../models/note.dart';
 import '../providers/note_provider.dart';
 import '../providers/settings_provider.dart';
+import '../screens/note_edit_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common/confirmation_dialog.dart';
 import '../widgets/drawing_preview.dart';
-import '../widgets/quill_note_sheet.dart';
 import '../widgets/quill_note_viewer.dart';
 
 class NotesScreen extends StatefulWidget {
@@ -63,15 +63,7 @@ class _NotesScreenState extends State<NotesScreen> {
     }).toList();
   }
 
-  Color _hexToColor(String? hex) {
-    if (hex == null || hex.isEmpty) return AppColors.noteColors.first;
-    try {
-      final hexCode = hex.replaceAll('#', '');
-      return Color(int.parse(hexCode, radix: 16) | 0xFF000000);
-    } catch (e) {
-      return AppColors.noteColors.first;
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -204,30 +196,64 @@ class _NotesScreenState extends State<NotesScreen> {
           },
         ),
       ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          gradient: AppColors.primaryGradient,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withAlpha(100),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
+      bottomNavigationBar: _buildQuickAddBar(l10n),
+    );
+  }
+  
+  Widget _buildQuickAddBar(AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? theme.bottomAppBarTheme.color : theme.cardColor,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? theme.dividerColor : Colors.black12,
+            width: 0.5,
+          ),
         ),
-        child: FloatingActionButton.extended(
-          onPressed: () => _showTemplateSelector(context),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          icon: const Icon(Icons.add_rounded, color: Colors.white, size: 24),
-          label: Text(
-            l10n.newNote,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () => _showNoteSheet(context),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: isDark ? theme.scaffoldBackgroundColor : Colors.grey.withAlpha(20),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      l10n.newNote,
+                      style: TextStyle(
+                        color: theme.hintColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: Icon(Icons.check_box_outlined, color: theme.hintColor),
+                onPressed: () => _showNoteSheet(context, template: 'todo'),
+              ),
+              IconButton(
+                icon: Icon(Icons.mic_none, color: theme.hintColor),
+                onPressed: () => _showNoteSheet(context), // Would open directly to voice later via query params/state
+              ),
+              IconButton(
+                icon: Icon(Icons.image_outlined, color: theme.hintColor),
+                onPressed: () => _showNoteSheet(context), // Same, would open directly to image attachment
+              ),
+            ],
           ),
         ),
       ),
@@ -313,9 +339,11 @@ class _NotesScreenState extends State<NotesScreen> {
 
   Widget _buildNotesGrid(List<Note> notes) {
     return SliverPadding(
-      padding: EdgeInsets.symmetric(
-        horizontal: context.horizontalPadding,
-        vertical: 16,
+      padding: EdgeInsets.fromLTRB(
+        context.horizontalPadding,
+        16,
+        context.horizontalPadding,
+        80, // Extra padding at the bottom for the quick add bar
       ),
       sliver: SliverMasonryGrid.count(
         crossAxisCount: Responsive.isMobile(context) ? 2 : 4,
@@ -331,11 +359,25 @@ class _NotesScreenState extends State<NotesScreen> {
   }
 
   Widget _buildNoteCard(Note note) {
-    final color = _hexToColor(note.color);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorHex = note.color.replaceAll('#', '');
+    Color baseColor;
+    try {
+      baseColor = Color(int.parse(colorHex, radix: 16) + 0xFF000000);
+    } catch (_) {
+      baseColor = Colors.transparent;
+    }
+
+    // Google Keep style color calculation:
+    // Light mode: Vibrant but readable (we use the base color, maybe slightly lightened)
+    // Dark mode: Dark grey/surface color gently tinted with the base color (matte)
     final cardColor = isDark
-        ? Color.alphaBlend(color.withAlpha(60), Theme.of(context).cardColor)
-        : color;
+        ? Color.alphaBlend(
+            baseColor.withAlpha(isDark ? 50 : 255), // Matte tint on dark mode
+            Theme.of(context).cardTheme.color ?? Theme.of(context).colorScheme.surface,
+          )
+        : baseColor;
+
     final textColor = isDark ? Colors.white : Colors.black87;
 
     return Dismissible(
@@ -374,8 +416,8 @@ class _NotesScreenState extends State<NotesScreen> {
             color: cardColor,
             borderRadius: BorderRadius.circular(16),
             border: isDark
-                ? Border.all(color: color.withAlpha(100), width: 1)
-                : null,
+                ? Border.all(color: baseColor.withAlpha(100), width: 1)
+                : Border.all(color: Colors.black.withAlpha(15), width: 1),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withAlpha(isDark ? 50 : 20),
@@ -595,111 +637,26 @@ class _NotesScreenState extends State<NotesScreen> {
     );
   }
 
-  void _showTemplateSelector(BuildContext context) {
-    final l10n = context.l10n;
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.chooseTemplate,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            _buildTemplateOption(
-              context,
-              icon: Icons.note,
-              title: l10n.templateBlank,
-              subtitle: l10n.templateBlankDesc,
-              onTap: () {
-                Navigator.pop(context);
-                _showNoteSheet(context);
-              },
-            ),
-            _buildTemplateOption(
-              context,
-              icon: Icons.shopping_cart,
-              title: l10n.templateShopping,
-              subtitle: l10n.templateShoppingDesc,
-              onTap: () {
-                Navigator.pop(context);
-                _showNoteSheet(context, template: 'shopping');
-              },
-            ),
-            _buildTemplateOption(
-              context,
-              icon: Icons.check_box,
-              title: l10n.templateTodo,
-              subtitle: l10n.templateTodoDesc,
-              onTap: () {
-                Navigator.pop(context);
-                _showNoteSheet(context, template: 'todo');
-              },
-            ),
-            _buildTemplateOption(
-              context,
-              icon: Icons.meeting_room,
-              title: l10n.templateMeeting,
-              subtitle: l10n.templateMeetingDesc,
-              onTap: () {
-                Navigator.pop(context);
-                _showNoteSheet(context, template: 'meeting');
-              },
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildTemplateOption(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor.withAlpha(30),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(icon, color: Theme.of(context).primaryColor),
-      ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Text(subtitle, style: const TextStyle(fontSize: 13)),
-      onTap: onTap,
-    );
-  }
 
   Future<void> _showNoteSheet(
     BuildContext context, {
     Note? note,
     String? template,
   }) async {
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => QuillNoteSheet(
-        note: note,
-        colors: AppColors.noteColors
-            .map(
-              (c) =>
-                  '#${c.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
-            )
-            .toList(),
-        template: template,
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NoteEditScreen(
+          note: note,
+          colors: AppColors.noteColors
+              .map(
+                (c) =>
+                    '#${c.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
+              )
+              .toList(),
+          template: template,
+        ),
       ),
     );
   }

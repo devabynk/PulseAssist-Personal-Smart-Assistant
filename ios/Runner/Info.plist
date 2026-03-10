@@ -103,6 +103,17 @@
 				<string>TLSv1.2</string>
 			</dict>
 			
+			<!-- Ticketmaster Events API -->
+			<key>ticketmaster.com</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<true/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.2</string>
+			</dict>
+
 			<!-- Localhost for development (remove for production) -->
 			<key>localhost</key>
 			<dict>

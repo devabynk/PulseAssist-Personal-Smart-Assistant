@@ -7,24 +7,24 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:intl/intl.dart';
+
 import '../core/utils/extensions.dart';
 import '../l10n/app_localizations.dart';
 import '../models/note.dart';
+
 import '../providers/note_provider.dart';
 import '../screens/drawing_screen.dart';
 import '../screens/voice_note_screen.dart';
-import '../widgets/common/custom_text_field.dart';
-import '../widgets/common/sheet_handle.dart';
-import '../widgets/common/sheet_header.dart'; // Import shared widget
 import '../widgets/drawing_preview.dart';
 import '../widgets/voice_player.dart';
 
-class QuillNoteSheet extends StatefulWidget {
+class NoteEditScreen extends StatefulWidget {
   final Note? note;
   final List<String> colors;
   final String? template;
 
-  const QuillNoteSheet({
+  const NoteEditScreen({
     super.key,
     this.note,
     required this.colors,
@@ -32,11 +32,10 @@ class QuillNoteSheet extends StatefulWidget {
   });
 
   @override
-  State<QuillNoteSheet> createState() => _QuillNoteSheetState();
+  State<NoteEditScreen> createState() => _NoteEditScreenState();
 }
 
-class _QuillNoteSheetState extends State<QuillNoteSheet> {
-  // ... (State variables remain the same)
+class _NoteEditScreenState extends State<NoteEditScreen> {
   late TextEditingController _titleController;
   late quill.QuillController _quillController;
   late String _selectedColor;
@@ -46,16 +45,15 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
   late String? _drawingData;
   late String? _voiceNotePath;
   late List<String> _tags;
-  bool _isToolbarExpanded = false;
 
   final FocusNode _titleFocus = FocusNode();
   final FocusNode _editorFocus = FocusNode();
-  final TextEditingController _tagController = TextEditingController();
+  bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
-    // ... (Init logic remains the same)
+
     if (widget.note != null) {
       _titleController = TextEditingController(text: widget.note!.title);
       _selectedColor = widget.note!.color;
@@ -99,7 +97,6 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
   }
 
   void _initializeTemplate() {
-    // ... (Keep existing template logic)
     final l10n = context.l10n;
     List<Map<String, dynamic>>? deltaOps;
 
@@ -210,183 +207,217 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
     }
   }
 
+  // Convert hex string like '#RRGGBB' to Color
+  Color _getBackgroundColor() {
+    try {
+      final hexCode = _selectedColor.replaceAll('#', '');
+      return Color(int.parse(hexCode, radix: 16) | 0xFF000000);
+    } catch (e) {
+      return Theme.of(context).scaffoldBackgroundColor;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isDisposed) return const SizedBox.shrink();
+    
     final l10n = context.l10n;
     final theme = Theme.of(context);
-
-    return Container(
-      height:
-          MediaQuery.of(context).size.height *
-          0.70, // Reduced from 0.92 to 0.70
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Column(
-        children: [
-          // Drag Handle
-          const SheetHandle(), // Replaced
-          // Top Toolbar
-          SheetHeader(
-            title: widget.note == null ? l10n.newNote : l10n.editNote,
-            isPinned: _isPinned,
-            onPin: () => setState(() => _isPinned = !_isPinned),
-            onDelete: widget.note != null ? _delete : null,
-            onSave: _save,
-            pinTooltip: l10n.pin,
-            unpinTooltip: l10n.unpin,
-            deleteTooltip: l10n.delete,
-            saveTooltip: l10n.save,
-          ), // Replaced
-
-          const Divider(height: 1),
-
-          // Scrollable Content
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  TextField(
-                    controller: _titleController,
-                    focusNode: _titleFocus,
-                    // Use standard titleLarge for notes, or adjusted if needed.
-                    // Keeping titleLarge as it's the standard for notes usually, but reminders was too big.
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: l10n.noteTitle,
-                      border: InputBorder.none,
-                      hintStyle: Theme.of(
-                        context,
-                      ).inputDecorationTheme.hintStyle,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Tags
-                  if (_tags.isNotEmpty) _buildTags(theme),
-
-                  // Add tag field
-                  _buildTagInput(l10n),
-
-                  const Divider(),
-
-                  // Attachments
-                  if (_imagePaths.isNotEmpty) _buildImages(),
-                  if (_voiceNotePath != null) _buildVoiceNote(),
-                  if (_drawingData != null) _buildDrawingPreview(l10n),
-
-                  // Quill Editor
-                  Container(
-                    constraints: const BoxConstraints(minHeight: 120),
-                    child: quill.QuillEditor.basic(
-                      controller: _quillController,
-                      focusNode: _editorFocus,
-                      config: quill.QuillEditorConfig(
-                        placeholder: l10n
-                            .noteContent, // Key exists in arb? Yes, 'noteContent'
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20), // Reduced from 200
-                ],
-              ),
-            ),
-          ),
-
-          // Quill Toolbar
-          _buildQuillToolbar(),
-
-          // Action Toolbar
-          _buildActionToolbar(l10n),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTags(ThemeData theme) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: _tags
-          .map(
-            (tag) => Chip(
-              label: Text('#$tag', style: const TextStyle(fontSize: 13)),
-              deleteIcon: const Icon(Icons.close, size: 16),
-              onDeleted: () => setState(() => _tags.remove(tag)),
-              backgroundColor: theme.primaryColor.withAlpha(30),
-            ),
+    final isDark = theme.brightness == Brightness.dark;
+    
+    final baseColor = _getBackgroundColor();
+    final bgColor = isDark 
+        ? Color.alphaBlend(
+            baseColor.withAlpha(50), 
+            theme.scaffoldBackgroundColor, // scaffold background in full screen to blend nicely
           )
-          .toList(),
+        : baseColor;
+    
+    final fgColor = isDark ? Colors.white : Colors.black87;
+    final hintColor = isDark ? Colors.white54 : Colors.black54;
+
+    final lastEditedText = widget.note != null
+        ? '${l10n.editNote} ${DateFormat('HH:mm').format(widget.note!.updatedAt)}' // todo properly translate edited time
+        : '${l10n.editNote} ${DateFormat('HH:mm').format(DateTime.now())}';
+
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        _saveAndPop();
+      },
+      child: Scaffold(
+        backgroundColor: bgColor,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: fgColor),
+            onPressed: _saveAndPop,
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(
+                _isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                color: fgColor,
+              ),
+              onPressed: () => setState(() => _isPinned = !_isPinned),
+            ),
+            IconButton(
+              icon: Icon(Icons.palette_outlined, color: fgColor),
+              onPressed: () => _showColorPicker(),
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title Field
+                      TextField(
+                        controller: _titleController,
+                        focusNode: _titleFocus,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: fgColor,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: l10n.noteTitle,
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(color: hintColor, fontSize: 24),
+                        ),
+                        maxLines: null,
+                        textInputAction: TextInputAction.next,
+                        onSubmitted: (_) {
+                          FocusScope.of(context).requestFocus(_editorFocus);
+                        },
+                      ),
+                      
+                      // Editor Field
+                      quill.QuillEditor.basic(
+                        controller: _quillController,
+                        focusNode: _editorFocus,
+                        config: quill.QuillEditorConfig(
+                          placeholder: l10n.noteContent,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Attachments Section
+                      if (_imagePaths.isNotEmpty) _buildImages(),
+                      if (_voiceNotePath != null) _buildVoiceNote(),
+                      if (_drawingData != null) _buildDrawingPreview(l10n),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // Bottom Toolbar (Similar to Google Keep)
+              Container(
+                decoration: BoxDecoration(
+                  color: isDark ? theme.bottomAppBarTheme.color : bgColor,
+                  border: Border(
+                    top: BorderSide(
+                      color: isDark ? theme.dividerColor : Colors.black12,
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.add_box_outlined, color: fgColor),
+                          onPressed: () => _showAddAttachmentMenu(context),
+                        ),
+                        // IconButton(
+                        //   icon: Icon(Icons.palette_outlined, color: fgColor),
+                        //   onPressed: () => _showColorPicker(),
+                        // ),
+                        Expanded(
+                          child: Text(
+                            lastEditedText,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: hintColor,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.more_vert, color: fgColor),
+                          onPressed: _showMoreOptionsMenu,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
-
-  Widget _buildTagInput(AppLocalizations l10n) {
-    return CustomTextField(
-      controller: _tagController,
-      hintText: l10n.addTag,
-      prefixIcon: const Icon(Icons.tag),
-      onSubmitted: (value) {
-        if (value.isNotEmpty && !_tags.contains(value)) {
-          setState(() => _tags.add(value));
-          _tagController.clear();
-        }
-      },
-    );
+  
+  void _saveAndPop() {
+    _save();
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 
   Widget _buildImages() {
     return Column(
-      children: [
-        SizedBox(
-          height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: _imagePaths.length,
-            itemBuilder: (context, index) => Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.file(
-                      File(_imagePaths[index]),
-                      width: 120,
-                      height: 120,
-                      fit: BoxFit.cover,
+      children: _imagePaths.asMap().entries.map((entry) {
+        final index = entry.key;
+        final path = entry.value;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Stack(
+            alignment: Alignment.topRight,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  File(path),
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                  onTap: () => setState(() => _imagePaths.removeAt(index)),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Colors.black54,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 20,
                     ),
                   ),
                 ),
-                Positioned(
-                  top: 4,
-                  right: 12,
-                  child: GestureDetector(
-                    onTap: () => setState(() => _imagePaths.removeAt(index)),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.black54,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 16),
-      ],
+        );
+      }).toList(),
     );
   }
 
@@ -411,7 +442,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.purple.withAlpha(30),
+              color: Colors.purple.withAlpha(20),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.purple.withAlpha(50)),
             ),
@@ -447,7 +478,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Düzenlemek için dokunun',
+                        'Düzenlemek için dokunun', // todo translate
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).textTheme.bodySmall?.color,
@@ -459,7 +490,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
                 IconButton(
                   icon: const Icon(Icons.close, size: 20),
                   onPressed: () => setState(() => _drawingData = null),
-                  tooltip: 'Çizimi Sil',
+                  tooltip: 'Çizimi Sil', // todo translate
                 ),
               ],
             ),
@@ -470,130 +501,96 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
     );
   }
 
-  Widget _buildQuillToolbar() {
+  void _showAddAttachmentMenu(BuildContext context) {
     final l10n = context.l10n;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        border: Border(top: BorderSide(color: Colors.grey.withAlpha(50))),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Toolbar toggle button
-          InkWell(
-            onTap: () =>
-                setState(() => _isToolbarExpanded = !_isToolbarExpanded),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: [
-                  Icon(
-                    _isToolbarExpanded
-                        ? Icons.keyboard_arrow_down
-                        : Icons.keyboard_arrow_up,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    _isToolbarExpanded ? l10n.hideTools : l10n.formattingTools,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const Spacer(),
-                  if (!_isToolbarExpanded) ...[
-                    const Icon(Icons.format_bold, size: 16, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    const Icon(
-                      Icons.format_italic,
-                      size: 16,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(
-                      Icons.format_list_bulleted,
-                      size: 16,
-                      color: Colors.grey,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-
-          // Expandable toolbar
-          if (_isToolbarExpanded) ...[
-            const Divider(height: 1),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: quill.QuillSimpleToolbar(controller: _quillController),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionToolbar(AppLocalizations l10n) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        border: Border(top: BorderSide(color: Colors.grey.withAlpha(50))),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            _actionButton(Icons.image, l10n.addImage, _pickImage),
-            const SizedBox(width: 8),
-            _actionButton(Icons.draw, l10n.draw, _openDrawing),
-            const SizedBox(width: 8),
-            _actionButton(Icons.mic, l10n.voiceNote, _recordVoice),
-            const SizedBox(width: 8),
-            _actionButton(Icons.palette, l10n.color, _showColorPicker),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _actionButton(IconData icon, String label, VoidCallback onPressed) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor.withAlpha(30),
-          borderRadius: BorderRadius.circular(16),
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        child: Row(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 20, color: Theme.of(context).primaryColor),
-            const SizedBox(width: 6),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: Text(l10n.attachmentCamera), // usually Take photo
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.image_outlined),
+              title: Text(l10n.addImage),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.brush_outlined),
+              title: Text(l10n.draw),
+              onTap: () {
+                Navigator.pop(context);
+                _openDrawing();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.mic_none_outlined),
+              title: Text(l10n.voiceNote),
+              onTap: () {
+                Navigator.pop(context);
+                _recordVoice();
+              },
+            ),
           ],
         ),
       ),
     );
   }
 
-  Future<void> _pickImage() async {
+  void _showMoreOptionsMenu() {
+    final l10n = context.l10n;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.delete_outline),
+              title: Text(l10n.delete),
+              onTap: () {
+                Navigator.pop(context);
+                _delete();
+              },
+            ),
+            // Tags, etc can be added here
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  Future<void> _pickImage(ImageSource source) async {
     final l10n = context.l10n;
     const maxFileSize = 2 * 1024 * 1024; // 2MB
     const validImageExt = ['jpg', 'jpeg', 'png', 'webp'];
 
     final picker = ImagePicker();
     final image = await picker.pickImage(
-      source: ImageSource.gallery,
+      source: source,
       maxWidth: 1920,
       maxHeight: 1920,
       imageQuality: 85,
@@ -656,7 +653,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        height: 100,
+        height: 120, // Keep like keep's circular options
         margin: const EdgeInsets.all(16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -688,7 +685,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
                           color: Theme.of(context).primaryColor,
                           width: 3,
                         )
-                      : null,
+                      : Border.all(color: Colors.grey.withAlpha(80), width: 1),
                 ),
                 child: isSelected
                     ? const Icon(Icons.check, color: Colors.white)
@@ -702,6 +699,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
   }
 
   void _save() {
+    if (_isDisposed) return;
     final title = _titleController.text.trim();
     if (!_quillController.document.toPlainText().endsWith('\n')) {
       _quillController.document.insert(_quillController.document.length, '\n');
@@ -710,14 +708,23 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
       _quillController.document.toDelta().toJson(),
     );
 
+    // Don't save empty notes without attachments
     if (title.isEmpty &&
         _quillController.document.isEmpty() &&
         _imagePaths.isEmpty &&
         _voiceNotePath == null &&
         _drawingData == null) {
-      Navigator.pop(context);
       return;
     }
+
+    // Don't save if content is just a newline and title is empty
+    if (title.isEmpty && _quillController.document.toPlainText().trim().isEmpty &&
+        _imagePaths.isEmpty &&
+        _voiceNotePath == null &&
+        _drawingData == null){
+        return;
+    }
+
 
     final now = DateTime.now();
     final note = Note(
@@ -741,7 +748,6 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
     } else {
       Provider.of<NoteProvider>(context, listen: false).updateNote(note);
     }
-    Navigator.pop(context);
   }
 
   Future<void> _delete() async {
@@ -773,7 +779,7 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
           context,
           listen: false,
         ).deleteNote(widget.note!);
-        if (mounted) Navigator.pop(context);
+        if (mounted) Navigator.pop(context); // Pop the screen completely right away
       }
     } else {
       Navigator.pop(context);
@@ -782,11 +788,11 @@ class _QuillNoteSheetState extends State<QuillNoteSheet> {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _titleController.dispose();
     _quillController.dispose();
     _titleFocus.dispose();
     _editorFocus.dispose();
-    _tagController.dispose();
     super.dispose();
   }
 }

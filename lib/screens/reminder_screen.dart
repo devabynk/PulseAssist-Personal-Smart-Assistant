@@ -365,10 +365,9 @@ class _ReminderScreenState extends State<ReminderScreen> {
           icon: const Icon(Icons.add_rounded, color: Colors.white, size: 24),
           label: Text(
             l10n.newReminder,
-            style: const TextStyle(
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: 16,
             ),
           ),
         ),
@@ -389,8 +388,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
           const SizedBox(height: 16),
           Text(
             l10n.noReminders,
-            style: TextStyle(
-              fontSize: 18,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Theme.of(
                 context,
               ).textTheme.bodyLarge?.color?.withAlpha(127),
@@ -399,8 +397,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
           const SizedBox(height: 8),
           Text(
             l10n.addReminderHint,
-            style: TextStyle(
-              fontSize: 14,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(
                 context,
               ).textTheme.bodyMedium?.color?.withAlpha(77),
@@ -595,8 +592,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
       children: [
         Text(
           title,
-          style: TextStyle(
-            fontSize: 18,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).textTheme.titleLarge?.color,
           ),
@@ -610,8 +606,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
           ),
           child: Text(
             count.toString(),
-            style: TextStyle(
-              fontSize: 14,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).primaryColor,
               fontWeight: FontWeight.w700,
             ),
@@ -734,8 +729,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
                           Expanded(
                             child: Text(
                               reminder.title,
-                              style: TextStyle(
-                                fontSize: 16,
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: reminder.isCompleted
                                     ? Theme.of(context).disabledColor
@@ -795,8 +789,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
                                         listen: false,
                                       ).locale.languageCode,
                                     ).format(reminder.dateTime),
-                                    style: TextStyle(
-                                      fontSize: 12,
+                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                       fontWeight: FontWeight.w500,
                                       color: isPast && !reminder.isCompleted
                                           ? Theme.of(context).colorScheme.error
@@ -820,8 +813,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
                             const SizedBox(width: 4),
                             Text(
                               '${reminder.completedSubtasksCount}/${reminder.totalSubtasksCount}',
-                              style: const TextStyle(
-                                fontSize: 12,
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                 color: Colors.green,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -933,8 +925,7 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                   // Reminder Title
                   TextField(
                     controller: _titleController,
-                    style: const TextStyle(
-                      fontSize: 22,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                     decoration: InputDecoration(
@@ -942,8 +933,7 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                       border: InputBorder.none,
                       isDense: true,
                       contentPadding: EdgeInsets.zero,
-                      hintStyle: TextStyle(
-                        fontSize: 22,
+                      hintStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: Theme.of(context).hintColor.withAlpha(120),
                       ),
@@ -974,8 +964,7 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                   // Date & Time
                   Text(
                     widget.l10n.dateTime.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 12,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
                       color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(150),
@@ -1012,8 +1001,7 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                   // Priority
                   Text(
                     widget.l10n.priority.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 12,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
                       color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(150),
@@ -1032,8 +1020,7 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                             'tr'
                         ? 'Sesli Not'
                         : 'Voice Note').toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 12,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
                       color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(150),
@@ -1076,10 +1063,9 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                                       'tr'
                                   ? 'Ses Kaydet'
                                   : 'Record Voice',
-                              style: const TextStyle(
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                 color: Colors.blue,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 15,
                               ),
                             ),
                           ],
@@ -1126,8 +1112,7 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                           _isToolbarExpanded
                               ? widget.l10n.hideTools
                               : widget.l10n.formattingTools,
-                          style: const TextStyle(
-                            fontSize: 13,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -1206,8 +1191,7 @@ class _ReminderSheetState extends State<_ReminderSheet> {
             const SizedBox(width: 8),
             Text(
               text,
-              style: TextStyle(
-                fontSize: 15,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w500,
                 color: Theme.of(context).textTheme.bodyLarge?.color,
               ),

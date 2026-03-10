@@ -212,10 +212,9 @@ class _AlarmScreenState extends State<AlarmScreen> {
           icon: const Icon(Icons.add_rounded, color: Colors.white, size: 24),
           label: Text(
             l10n.newAlarm,
-            style: const TextStyle(
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: 16,
             ),
           ),
         ),
@@ -236,8 +235,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
           const SizedBox(height: 16),
           Text(
             l10n.noAlarms,
-            style: TextStyle(
-              fontSize: 18,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: Theme.of(
                 context,
               ).textTheme.bodyLarge?.color?.withAlpha(127),
@@ -246,8 +244,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
           const SizedBox(height: 8),
           Text(
             l10n.addAlarmHint,
-            style: TextStyle(
-              fontSize: 14,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(
                 context,
               ).textTheme.bodyMedium?.color?.withAlpha(77),
@@ -332,8 +329,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
                 children: [
                   Text(
                     DateFormat('HH:mm').format(alarm.time),
-                    style: TextStyle(
-                      fontSize: 32,
+                    style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: alarm.isActive
                           ? theme.textTheme.bodyLarge?.color
@@ -347,8 +343,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
                           margin: const EdgeInsets.only(right: 6),
                           child: Text(
                             alarm.title,
-                            style: TextStyle(
-                              fontSize: 13,
+                            style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.textTheme.bodyMedium?.color
                                   ?.withAlpha(150),
                             ),
@@ -358,8 +353,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
                       const SizedBox(width: 4),
                       Text(
                         repeatText, // Placeholder
-                        style: TextStyle(
-                          fontSize: 12,
+                        style: theme.textTheme.labelSmall?.copyWith(
                           color: theme.disabledColor,
                         ),
                       ),
@@ -593,7 +587,7 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
               children: [
                 Text(
                   _getRepeatSummary(l10n),
-                  style: TextStyle(color: theme.disabledColor, fontSize: 14),
+                  style: TextStyle(color: theme.disabledColor),
                 ),
                 const Icon(Icons.chevron_right, size: 20),
               ],
@@ -675,12 +669,11 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
         ),
         child: Text(
           label,
-          style: TextStyle(
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
             color: isSelected
                 ? Colors.white
                 : theme.textTheme.bodyMedium?.color,
             fontWeight: FontWeight.bold,
-            fontSize: 11, // Smaller font to fit 3 chars
           ),
         ),
       ),

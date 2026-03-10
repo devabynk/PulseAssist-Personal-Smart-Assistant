@@ -127,9 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 16),
                     Text(
                       'PulseAssist',
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
                         color: Theme.of(context).primaryColor,
                       ),
                     ),
@@ -296,10 +295,9 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(width: 4),
               Text(
                 label,
-                style: TextStyle(
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Theme.of(context).primaryColor,
                   fontWeight: FontWeight.w600,
-                  fontSize: 12,
                 ),
               ),
             ],
@@ -368,12 +366,11 @@ class _HomeScreenState extends State<HomeScreen> {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: isSelected
                         ? primaryColor
                         : Theme.of(context).textTheme.bodyMedium?.color,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    fontSize: 14,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),

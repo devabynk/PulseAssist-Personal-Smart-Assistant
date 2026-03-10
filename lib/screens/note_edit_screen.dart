@@ -6,7 +6,6 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-
 import 'package:intl/intl.dart';
 
 import '../core/utils/extensions.dart';
@@ -283,15 +282,14 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                       TextField(
                         controller: _titleController,
                         focusNode: _titleFocus,
-                        style: TextStyle(
-                          fontSize: 24,
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: fgColor,
                         ),
                         decoration: InputDecoration(
                           hintText: l10n.noteTitle,
                           border: InputBorder.none,
-                          hintStyle: TextStyle(color: hintColor, fontSize: 24),
+                          hintStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(color: hintColor),
                         ),
                         maxLines: null,
                         textInputAction: TextInputAction.next,
@@ -349,8 +347,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                           child: Text(
                             lastEditedText,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: hintColor,
                             ),
                           ),
@@ -467,11 +464,10 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                             size: 20,
                           ),
                           const SizedBox(width: 6),
-                          Text(
+                      Text(
                             l10n.drawingAttached,
-                            style: const TextStyle(
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w600,
-                              fontSize: 14,
                             ),
                           ),
                         ],
@@ -479,8 +475,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                       const SizedBox(height: 4),
                       Text(
                         'Düzenlemek için dokunun', // todo translate
-                        style: TextStyle(
-                          fontSize: 12,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).textTheme.bodySmall?.color,
                         ),
                       ),

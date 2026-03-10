@@ -12,6 +12,8 @@ import '../models/note.dart';
 import '../providers/note_provider.dart';
 import '../providers/settings_provider.dart';
 import '../screens/note_edit_screen.dart';
+import '../screens/drawing_screen.dart';
+import '../screens/voice_note_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common/confirmation_dialog.dart';
 import '../widgets/drawing_preview.dart';
@@ -231,9 +233,8 @@ class _NotesScreenState extends State<NotesScreen> {
                     ),
                     child: Text(
                       l10n.newNote,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: theme.hintColor,
-                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -247,11 +248,25 @@ class _NotesScreenState extends State<NotesScreen> {
               ),
               IconButton(
                 icon: Icon(Icons.mic_none, color: theme.hintColor),
-                onPressed: () => _showNoteSheet(context), // Would open directly to voice later via query params/state
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const VoiceNoteScreen(),
+                    ),
+                  );
+                },
               ),
               IconButton(
-                icon: Icon(Icons.image_outlined, color: theme.hintColor),
-                onPressed: () => _showNoteSheet(context), // Same, would open directly to image attachment
+                icon: Icon(Icons.draw_outlined, color: theme.hintColor),
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const DrawingScreen(),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -273,8 +288,7 @@ class _NotesScreenState extends State<NotesScreen> {
           const SizedBox(height: 16),
           Text(
             _searchController.text.isEmpty ? l10n.noNotes : l10n.noteNotFound,
-            style: TextStyle(
-              fontSize: 18,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Theme.of(
                 context,
               ).textTheme.bodyLarge?.color?.withAlpha(127),
@@ -283,8 +297,7 @@ class _NotesScreenState extends State<NotesScreen> {
           const SizedBox(height: 8),
           Text(
             l10n.addNoteHint,
-            style: TextStyle(
-              fontSize: 14,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(
                 context,
               ).textTheme.bodyMedium?.color?.withAlpha(77),
@@ -302,16 +315,16 @@ class _NotesScreenState extends State<NotesScreen> {
     return CustomScrollView(
       slivers: [
         if (pinnedNotes.isNotEmpty) ...[
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 children: [
-                  Icon(Icons.push_pin, size: 16, color: Colors.amber),
-                  SizedBox(width: 8),
+                  const Icon(Icons.push_pin, size: 16, color: Colors.amber),
+                  const SizedBox(width: 8),
                   Text(
                     'Pinned',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -322,12 +335,12 @@ class _NotesScreenState extends State<NotesScreen> {
         ],
         if (unpinnedNotes.isNotEmpty) ...[
           if (pinnedNotes.isNotEmpty)
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Text(
                   'Others',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -461,8 +474,7 @@ class _NotesScreenState extends State<NotesScreen> {
               if (note.title.isNotEmpty) ...[
                 Text(
                   note.title,
-                  style: TextStyle(
-                    fontSize: 18,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: textColor,
                   ),
@@ -521,8 +533,7 @@ class _NotesScreenState extends State<NotesScreen> {
                           ),
                           child: Text(
                             '#$tag',
-                            style: TextStyle(
-                              fontSize: 11,
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: textColor.withAlpha(180),
                             ),
                           ),
@@ -543,8 +554,7 @@ class _NotesScreenState extends State<NotesScreen> {
                       listen: false,
                     ).locale.languageCode,
                   ).format(note.updatedAt),
-                  style: TextStyle(
-                    fontSize: 11,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: textColor.withAlpha(150),
                   ),
                 ),

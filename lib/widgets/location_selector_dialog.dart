@@ -41,8 +41,7 @@ class _LocationSelectorDialogState extends State<LocationSelectorDialog> {
               children: [
                 Text(
                   l10n.selectLocation,
-                  style: const TextStyle(
-                    fontSize: 20,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -57,7 +56,7 @@ class _LocationSelectorDialogState extends State<LocationSelectorDialog> {
             const SizedBox(height: 8),
             Text(
               l10n.selectLocationForWeather,
-              style: const TextStyle(fontSize: 13, color: Colors.grey),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
             ),
             const SizedBox(height: 24),
 

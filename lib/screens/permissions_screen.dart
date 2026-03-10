@@ -244,8 +244,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                             children: [
                               Text(
                                 l10n.permissionsTitle,
-                                style: TextStyle(
-                                  fontSize: 24,
+                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: Theme.of(
                                     context,
@@ -255,8 +254,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                               const SizedBox(height: 2),
                               Text(
                                 l10n.permissionsSubtitle,
-                                style: TextStyle(
-                                  fontSize: 13,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Theme.of(
                                     context,
                                   ).textTheme.bodyMedium?.color?.withAlpha(200),
@@ -301,8 +299,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                             Expanded(
                               child: Text(
                                 l10n.permissionsOptional,
-                                style: TextStyle(
-                                  fontSize: 13,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Theme.of(
                                     context,
                                   ).textTheme.bodyLarge?.color,
@@ -433,9 +430,8 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                             ),
                             child: Text(
                               widget.fromSettings ? l10n.cancel : l10n.skip,
-                              style: const TextStyle(
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 color: AppColors.primary,
-                                fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -468,9 +464,9 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                     widget.fromSettings
                                         ? l10n.save
                                         : l10n.continueButton,
-                                    style: const TextStyle(
-                                      fontSize: 16,
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                       fontWeight: FontWeight.bold,
+                                      color: Colors.white,
                                     ),
                                   ),
                           ),
@@ -485,21 +481,20 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                           child: Text(
                             l10n.permissionsSkipInfo,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: isDark
-                                  ? Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.color
-                                        ?.withAlpha(200)
-                                  : Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.color
-                                            ?.withAlpha(180) ??
-                                        Colors.grey[600],
-                              fontSize: 11,
-                            ),
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: isDark
+                                    ? Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.color
+                                          ?.withAlpha(200)
+                                    : Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.color
+                                              ?.withAlpha(180) ??
+                                          Colors.grey[600],
+                              ),
                           ),
                         ),
                       ),
@@ -570,11 +565,10 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
-                ),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
               ),
             ),
             IconButton(
@@ -603,7 +597,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(description, style: const TextStyle(fontSize: 15)),
+                        Text(description, style: Theme.of(context).textTheme.titleSmall),
                         const SizedBox(height: 16),
                         Container(
                           padding: const EdgeInsets.all(12),
@@ -622,8 +616,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                               Expanded(
                                 child: Text(
                                   usage,
-                                  style: const TextStyle(
-                                    fontSize: 13,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -663,20 +656,19 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                       color: AppColors.primary.withAlpha(50),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.settings,
                         color: AppColors.primary,
                         size: 14,
                       ),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Text(
                         'Yönet',
-                        style: TextStyle(
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w600,
-                          fontSize: 12,
                         ),
                       ),
                     ],
@@ -698,10 +690,9 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                   ),
                   child: Text(
                     grantText,
-                    style: const TextStyle(
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
-                      fontSize: 12,
                     ),
                   ),
                 ),

@@ -208,12 +208,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 4),
             Text(
               userName.isNotEmpty ? userName : 'PulseAssist',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontSize:
-                    (Theme.of(context).textTheme.headlineMedium?.fontSize ??
-                        28) -
-                    3,
-              ),
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
           ],
         ),
@@ -259,9 +254,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                             child: Text(
                               '$unreadCount',
-                              style: const TextStyle(
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                 color: Colors.white,
-                                fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
                               textAlign: TextAlign.center,
@@ -335,8 +329,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 6),
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 11,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   fontWeight: FontWeight.w500,
                   color: color,
                 ),
@@ -396,15 +389,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         children: [
                           Text(
                             isTurkish ? 'AI Sohbet' : 'AI Chat',
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
                             isTurkish ? 'Aktif' : 'Active',
-                            style: TextStyle(
-                              fontSize: 12,
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: Colors.green[400],
                             ),
                           ),
@@ -417,10 +408,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         Text(
                           isTurkish ? 'Sohbete Dön' : 'Go to Chat',
-                          style: const TextStyle(
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600,
-                            fontSize: 13,
                           ),
                         ),
                         const SizedBox(width: 4),
@@ -449,8 +439,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         Text(
                           isTurkish ? 'Son yanıt' : 'Last response',
-                          style: TextStyle(
-                            fontSize: 11,
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             color: Theme.of(context).textTheme.bodySmall?.color,
                           ),
                         ),
@@ -459,7 +448,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           lastMessage.content.length > 60
                               ? '${lastMessage.content.substring(0, 60)}...'
                               : lastMessage.content,
-                          style: const TextStyle(fontSize: 13),
+                          style: Theme.of(context).textTheme.bodySmall,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -545,8 +534,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               nextAlarm != null
                                   ? DateFormat('HH:mm').format(nextAlarm.time)
                                   : '--:--',
-                              style: TextStyle(
-                                fontSize: 28,
+                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: isDark ? Colors.white : Colors.black87,
                               ),
@@ -554,8 +542,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Text(
                               nextAlarm?.title ??
                                   (isTurkish ? 'Alarm yok' : 'No alarm'),
-                              style: TextStyle(
-                                fontSize: 13,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(
                                   context,
                                 ).textTheme.bodySmall?.color,
@@ -627,8 +614,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                               child: Text(
                                 isTurkish ? 'BUGÜN' : 'TODAY',
-                                style: TextStyle(
-                                  fontSize: 10,
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: isDark
                                       ? Colors.tealAccent[100]
@@ -648,16 +634,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               children: [
                                 Text(
                                   '$completed',
-                                  style: TextStyle(
-                                    fontSize: 24,
+                                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.green[400],
                                   ),
                                 ),
                                 Text(
                                   '/$total',
-                                  style: TextStyle(
-                                    fontSize: 16,
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                     fontWeight: FontWeight.w600,
                                     color: Theme.of(
                                       context,
@@ -683,8 +667,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             const SizedBox(height: 6),
                             Text(
                               '$remaining ${isTurkish ? 'görev kaldı' : 'tasks left'}',
-                              style: TextStyle(
-                                fontSize: 11,
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                 color: Theme.of(
                                   context,
                                 ).textTheme.bodySmall?.color,
@@ -728,8 +711,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(width: 8),
                     Text(
                       isTurkish ? 'Son Notlar' : 'Recent Notes',
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -825,9 +807,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           note.title.isEmpty
                               ? (isTurkish ? 'Başlıksız' : 'Untitled')
                               : note.title,
-                          style: const TextStyle(
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w600,
-                            fontSize: 14,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -867,8 +848,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             Text(
               timeAgo,
-              style: TextStyle(
-                fontSize: 11,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
             ),
@@ -1035,11 +1015,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Expanded(
                         child: Text(
                           notification.title,
-                          style: TextStyle(
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: notification.isRead
                                 ? FontWeight.normal
                                 : FontWeight.bold,
-                            fontSize: 15,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -1047,8 +1026,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       Text(
                         dateFormat.format(notification.timestamp),
-                        style: TextStyle(
-                          fontSize: 11,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: Theme.of(context).hintColor,
                         ),
                       ),
@@ -1057,8 +1035,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 4),
                   Text(
                     notification.body,
-                    style: TextStyle(
-                      fontSize: 13,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).textTheme.bodySmall?.color,
                     ),
                     maxLines: 2,
@@ -1148,7 +1125,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           l10n.selectLocation,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -1159,7 +1135,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               : 'Tap to see weather',
                           style: TextStyle(
                             color: Colors.white.withAlpha(180),
-                            fontSize: 13,
                           ),
                         ),
                       ],
@@ -1184,7 +1159,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               weather.cityName,
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 17,
                                 fontWeight: FontWeight.w600,
                               ),
                               maxLines: 1,
@@ -1261,7 +1235,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             '${weather.temperature.round()}°',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 56,
                               fontWeight: FontWeight.bold,
                               height: 1,
                             ),
@@ -1279,7 +1252,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   style: TextStyle(
                                     color: Colors.white.withAlpha(240),
-                                    fontSize: 16,
                                     fontWeight: FontWeight.w500,
                                   ),
                                   maxLines: 2,
@@ -1298,7 +1270,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       '${weather.feelsLike.round()}°',
                                       style: TextStyle(
                                         color: Colors.white.withAlpha(220),
-                                        fontSize: 13,
                                       ),
                                     ),
                                     const SizedBox(width: 12),
@@ -1312,7 +1283,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       '${weather.humidity}%',
                                       style: TextStyle(
                                         color: Colors.white.withAlpha(220),
-                                        fontSize: 13,
                                       ),
                                     ),
                                     const SizedBox(width: 12),
@@ -1326,7 +1296,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       '${weather.windSpeed.round()} km/h',
                                       style: TextStyle(
                                         color: Colors.white.withAlpha(220),
-                                        fontSize: 13,
                                       ),
                                     ),
                                   ],
@@ -1388,10 +1357,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 children: [
                                   Text(
                                     time,
-                                    style: const TextStyle(
+                                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 12,
                                     ),
                                   ),
                                   CachedNetworkImage(
@@ -1409,10 +1377,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   Text(
                                     '${temp.round()}°',
-                                    style: const TextStyle(
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 14,
                                     ),
                                   ),
                                 ],
@@ -1442,7 +1409,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   dayName,
                                   style: TextStyle(
                                     color: Colors.white.withAlpha(200),
-                                    fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -1451,7 +1417,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   '${day['maxTemp'].round()}°',
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -1459,7 +1424,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   '${day['minTemp'].round()}°',
                                   style: TextStyle(
                                     color: Colors.white.withAlpha(180),
-                                    fontSize: 13,
                                   ),
                                 ),
                               ],

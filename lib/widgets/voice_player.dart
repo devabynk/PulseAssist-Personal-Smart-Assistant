@@ -199,14 +199,12 @@ class _VoicePlayerState extends State<VoicePlayer> {
                       Text(
                         _formatDuration(_position),
                         style: TextStyle(
-                          fontSize: 10,
                           color: theme.textTheme.bodySmall?.color,
                         ),
                       ),
                       Text(
                         _formatDuration(_duration),
                         style: TextStyle(
-                          fontSize: 10,
                           color: theme.textTheme.bodySmall?.color,
                         ),
                       ),

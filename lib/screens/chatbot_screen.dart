@@ -165,16 +165,14 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                     children: [
                       Text(
                         chatProvider.activeConversation?.title ?? l10n.chatbot,
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         l10n.online,
-                        style: TextStyle(
-                          fontSize: 12,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: Theme.of(context).primaryColor,
                         ),
                       ),
@@ -297,9 +295,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           return ActionChip(
             label: Text(chips[index]),
             backgroundColor: Theme.of(context).cardColor,
-            labelStyle: TextStyle(
+            labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(context).textTheme.bodyLarge?.color,
-              fontSize: 13,
             ),
             avatar: Icon(icons[index], size: 16, color: AppColors.primary),
             onPressed: () {
@@ -373,7 +370,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                                 ),
                                 child: Text(
                                   chatProvider.attachmentPath!.split('/').last,
-                                  style: const TextStyle(fontSize: 12),
+                                  style: Theme.of(context).textTheme.labelSmall,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -488,8 +485,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 padding: const EdgeInsets.only(bottom: 16),
                 child: Text(
                   l10n.attachmentOptions,
-                  style: const TextStyle(
-                    fontSize: 18,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -565,8 +561,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                     children: [
                       Text(
                         l10n.conversationHistory,
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -766,10 +761,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                           Expanded(
                             child: Text(
                               message.attachmentPath!.split('/').last,
-                              style: TextStyle(
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 fontStyle: FontStyle.italic,
                                 color: isUser ? Colors.white70 : Colors.grey,
-                                fontSize: 13,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -800,11 +794,10 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                       }
                     },
                     styleSheet: MarkdownStyleSheet(
-                      p: TextStyle(
+                      p: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: isUser
                             ? Colors.white
                             : Theme.of(context).textTheme.bodyLarge?.color,
-                        fontSize: 15,
                       ),
                       a: TextStyle(
                         color: isUser ? Colors.white : Colors.blueAccent,

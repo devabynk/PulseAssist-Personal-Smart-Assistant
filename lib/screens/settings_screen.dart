@@ -176,7 +176,6 @@ class SettingsScreen extends StatelessWidget {
             Text(
               settings.getThemeModeLabel(mode, isTurkish),
               style: TextStyle(
-                fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 color: isSelected
                     ? primaryColor
@@ -257,7 +256,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Text(flag, style: const TextStyle(fontSize: 20)),
+            Text(flag, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(width: 8),
             Text(
               name,
@@ -324,7 +323,6 @@ class SettingsScreen extends StatelessWidget {
                     Text(
                       l10n.versionLabel,
                       style: TextStyle(
-                        fontSize: 14,
                         color: Theme.of(context).textTheme.bodyMedium?.color,
                       ),
                     ),
@@ -371,14 +369,12 @@ class SettingsScreen extends StatelessWidget {
                         Text(
                           isTurkish ? 'Geliştirici' : 'Developer',
                           style: TextStyle(
-                            fontSize: 11,
                             color: Theme.of(context).textTheme.bodySmall?.color,
                           ),
                         ),
-                        const Text(
+                        Text(
                           'abynk',
-                          style: TextStyle(
-                            fontSize: 13,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -410,7 +406,6 @@ class SettingsScreen extends StatelessWidget {
                           Text(
                             isTurkish ? 'Web Sitesi' : 'Website',
                             style: TextStyle(
-                              fontSize: 11,
                               color: Theme.of(
                                 context,
                               ).textTheme.bodySmall?.color,
@@ -419,7 +414,6 @@ class SettingsScreen extends StatelessWidget {
                           Text(
                             'abynk.com',
                             style: TextStyle(
-                              fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: Theme.of(context).primaryColor,
                               decoration: TextDecoration.underline,
@@ -479,7 +473,7 @@ class SettingsScreen extends StatelessWidget {
           isTurkish
               ? 'Uygulama izinlerini kontrol et'
               : 'Control app permissions',
-          style: const TextStyle(fontSize: 12),
+          style: Theme.of(context).textTheme.bodySmall,
         ),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
@@ -522,7 +516,7 @@ class SettingsScreen extends StatelessWidget {
               isTurkish
                   ? 'Tüm verilerinizi dışa aktarın'
                   : 'Export all your data',
-              style: const TextStyle(fontSize: 12),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => DataService.exportData(context, isTurkish),
@@ -535,7 +529,7 @@ class SettingsScreen extends StatelessWidget {
               isTurkish
                   ? 'Yedek dosyasından geri yükleyin'
                   : 'Restore from backup file',
-              style: const TextStyle(fontSize: 12),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _showRestoreConfirmation(context, isTurkish),
@@ -551,7 +545,7 @@ class SettingsScreen extends StatelessWidget {
               isTurkish
                   ? 'Tüm verileri kalıcı olarak siler'
                   : 'Permanently delete all data',
-              style: const TextStyle(fontSize: 12),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             onTap: () => _showResetConfirmation(context, isTurkish),
           ),

@@ -129,10 +129,9 @@ class _SplashScreenState extends State<SplashScreen>
                         ShaderMask(
                           shaderCallback: (bounds) =>
                               AppColors.primaryGradient.createShader(bounds),
-                          child: const Text(
+                          child: Text(
                             'PulseAssist',
-                            style: TextStyle(
-                              fontSize: 32,
+                            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                               letterSpacing: 1.5,
@@ -142,9 +141,7 @@ class _SplashScreenState extends State<SplashScreen>
                         const SizedBox(height: 8),
                         Text(
                           'Your Smart Assistant',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(
                               context,
                             ).textTheme.bodyMedium?.color,

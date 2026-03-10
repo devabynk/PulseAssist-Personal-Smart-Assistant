@@ -87,10 +87,9 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
             // Timer
             Text(
               _formatDuration(_duration),
-              style: const TextStyle(
-                fontSize: 64,
+              style: Theme.of(context).textTheme.displayLarge?.copyWith(
                 fontWeight: FontWeight.w200,
-                fontFeatures: [FontFeature.tabularFigures()],
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
 

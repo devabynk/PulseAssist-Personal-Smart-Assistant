@@ -210,7 +210,7 @@ class _NoteSheetState extends State<NoteSheet> {
                             (tag) => Chip(
                               label: Text(
                                 '#$tag',
-                                style: const TextStyle(fontSize: 13),
+                                style: Theme.of(context).textTheme.labelMedium,
                               ),
                               deleteIcon: const Icon(Icons.close, size: 16),
                               onDeleted: () =>
@@ -338,8 +338,7 @@ class _NoteSheetState extends State<NoteSheet> {
                                   const SizedBox(height: 4),
                                   Text(
                                     'Düzenlemek için dokunun',
-                                    style: TextStyle(
-                                      fontSize: 12,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: Theme.of(
                                         context,
                                       ).textTheme.bodySmall?.color,
@@ -365,7 +364,7 @@ class _NoteSheetState extends State<NoteSheet> {
                   TextField(
                     controller: _contentController,
                     focusNode: _contentFocus,
-                    style: const TextStyle(fontSize: 16, height: 1.5),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5),
                     maxLines: null,
                     decoration: InputDecoration(
                       hintText: l10n.noteContent,

@@ -26,8 +26,7 @@ class AlarmRingScreen extends StatelessWidget {
             // Time
             Text(
               "${alarmSettings.dateTime.hour.toString().padLeft(2, '0')}:${alarmSettings.dateTime.minute.toString().padLeft(2, '0')}",
-              style: const TextStyle(
-                fontSize: 80,
+              style: Theme.of(context).textTheme.displayLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -38,7 +37,7 @@ class AlarmRingScreen extends StatelessWidget {
               child: Text(
                 alarmSettings.notificationSettings.title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 24, color: Colors.white70),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white70),
               ),
             ),
             Padding(
@@ -46,7 +45,7 @@ class AlarmRingScreen extends StatelessWidget {
               child: Text(
                 alarmSettings.notificationSettings.body,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18, color: Colors.white60),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white60),
               ),
             ),
             const Spacer(),
@@ -83,7 +82,7 @@ class AlarmRingScreen extends StatelessWidget {
                       icon: const Icon(Icons.snooze, size: 28),
                       label: Text(
                         AppLocalizations.of(context)!.snoozeButton,
-                        style: const TextStyle(fontSize: 20),
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
@@ -116,7 +115,7 @@ class AlarmRingScreen extends StatelessWidget {
                       icon: const Icon(Icons.stop_circle_outlined, size: 28),
                       label: Text(
                         AppLocalizations.of(context)!.stopButton,
-                        style: const TextStyle(fontSize: 20),
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.white,

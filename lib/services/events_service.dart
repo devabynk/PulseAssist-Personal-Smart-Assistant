@@ -22,18 +22,25 @@ class EventsService {
   }) async {
     try {
       return await _keyManager.executeWithRetry((apiKey) async {
+        final now = DateTime.now();
+        final endDate = now.add(Duration(days: days));
+        
+        // Ticketmaster expects YYYY-MM-DDTHH:mm:ssZ
+        final endDateTime = '${endDate.toIso8601String().split('.').first}Z';
+
         // Ticketmaster searches by city name directly
         final url = Uri.parse(_baseUrl).replace(
           queryParameters: {
             'apikey': apiKey,
-            'city': location,
+            'city': _normalize(location),
             'sort': 'date,asc',
-            'size': '10',
-            // 'locale': lang
+            'size': '15',
+            'locale': lang == 'tr' ? 'tr-tr' : 'en-us',
+            'endDateTime': endDateTime,
           },
         );
 
-        debugPrint('EventsService: Fetching Ticketmaster for $location');
+        debugPrint('EventsService: Fetching Ticketmaster for $location (normalized: ${_normalize(location)})');
         final response = await http.get(url);
 
         if (response.statusCode == 200) {
@@ -43,34 +50,7 @@ class EventsService {
             final List<dynamic> events = data['_embedded']['events'];
 
             return events.map((json) {
-              // Map Ticketmaster JSON to our Event model
-              final String title = json['name'] ?? 'Etkinlik';
-              final String date = json['dates']['start']['localDate'] ?? '';
-              var venue = 'Adres yok';
-
-              if (json['_embedded'] != null &&
-                  json['_embedded']['venues'] != null) {
-                venue = json['_embedded']['venues'][0]['name'] ?? '';
-              }
-
-              var imageUrl = '';
-              if (json['images'] != null &&
-                  (json['images'] as List).isNotEmpty) {
-                imageUrl = json['images'][0]['url'];
-              }
-
-              // Description is often in 'info' or missing
-              final String description =
-                  json['info'] ?? (json['pleaseNote'] ?? '');
-
-              return Event(
-                title: title,
-                date: date,
-                location: venue,
-                description: description,
-                imageUrl: imageUrl,
-                link: json['url'] ?? '',
-              );
+              return Event.fromTicketmaster(json);
             }).toList();
           }
           return [];
@@ -87,5 +67,27 @@ class EventsService {
       debugPrint('Events Service Error: $e');
       return [];
     }
+  }
+
+  String _normalize(String text) {
+    final map = {
+      'ç': 'c',
+      'ğ': 'g',
+      'ı': 'i',
+      'ö': 'o',
+      'ş': 's',
+      'ü': 'u',
+      'Ç': 'C',
+      'Ğ': 'G',
+      'İ': 'I',
+      'Ö': 'O',
+      'Ş': 'S',
+      'Ü': 'U',
+    };
+    var result = text;
+    map.forEach((key, value) {
+      result = result.replaceAll(key, value);
+    });
+    return result;
   }
 }

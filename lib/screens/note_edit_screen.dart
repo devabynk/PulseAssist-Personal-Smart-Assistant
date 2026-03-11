@@ -285,7 +285,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                       TextField(
                         controller: _titleController,
                         focusNode: _titleFocus,
-                        style: Theme.of(context).textTheme.headlineSmall
+                        style: Theme.of(context).textTheme.titleLarge
                             ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: fgColor,
@@ -295,7 +295,10 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                           border: InputBorder.none,
                           hintStyle: Theme.of(
                             context,
-                          ).textTheme.headlineSmall?.copyWith(color: hintColor),
+                          ).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: hintColor,
+                          ),
                         ),
                         maxLines: null,
                         textInputAction: TextInputAction.next,
@@ -303,6 +306,10 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                           FocusScope.of(context).requestFocus(_editorFocus);
                         },
                       ),
+
+                      const SizedBox(height: 12),
+                      Divider(color: fgColor.withAlpha(30)),
+                      const SizedBox(height: 12),
 
                       // Editor Field
                       quill.QuillEditor.basic(

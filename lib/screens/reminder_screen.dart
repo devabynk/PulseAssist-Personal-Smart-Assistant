@@ -922,42 +922,44 @@ class _ReminderSheetState extends State<_ReminderSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Reminder Title
-                  TextField(
-                    controller: _titleController,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: widget.l10n.reminderTitle,
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      hintStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: Theme.of(context).hintColor.withAlpha(120),
+                    // Reminder Title
+                    TextField(
+                      controller: _titleController,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
+                      decoration: InputDecoration(
+                        hintText: widget.l10n.reminderTitle,
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                        hintStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).hintColor.withAlpha(120),
+                        ),
+                      ),
+                      textInputAction: TextInputAction.next,
                     ),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Reminder Content Editor
-                  Container(
-                    constraints: const BoxConstraints(minHeight: 80),
-                    child: Theme(
-                       data: Theme.of(context).copyWith(
-                         canvasColor: Colors.transparent,
-                       ),
-                       child: quill.QuillEditor.basic(
-                        controller: _quillController,
-                        config: quill.QuillEditorConfig(
-                          placeholder: widget.l10n.description,
+                    const SizedBox(height: 12),
+                    Divider(color: Theme.of(context).dividerColor.withAlpha(30)),
+                    const SizedBox(height: 12),
+  
+                    // Reminder Content Editor
+                    Container(
+                      constraints: const BoxConstraints(minHeight: 80),
+                      child: Theme(
+                         data: Theme.of(context).copyWith(
+                           canvasColor: Colors.transparent,
+                         ),
+                         child: quill.QuillEditor.basic(
+                          controller: _quillController,
+                          config: quill.QuillEditorConfig(
+                            placeholder: widget.l10n.description,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
                   Divider(color: Theme.of(context).dividerColor.withAlpha(40)),
                   const SizedBox(height: 16),
                   

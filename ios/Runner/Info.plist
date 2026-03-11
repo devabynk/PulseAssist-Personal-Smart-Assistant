@@ -48,15 +48,19 @@
 	
 	<!-- Microphone permission for voice notes -->
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This app needs access to your microphone to record voice notes. / Bu uygulama sesli not kaydetmek için mikrofon erişimine ihtiyaç duyar.</string>
+	<string>This app needs access to your microphone to record voice notes and voice reminders. / Bu uygulama sesli notlar ve sesli hatırlatıcılar kaydetmek için mikrofon erişimine ihtiyaç duyar.</string>
 	
 	<!-- Camera permission for image attachments -->
 	<key>NSCameraUsageDescription</key>
-	<string>This app needs access to your camera to take photos for notes. / Bu uygulama notlara fotoğraf eklemek için kameraya erişime ihtiyaç duyar.</string>
+	<string>This app needs access to your camera to take photos for your notes and reminders. / Bu uygulama notlarınıza ve hatırlatıcılarınıza fotoğraf çekip eklemek için kameraya erişime ihtiyaç duyar.</string>
 	
 	<!-- Photo library permission -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app needs access to your photo library to attach images to notes. / Bu uygulama notlara resim eklemek için fotoğraf galerisine erişime ihtiyaç duyar.</string>
+	<string>This app needs access to your photo library to attach images to your notes and reminders. / Bu uygulama notlarınıza ve hatırlatıcılarınıza resim eklemek için fotoğraf galerisine erişime ihtiyaç duyar.</string>
+	
+	<!-- Photo library addition permission -->
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>This app needs permission to save images taken with the camera to your photo library. / Bu uygulama kamerayla çekilen resimleri fotoğraf galerinize kaydetmek için izne ihtiyaç duyar.</string>
 	
 	<!-- Background modes for alarm package -->
 	<key>UIBackgroundModes</key>

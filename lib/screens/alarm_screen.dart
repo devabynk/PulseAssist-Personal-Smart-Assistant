@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -52,6 +55,28 @@ class _AlarmScreenState extends State<AlarmScreen> {
       final isTurkish = l10n.localeName == 'tr';
 
       try {
+        if (Platform.isAndroid) {
+          final isGranted = await Permission.scheduleExactAlarm.isGranted;
+          if (!isGranted) {
+            final permissionStatus = await Permission.scheduleExactAlarm.request();
+            if (!permissionStatus.isGranted) {
+              if (!mounted) return;
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                    isTurkish
+                        ? 'Lütfen ayarlardan tam zamanlı alarm izni verin.'
+                        : 'Please grant exact alarm permission in settings.',
+                  ),
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+              return;
+            }
+          }
+        }
+
         // We bypass duplicate checking to allow users to set multiple alarms
         // even if they share the same time (e.g., one for weekdays, one for weekend).
         if (alarm == null) {

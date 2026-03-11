@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:justkawal_excel_updated/justkawal_excel_updated.dart'
     as excel_library;
-import 'package:openai_dart/openai_dart.dart';
+import 'package:openai_dart/openai_dart.dart' as openai;
 import 'package:read_pdf_text/read_pdf_text.dart';
 
 import '../../core/config/api_config.dart';
@@ -37,8 +37,9 @@ class GroqProvider implements AiProvider {
   // Current active model
   final String _currentModel = _primaryModel;
 
-  OpenAIClient? _client;
+  openai.OpenAIClient? _client;
   bool _isInitialized = false;
+  String? _currentApiKey;
 
   @override
   String get name => 'Groq';
@@ -49,7 +50,13 @@ class GroqProvider implements AiProvider {
   /// Set API key dynamically
   Future<bool> setApiKey(String key) async {
     try {
-      _client = OpenAIClient(apiKey: key, baseUrl: _baseUrl);
+      _client = openai.OpenAIClient(
+        config: openai.OpenAIConfig(
+          authProvider: openai.ApiKeyProvider(key),
+          baseUrl: _baseUrl,
+        ),
+      );
+      _currentApiKey = key;
       _isInitialized = true;
       return true;
     } catch (e) {
@@ -86,7 +93,7 @@ class GroqProvider implements AiProvider {
     try {
       return await _keyManager.executeWithRetry<String?>((apiKey) async {
         // Ensure client uses current key
-        if (_client?.apiKey != apiKey) {
+        if (_currentApiKey != apiKey) {
           await setApiKey(apiKey);
         }
 
@@ -163,8 +170,8 @@ class GroqProvider implements AiProvider {
     );
 
     // Build messages list
-    final messages = <ChatCompletionMessage>[
-      ChatCompletionMessage.system(content: systemPrompt),
+    final messages = <openai.ChatMessage>[
+      openai.ChatMessage.system(systemPrompt),
     ];
 
     // Add conversation history if available
@@ -181,19 +188,17 @@ class GroqProvider implements AiProvider {
             content += ' [User attached a file: ${msg.attachmentPath}]';
           }
           messages.add(
-            ChatCompletionMessage.user(
-              content: ChatCompletionUserMessageContent.string(content),
-            ),
+            openai.ChatMessage.user(content),
           );
         } else {
-          messages.add(ChatCompletionMessage.assistant(content: msg.content));
+          messages.add(openai.ChatMessage.assistant(content: msg.content));
         }
       }
     }
 
     // Determine model and handle current message
     var modelToUse = _currentModel;
-    ChatCompletionUserMessageContent userContent;
+    Object userContent;
 
     if (attachmentPath != null && attachmentType == 'image') {
       // VISION MODE
@@ -205,23 +210,19 @@ class GroqProvider implements AiProvider {
         final base64Image = base64Encode(bytes);
         final mimeType = _getMimeType(attachmentPath);
 
-        userContent = ChatCompletionUserMessageContent.parts([
-          ChatCompletionMessageContentPart.text(
-            text: message.isEmpty
+        userContent = [
+          openai.ContentPart.text(
+            message.isEmpty
                 ? (isTurkish ? 'Bu resmi analiz et.' : 'Analyze this image.')
                 : message,
           ),
-          ChatCompletionMessageContentPart.image(
-            imageUrl: ChatCompletionMessageImageUrl(
-              url: 'data:$mimeType;base64,$base64Image',
-            ),
+          openai.ContentPart.imageUrl(
+            'data:$mimeType;base64,$base64Image',
           ),
-        ]);
+        ];
       } catch (e) {
         debugPrint('Failed to process image: $e');
-        userContent = ChatCompletionUserMessageContent.string(
-          '$message [Image upload failed]',
-        );
+        userContent = '$message [Image upload failed]';
       }
     } else if (attachmentPath != null && attachmentType == 'audio') {
       // AUDIO MODE
@@ -238,7 +239,7 @@ class GroqProvider implements AiProvider {
       }
       textContent += audioTag;
 
-      userContent = ChatCompletionUserMessageContent.string(textContent);
+      userContent = textContent;
     } else if (attachmentPath != null && attachmentType == 'file') {
       // DOCUMENT FILE MODE (PDF, DOCX, XLSX, TXT, CSV)
       debugPrint('📄 Reading file: $attachmentPath');
@@ -287,31 +288,27 @@ class GroqProvider implements AiProvider {
             ? '${fileContent.substring(0, 30000)}... [Truncated]'
             : fileContent;
 
-        userContent = ChatCompletionUserMessageContent.string(
-          "$message\n\n--- FILE CONTENT (${attachmentPath.split('/').last}) ---\n$truncatedContent\n--- END FILE ---\n\n[User attached a file: $attachmentPath]",
-        );
+        userContent = "$message\n\n--- FILE CONTENT (${attachmentPath.split('/').last}) ---\n$truncatedContent\n--- END FILE ---\n\n[User attached a file: $attachmentPath]";
       } catch (e) {
         debugPrint('Failed to read file: $e');
-        userContent = ChatCompletionUserMessageContent.string(
-          '$message [File read failed]',
-        );
+        userContent = '$message [File read failed]';
       }
     } else {
       // NORMAL TEXT MODE
-      userContent = ChatCompletionUserMessageContent.string(message);
+      userContent = message;
     }
 
     // Add current message
-    messages.add(ChatCompletionMessage.user(content: userContent));
+    messages.add(openai.ChatMessage.user(userContent));
 
     // Make API call with current model and timeout
-    final response = await _client!
-        .createChatCompletion(
-          request: CreateChatCompletionRequest(
-            model: ChatCompletionModel.modelId(modelToUse),
+    final response = await _client!.chat.completions
+        .create(
+          openai.ChatCompletionCreateRequest(
+            model: modelToUse,
             messages: messages,
             temperature: 0.7,
-            maxTokens: 2048, // Increased for larger responses
+            maxCompletionTokens: 2048, // Increased for larger responses
           ),
         )
         .timeout(

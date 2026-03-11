@@ -420,14 +420,16 @@ class ChatProvider with ChangeNotifier {
                     '- İlçe (District): ${pharmacyDistrict ?? "Bilinmiyor"}\n'
                     '⚠️ ÖNEMLİ KURAL: Kullanıcı "nöbetçi eczane" veya "etkinlik" sorduğunda ve BAŞKA BİR YER BELİRTMEDİYSE:\n'
                     '1. ASLA "hangi şehir?" veya "konumunuz neresi?" diye sorma! Dashboard konumunu kullan.\n'
-                    '2. Eczane için doğrudan şu JSON\'u döndür: {"action": "get_pharmacy", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}\n'
-                    '3. Not: Eğer ilçe (district) boşsa, JSON\'da district değerini boş bırak veya tahmin etme.'
+                    '2. Eczane için şu JSON\'u: {"action": "get_pharmacy", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}\n'
+                    '3. Etkinlikler için şu JSON\'u: {"action": "get_events", "location": "$pharmacyCity"}\n'
+                    '4. Not: Eğer ilçe (district) boşsa, eczane için district değerini boş bırak veya tahmin etme.'
               : '\n📍 CURRENT LOCATION (Dashboard): $fullLocation\n'
                     '- City/Province: $pharmacyCity\n'
                     '- District: ${pharmacyDistrict ?? "Unknown"}\n'
                     '⚠️ IMPORTANT RULE: If user asks for "pharmacy" or "events" and DOES NOT specify a location:\n'
                     '1. NEVER ask "which city?". Use the Dashboard location above.\n'
-                    '2. Return this JSON immediately: {"action": "get_pharmacy", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}';
+                    '2. For Pharmacy, return: {"action": "get_pharmacy", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}\n'
+                    '3. For Events, return: {"action": "get_events", "location": "$pharmacyCity"}';
         } else {
           // Non-Turkey - pharmacy is Turkey-only, events work globally
           locInfo = isTurkish

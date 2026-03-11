@@ -17,7 +17,8 @@ class PermissionsScreen extends StatefulWidget {
   State<PermissionsScreen> createState() => _PermissionsScreenState();
 }
 
-class _PermissionsScreenState extends State<PermissionsScreen> {
+class _PermissionsScreenState extends State<PermissionsScreen> 
+    with WidgetsBindingObserver {
   // ... existing state variables ...
   bool _notificationGranted = false;
   bool _exactAlarmGranted = false;
@@ -29,7 +30,21 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _checkCurrentPermissions();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkCurrentPermissions();
+    }
   }
 
   // ... existing permission methods ...
@@ -64,74 +79,99 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
 
   Future<void> _requestNotificationPermission() async {
     setState(() => _isLoading = true);
+    final notificationL10n = context.l10n.notificationPermission;
 
     try {
       if (Platform.isIOS) {
         final status = await Permission.notification.request();
-        setState(() => _notificationGranted = status.isGranted);
+        if (mounted) setState(() => _notificationGranted = status.isGranted);
+        if (status.isPermanentlyDenied || status.isDenied) {
+          _showSettingsDialog(notificationL10n);
+        }
       } else {
         final granted = await NotificationService.instance
             .requestNotificationPermission();
-        setState(() => _notificationGranted = granted);
+        if (mounted) setState(() => _notificationGranted = granted);
+        final status = await Permission.notification.status;
+        if (status.isPermanentlyDenied) {
+          _showSettingsDialog(notificationL10n);
+        }
       }
     } catch (e) {
       debugPrint('Notification permission error: $e');
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _requestExactAlarmPermission() async {
     setState(() => _isLoading = true);
+    final schedulerL10n = context.l10n.schedulerPermission;
 
     try {
       final granted = await NotificationService.instance
           .requestExactAlarmPermission();
-      setState(() => _exactAlarmGranted = granted);
+      if (mounted) setState(() => _exactAlarmGranted = granted);
+      final status = await Permission.scheduleExactAlarm.status;
+      if (status.isPermanentlyDenied) {
+        _showSettingsDialog(schedulerL10n);
+      }
     } catch (e) {
       debugPrint('Exact alarm permission error: $e');
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _requestMicrophonePermission() async {
     setState(() => _isLoading = true);
+    final microphoneL10n = context.l10n.microphonePermission;
 
     try {
       final status = await Permission.microphone.request();
-      setState(() => _microphoneGranted = status.isGranted);
+      if (mounted) setState(() => _microphoneGranted = status.isGranted);
+      if (status.isPermanentlyDenied || (Platform.isIOS && status.isDenied)) {
+        _showSettingsDialog(microphoneL10n);
+      }
     } catch (e) {
       debugPrint('Microphone permission error: $e');
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _requestCameraPermission() async {
     setState(() => _isLoading = true);
+    final cameraL10n = context.l10n.cameraPermission;
 
     try {
       final status = await Permission.camera.request();
-      setState(() => _cameraGranted = status.isGranted);
+      if (mounted) setState(() => _cameraGranted = status.isGranted);
+      if (status.isPermanentlyDenied || (Platform.isIOS && status.isDenied)) {
+        _showSettingsDialog(cameraL10n);
+      }
     } catch (e) {
       debugPrint('Camera permission error: $e');
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _requestStoragePermission() async {
     setState(() => _isLoading = true);
+    final storageL10n = context.l10n.storagePermission;
 
     try {
       final status = await Permission.photos.request();
-      setState(() => _storageGranted = status.isGranted);
+      if (mounted) setState(() => _storageGranted = status.isGranted);
+      if (status.isPermanentlyDenied || (Platform.isIOS && status.isDenied)) {
+        _showSettingsDialog(storageL10n);
+      }
     } catch (e) {
       debugPrint('Storage permission error: $e');
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _requestAllPermissions() async {
@@ -147,11 +187,38 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
       await Permission.camera.request();
       await Permission.photos.request();
       await _checkCurrentPermissions();
+      
+      // If any is still not granted, redirect might be too aggressive here, 
+      // but let's check if all are denied and show one dialog.
     } catch (e) {
       debugPrint('Permission error: $e');
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  void _showSettingsDialog(String permissionName) {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('${context.l10n.permissionsTitle} Gerekli'),
+        content: Text('$permissionName erişimi kalıcı olarak reddedildi veya ayarlardan kapalı. Devam etmek için lütfen ayarlardan izin verin.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(context.l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              openAppSettings();
+            },
+            child: const Text('Ayarları Aç'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _continue() async {

@@ -11,8 +11,8 @@ import '../l10n/app_localizations.dart';
 import '../models/note.dart';
 import '../providers/note_provider.dart';
 import '../providers/settings_provider.dart';
-import '../screens/note_edit_screen.dart';
 import '../screens/drawing_screen.dart';
+import '../screens/note_edit_screen.dart';
 import '../screens/voice_note_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common/confirmation_dialog.dart';
@@ -64,8 +64,6 @@ class _NotesScreenState extends State<NotesScreen> {
           );
     }).toList();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -201,11 +199,11 @@ class _NotesScreenState extends State<NotesScreen> {
       bottomNavigationBar: _buildQuickAddBar(l10n),
     );
   }
-  
+
   Widget _buildQuickAddBar(AppLocalizations l10n) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return Container(
       decoration: BoxDecoration(
         color: isDark ? theme.bottomAppBarTheme.color : theme.cardColor,
@@ -226,9 +224,14 @@ class _NotesScreenState extends State<NotesScreen> {
                   onTap: () => _showNoteSheet(context),
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 16,
+                    ),
                     decoration: BoxDecoration(
-                      color: isDark ? theme.scaffoldBackgroundColor : Colors.grey.withAlpha(20),
+                      color: isDark
+                          ? theme.scaffoldBackgroundColor
+                          : Colors.grey.withAlpha(20),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -288,7 +291,7 @@ class _NotesScreenState extends State<NotesScreen> {
           const SizedBox(height: 16),
           Text(
             _searchController.text.isEmpty ? l10n.noNotes : l10n.noteNotFound,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Theme.of(
                 context,
               ).textTheme.bodyLarge?.color?.withAlpha(127),
@@ -297,7 +300,7 @@ class _NotesScreenState extends State<NotesScreen> {
           const SizedBox(height: 8),
           Text(
             l10n.addNoteHint,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(
                 context,
               ).textTheme.bodyMedium?.color?.withAlpha(77),
@@ -324,7 +327,9 @@ class _NotesScreenState extends State<NotesScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Pinned',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -340,7 +345,9 @@ class _NotesScreenState extends State<NotesScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Text(
                   'Others',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -387,7 +394,8 @@ class _NotesScreenState extends State<NotesScreen> {
     final cardColor = isDark
         ? Color.alphaBlend(
             baseColor.withAlpha(isDark ? 50 : 255), // Matte tint on dark mode
-            Theme.of(context).cardTheme.color ?? Theme.of(context).colorScheme.surface,
+            Theme.of(context).cardTheme.color ??
+                Theme.of(context).colorScheme.surface,
           )
         : baseColor;
 
@@ -533,9 +541,8 @@ class _NotesScreenState extends State<NotesScreen> {
                           ),
                           child: Text(
                             '#$tag',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: textColor.withAlpha(180),
-                            ),
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(color: textColor.withAlpha(180)),
                           ),
                         ),
                       )
@@ -646,8 +653,6 @@ class _NotesScreenState extends State<NotesScreen> {
       ),
     );
   }
-
-
 
   Future<void> _showNoteSheet(
     BuildContext context, {

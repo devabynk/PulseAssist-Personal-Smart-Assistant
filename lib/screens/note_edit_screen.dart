@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-import 'package:intl/intl.dart';
 
 import '../core/utils/extensions.dart';
 import '../l10n/app_localizations.dart';
@@ -219,26 +219,26 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isDisposed) return const SizedBox.shrink();
-    
+
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     final baseColor = _getBackgroundColor();
-    final bgColor = isDark 
+    final bgColor = isDark
         ? Color.alphaBlend(
-            baseColor.withAlpha(50), 
-            theme.scaffoldBackgroundColor, // scaffold background in full screen to blend nicely
+            baseColor.withAlpha(50),
+            theme
+                .scaffoldBackgroundColor, // scaffold background in full screen to blend nicely
           )
         : baseColor;
-    
+
     final fgColor = isDark ? Colors.white : Colors.black87;
     final hintColor = isDark ? Colors.white54 : Colors.black54;
 
     final lastEditedText = widget.note != null
         ? '${l10n.editNote} ${DateFormat('HH:mm').format(widget.note!.updatedAt)}' // todo properly translate edited time
         : '${l10n.editNote} ${DateFormat('HH:mm').format(DateTime.now())}';
-
 
     return PopScope(
       canPop: false,
@@ -274,7 +274,10 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
             children: [
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 8,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -282,14 +285,17 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                       TextField(
                         controller: _titleController,
                         focusNode: _titleFocus,
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: fgColor,
-                        ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: fgColor,
+                            ),
                         decoration: InputDecoration(
                           hintText: l10n.noteTitle,
                           border: InputBorder.none,
-                          hintStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(color: hintColor),
+                          hintStyle: Theme.of(
+                            context,
+                          ).textTheme.headlineSmall?.copyWith(color: hintColor),
                         ),
                         maxLines: null,
                         textInputAction: TextInputAction.next,
@@ -297,7 +303,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                           FocusScope.of(context).requestFocus(_editorFocus);
                         },
                       ),
-                      
+
                       // Editor Field
                       quill.QuillEditor.basic(
                         controller: _quillController,
@@ -307,9 +313,9 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 8),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // Attachments Section
                       if (_imagePaths.isNotEmpty) _buildImages(),
                       if (_voiceNotePath != null) _buildVoiceNote(),
@@ -318,7 +324,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                   ),
                 ),
               ),
-              
+
               // Bottom Toolbar (Similar to Google Keep)
               Container(
                 decoration: BoxDecoration(
@@ -332,7 +338,10 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                 ),
                 child: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     child: Row(
                       children: [
                         IconButton(
@@ -347,9 +356,9 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                           child: Text(
                             lastEditedText,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: hintColor,
-                            ),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(color: hintColor),
                           ),
                         ),
                         IconButton(
@@ -367,7 +376,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
       ),
     );
   }
-  
+
   void _saveAndPop() {
     _save();
     if (mounted) {
@@ -464,11 +473,10 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                             size: 20,
                           ),
                           const SizedBox(width: 6),
-                      Text(
+                          Text(
                             l10n.drawingAttached,
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w600),
                           ),
                         ],
                       ),
@@ -576,7 +584,6 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
       ),
     );
   }
-
 
   Future<void> _pickImage(ImageSource source) async {
     final l10n = context.l10n;
@@ -713,13 +720,13 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
     }
 
     // Don't save if content is just a newline and title is empty
-    if (title.isEmpty && _quillController.document.toPlainText().trim().isEmpty &&
+    if (title.isEmpty &&
+        _quillController.document.toPlainText().trim().isEmpty &&
         _imagePaths.isEmpty &&
         _voiceNotePath == null &&
-        _drawingData == null){
-        return;
+        _drawingData == null) {
+      return;
     }
-
 
     final now = DateTime.now();
     final note = Note(
@@ -774,7 +781,9 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
           context,
           listen: false,
         ).deleteNote(widget.note!);
-        if (mounted) Navigator.pop(context); // Pop the screen completely right away
+        if (mounted) {
+          Navigator.pop(context); // Pop the screen completely right away
+        }
       }
     } else {
       Navigator.pop(context);

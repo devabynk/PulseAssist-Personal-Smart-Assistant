@@ -39,6 +39,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
   }
 
   Future<void> _showAddEditSheet({Alarm? alarm}) async {
+    final theme = Theme.of(context);
     final l10n = context.l10n;
     final result = await showModalBottomSheet<Alarm>(
       context: context,

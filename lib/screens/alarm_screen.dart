@@ -68,7 +68,28 @@ class _AlarmScreenState extends State<AlarmScreen> {
                         ? 'Lütfen ayarlardan tam zamanlı alarm izni verin.'
                         : 'Please grant exact alarm permission in settings.',
                   ),
-                  backgroundColor: Theme.of(context).colorScheme.error,
+                  backgroundColor: theme.colorScheme.error,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+              return;
+            }
+          }
+        } else if (Platform.isIOS) {
+          // iOS requires notification permission for alarms to work
+          final status = await Permission.notification.status;
+          if (!status.isGranted && !status.isProvisional) {
+            final result = await Permission.notification.request();
+            if (!result.isGranted && !result.isProvisional) {
+              if (!mounted) return;
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                    isTurkish
+                        ? 'Lütfen ayarlardan bildirim izni verin.'
+                        : 'Please grant notification permission in settings.',
+                  ),
+                  backgroundColor: theme.colorScheme.error,
                   behavior: SnackBarBehavior.floating,
                 ),
               );
@@ -87,14 +108,22 @@ class _AlarmScreenState extends State<AlarmScreen> {
       } catch (e) {
         debugPrint('Error saving alarm: $e');
         if (!mounted) return;
+        
+        String errorMsg = isTurkish
+            ? 'Alarm kaydedilemedi. Lütfen izinleri kontrol edin.'
+            : 'Failed to save alarm. Please check permissions.';
+            
+        // Provide more specific feedback if possible
+        if (e.toString().contains('permission') || e.toString().contains('Permission')) {
+           errorMsg = isTurkish 
+              ? 'İzin hatası: Alarm kaydedilemedi.' 
+              : 'Permission error: Failed to save alarm.';
+        }
+
         messenger.showSnackBar(
           SnackBar(
-            content: Text(
-              isTurkish
-                  ? 'Alarm kaydedilemedi. Lütfen izinleri kontrol edin.'
-                  : 'Failed to save alarm. Please check permissions.',
-            ),
-            backgroundColor: Theme.of(context).colorScheme.error,
+            content: Text(errorMsg),
+            backgroundColor: theme.colorScheme.error,
             behavior: SnackBarBehavior.floating,
           ),
         );

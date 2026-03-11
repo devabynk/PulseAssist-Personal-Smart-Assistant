@@ -48,14 +48,18 @@ class _PermissionsScreenState extends State<PermissionsScreen>
   }
 
   // ... existing permission methods ...
-  Future<void> _checkCurrentPermissions() async {
-    if (Platform.isAndroid) {
-      final notificationStatus = await Permission.notification.status;
-      final exactAlarmStatus = await Permission.scheduleExactAlarm.status;
-      final microphoneStatus = await Permission.microphone.status;
-      final cameraStatus = await Permission.camera.status;
-      final storageStatus = await Permission.photos.status;
+  bool _isPermissionGrantedOrPartial(PermissionStatus status) {
+    return status.isGranted || status.isLimited || status.isProvisional;
+  }
 
+  Future<void> _checkCurrentPermissions() async {
+    final notificationStatus = await Permission.notification.status;
+    final microphoneStatus = await Permission.microphone.status;
+    final cameraStatus = await Permission.camera.status;
+    final storageStatus = await Permission.photos.status;
+
+    if (Platform.isAndroid) {
+      final exactAlarmStatus = await Permission.scheduleExactAlarm.status;
       setState(() {
         _notificationGranted = notificationStatus.isGranted;
         _exactAlarmGranted = exactAlarmStatus.isGranted;
@@ -64,15 +68,11 @@ class _PermissionsScreenState extends State<PermissionsScreen>
         _storageGranted = storageStatus.isGranted;
       });
     } else if (Platform.isIOS) {
-      final notificationStatus = await Permission.notification.status;
-      final microphoneStatus = await Permission.microphone.status;
-      final cameraStatus = await Permission.camera.status;
-      final storageStatus = await Permission.photos.status;
       setState(() {
-        _notificationGranted = notificationStatus.isGranted;
-        _microphoneGranted = microphoneStatus.isGranted;
-        _cameraGranted = cameraStatus.isGranted;
-        _storageGranted = storageStatus.isGranted;
+        _notificationGranted = _isPermissionGrantedOrPartial(notificationStatus);
+        _microphoneGranted = _isPermissionGrantedOrPartial(microphoneStatus);
+        _cameraGranted = _isPermissionGrantedOrPartial(cameraStatus);
+        _storageGranted = _isPermissionGrantedOrPartial(storageStatus);
       });
     }
   }
@@ -84,7 +84,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
     try {
       if (Platform.isIOS) {
         final status = await Permission.notification.request();
-        if (mounted) setState(() => _notificationGranted = status.isGranted);
+        if (mounted) setState(() => _notificationGranted = _isPermissionGrantedOrPartial(status));
         if (status.isPermanentlyDenied || status.isDenied) {
           _showSettingsDialog(notificationL10n);
         }
@@ -129,7 +129,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
 
     try {
       final status = await Permission.microphone.request();
-      if (mounted) setState(() => _microphoneGranted = status.isGranted);
+      if (mounted) setState(() => _microphoneGranted = _isPermissionGrantedOrPartial(status));
       if (status.isPermanentlyDenied || (Platform.isIOS && status.isDenied)) {
         _showSettingsDialog(microphoneL10n);
       }
@@ -146,7 +146,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
 
     try {
       final status = await Permission.camera.request();
-      if (mounted) setState(() => _cameraGranted = status.isGranted);
+      if (mounted) setState(() => _cameraGranted = _isPermissionGrantedOrPartial(status));
       if (status.isPermanentlyDenied || (Platform.isIOS && status.isDenied)) {
         _showSettingsDialog(cameraL10n);
       }
@@ -163,7 +163,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
 
     try {
       final status = await Permission.photos.request();
-      if (mounted) setState(() => _storageGranted = status.isGranted);
+      if (mounted) setState(() => _storageGranted = _isPermissionGrantedOrPartial(status));
       if (status.isPermanentlyDenied || (Platform.isIOS && status.isDenied)) {
         _showSettingsDialog(storageL10n);
       }
@@ -705,65 +705,20 @@ class _PermissionsScreenState extends State<PermissionsScreen>
               },
             ),
           const SizedBox(width: 8),
-            if (isGranted)
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () async {
-                  await openAppSettings();
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(20),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: AppColors.primary.withAlpha(50),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.settings,
-                        color: AppColors.primary,
-                        size: 14,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Yönet',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            else
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onTap,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    grantText,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
+            Switch.adaptive(
+              value: isGranted,
+              activeTrackColor: AppColors.primary,
+              onChanged: (value) async {
+                if (value) {
+                  if (onTap != null) onTap!();
+                } else {
+                  // If turning off a granted permission, direct to settings
+                  if (isGranted) {
+                    await openAppSettings();
+                  }
+                }
+              },
+            ),
           ],
         ),
       ),

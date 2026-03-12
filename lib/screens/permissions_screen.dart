@@ -98,7 +98,6 @@ class _PermissionsScreenState extends State<PermissionsScreen>
         }
       }
     } catch (e) {
-      debugPrint('Notification permission error: $e');
     }
 
     if (mounted) setState(() => _isLoading = false);
@@ -117,7 +116,6 @@ class _PermissionsScreenState extends State<PermissionsScreen>
         _showSettingsDialog(schedulerL10n);
       }
     } catch (e) {
-      debugPrint('Exact alarm permission error: $e');
     }
 
     if (mounted) setState(() => _isLoading = false);
@@ -134,7 +132,6 @@ class _PermissionsScreenState extends State<PermissionsScreen>
         _showSettingsDialog(microphoneL10n);
       }
     } catch (e) {
-      debugPrint('Microphone permission error: $e');
     }
 
     if (mounted) setState(() => _isLoading = false);
@@ -151,7 +148,6 @@ class _PermissionsScreenState extends State<PermissionsScreen>
         _showSettingsDialog(cameraL10n);
       }
     } catch (e) {
-      debugPrint('Camera permission error: $e');
     }
 
     if (mounted) setState(() => _isLoading = false);
@@ -168,7 +164,6 @@ class _PermissionsScreenState extends State<PermissionsScreen>
         _showSettingsDialog(storageL10n);
       }
     } catch (e) {
-      debugPrint('Storage permission error: $e');
     }
 
     if (mounted) setState(() => _isLoading = false);
@@ -191,7 +186,6 @@ class _PermissionsScreenState extends State<PermissionsScreen>
       // If any is still not granted, redirect might be too aggressive here, 
       // but let's check if all are denied and show one dialog.
     } catch (e) {
-      debugPrint('Permission error: $e');
     }
 
     if (mounted) setState(() => _isLoading = false);
@@ -230,7 +224,6 @@ class _PermissionsScreenState extends State<PermissionsScreen>
         );
         await prefs.setBool('has_seen_onboarding', true);
       } catch (e) {
-        debugPrint('SharedPreferences error in _continue (non-fatal): $e');
       }
     }
 

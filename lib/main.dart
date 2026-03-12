@@ -33,14 +33,12 @@ void main() async {
     await NotificationService.instance.initialize();
   } catch (e) {
     // Continue even if notification initialization fails
-    debugPrint('Notification service initialization failed: $e');
   }
 
   // Initialize AI Manager (multi-provider with fallback)
   try {
     await AiManager.instance.initialize();
   } catch (e) {
-    debugPrint('AI Manager initialization failed: $e');
   }
 
   runApp(
@@ -79,7 +77,6 @@ class _PulseAssistAppState extends State<PulseAssistApp>
     Alarm.ringing.listen((alarmSet) {
       if (alarmSet.alarms.isEmpty) return;
       final alarmSettings = alarmSet.alarms.last;
-      debugPrint('Alarm Ring Stream Received: ${alarmSettings.id}');
 
       // Both provider update and navigation must be guarded by mounted
       if (!mounted) return;

@@ -82,7 +82,6 @@ class _VoicePlayerState extends State<VoicePlayer> {
         });
       }
     } catch (e) {
-      debugPrint('Error loading audio: $e');
       if (mounted) {
         setState(() => _isLoading = false);
       }

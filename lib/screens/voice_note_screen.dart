@@ -249,7 +249,6 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
       // Start duration timer
       _startTimer();
     } catch (e) {
-      debugPrint('Error starting recording: $e');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Failed to start recording: $e')));
@@ -264,7 +263,6 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
         _isPaused = false;
       });
     } catch (e) {
-      debugPrint('Error stopping recording: $e');
     }
   }
 
@@ -277,7 +275,6 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
       }
       setState(() => _isPaused = !_isPaused);
     } catch (e) {
-      debugPrint('Error toggling pause: $e');
     }
   }
 

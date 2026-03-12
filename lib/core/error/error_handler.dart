@@ -51,9 +51,7 @@ class ErrorHandler {
   /// Log error
   void _logError(Object error, StackTrace? stackTrace) {
     if (kDebugMode) {
-      debugPrint('Error: $error');
       if (stackTrace != null) {
-        debugPrint('StackTrace: $stackTrace');
       }
     }
     // TODO: Send to crash reporting service in production

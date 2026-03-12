@@ -56,7 +56,6 @@ class AiManager {
 
       return _hasInternet;
     } catch (e) {
-      debugPrint('Connectivity check failed: $e');
       // Treat outer check failure as no connection to avoid masking real issues
       _hasInternet = false;
       return false;
@@ -71,9 +70,6 @@ class AiManager {
     // Check internet connectivity
     await checkConnectivity();
 
-    debugPrint('AI Manager initialized:');
-    debugPrint('  - Groq: ${_groq.isAvailable ? "Ready" : "Not available"}');
-    debugPrint('  - Internet: ${_hasInternet ? "Connected" : "No connection"}');
   }
 
   /// Set Groq API key dynamically
@@ -96,7 +92,6 @@ class AiManager {
     final hasNetwork = await checkConnectivity();
 
     if (!hasNetwork) {
-      debugPrint('No internet connection, throwing exception for fallback');
       throw Exception('No internet connection');
     }
 
@@ -104,9 +99,6 @@ class AiManager {
       // Try to reinitialize
       await _groq.initialize();
       if (!_groq.isAvailable) {
-        debugPrint(
-          'Groq not available after reinit, throwing exception for fallback',
-        );
         throw Exception('Groq provider not available');
       }
     }
@@ -123,12 +115,10 @@ class AiManager {
     );
 
     if (response != null && response.isNotEmpty) {
-      debugPrint('AI Response from Groq (Llama 3.1)');
       return response;
     }
 
     // Groq returned null - throw exception for fallback
-    debugPrint('Groq returned null, throwing exception for fallback');
     throw Exception('AI service returned no response');
   }
 

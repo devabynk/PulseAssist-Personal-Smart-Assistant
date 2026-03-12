@@ -1,36 +1,100 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../core/config/api_config.dart';
 import '../core/utils/key_manager.dart';
 import '../models/event.dart';
+import '../services/database_service.dart';
+
+/// Result returned by [EventsService.getNearbyEvents].
+/// Carries both the events list and the resolved location used for display.
+class EventsResult {
+  final List<Event> events;
+  final String city;
+  final String district;
+
+  const EventsResult({
+    required this.events,
+    required this.city,
+    required this.district,
+  });
+
+  bool get isEmpty => events.isEmpty;
+
+  /// Display label: "District, City" or just "City".
+  String get displayLocation =>
+      district.isNotEmpty && district != city ? '$district, $city' : city;
+}
 
 class EventsService {
   final KeyManager _keyManager = KeyManager(
     ApiConfig.eventApiKeys,
     serviceName: 'Events',
   );
+  final DatabaseService _db = DatabaseService.instance;
+
   static const String _baseUrl =
       'https://app.ticketmaster.com/discovery/v2/events.json';
 
-  /// Fetch events for a Turkish location.
+  /// Fetch nearby events.
   ///
-  /// [city]     — İl (province/city) name, e.g. "Istanbul", "Ankara"
-  /// [district] — İlçe (district) name, e.g. "Kadikoy", "Besiktas" (optional)
-  ///              Used as a keyword to narrow results. If district returns 0
-  ///              events, automatically retries with city only.
-  /// [countryCode] — ISO 3166-1 alpha-2, defaults to 'TR' for Turkey
-  Future<List<Event>> getNearbyEvents(
-    String city, {
+  /// [city] and [district] are optional. When omitted (or empty) the service
+  /// reads the user's saved weather/dashboard location from the database and
+  /// resolves them automatically:
+  ///   - Turkey (country_code == 'TR'): province/il (`state` field) → Ticketmaster city.
+  ///   - Other countries: `city_name` (what the user selected) → Ticketmaster city.
+  ///
+  /// [countryCode] is also auto-resolved from the DB when not supplied.
+  Future<EventsResult> getNearbyEvents({
+    String? city,
     String? district,
     int days = 30,
     String lang = 'tr',
-    String countryCode = 'TR',
+    String? countryCode,
   }) async {
+    var resolvedCity = (city ?? '').trim();
+    var resolvedDistrict = (district ?? '').trim();
+    var resolvedCountryCode = countryCode;
+
+    // Always read DB: resolves country_code, and city/district when not provided.
     try {
-      return await _keyManager.executeWithRetry((apiKey) async {
+      final locData = await _db.getUserLocation();
+      if (locData != null) {
+        // country_code from DB takes precedence when not explicitly supplied
+        resolvedCountryCode ??= locData['country_code']?.toString();
+
+        if (resolvedCity.isEmpty) {
+          final savedState = (locData['state']?.toString() ?? '').trim();
+          final savedCityName = (locData['city_name']?.toString() ?? '').trim();
+          final savedDistrict = (locData['district']?.toString() ?? '').trim();
+
+          // Turkey: Ticketmaster recognises the province (il/state) as city.
+          // Other countries: city_name is the actual city the user selected
+          // (e.g. "Los Angeles", not "California").
+          if (resolvedCountryCode == 'TR') {
+            resolvedCity = savedState.isNotEmpty ? savedState : savedCityName;
+          } else {
+            resolvedCity = savedCityName.isNotEmpty ? savedCityName : savedState;
+          }
+
+          if (resolvedDistrict.isEmpty) {
+            if (savedDistrict.isNotEmpty && savedDistrict != resolvedCity) {
+              resolvedDistrict = savedDistrict;
+            } else if (savedCityName.isNotEmpty && savedCityName != resolvedCity) {
+              resolvedDistrict = savedCityName;
+            }
+          }
+        }
+      }
+    } catch (_) {}
+
+    if (resolvedCity.isEmpty) {
+      return const EventsResult(events: [], city: '', district: '');
+    }
+
+    try {
+      final events = await _keyManager.executeWithRetry((apiKey) async {
         final now = DateTime.now();
         final endDate = now.add(Duration(days: days));
 
@@ -38,23 +102,27 @@ class EventsService {
         final startDateTime = '${now.toIso8601String().split('.').first}Z';
         final endDateTime = '${endDate.toIso8601String().split('.').first}Z';
 
-        final normalizedCity = _normalize(city.trim());
-        final normalizedDistrict =
-            district != null ? _normalize(district.trim()) : null;
+        final normalizedCity = _normalize(resolvedCity);
+        final normalizedDistrict = resolvedDistrict.isNotEmpty
+            ? _normalize(resolvedDistrict)
+            : null;
 
         final params = <String, String>{
           'apikey': apiKey,
           'city': normalizedCity,
-          'countryCode': countryCode,
           'sort': 'date,asc',
           'size': '20',
-          // Accept both locale variants so Turkish event names are returned
           'locale': lang == 'tr' ? 'tr-tr,en-us' : 'en-us,tr-tr',
           'startDateTime': startDateTime,
           'endDateTime': endDateTime,
         };
 
-        // İlçe → keyword filter (Ticketmaster has no native district field)
+        // Scope to country only when known — omitting enables global search
+        if (resolvedCountryCode != null && resolvedCountryCode!.isNotEmpty) {
+          params['countryCode'] = resolvedCountryCode!;
+        }
+
+        // District as keyword filter (Ticketmaster has no native district field)
         final useDistrictKeyword = normalizedDistrict != null &&
             normalizedDistrict.isNotEmpty &&
             normalizedDistrict != normalizedCity;
@@ -63,36 +131,34 @@ class EventsService {
           params['keyword'] = normalizedDistrict;
         }
 
-        debugPrint(
-          'EventsService: city="$normalizedCity" '
-          'district="${normalizedDistrict ?? "-"}" '
-          'countryCode=$countryCode days=$days',
-        );
-
         final results = await _fetchEvents(params);
 
         // If district keyword returned nothing, retry city-only
         if (results.isEmpty && useDistrictKeyword) {
-          debugPrint(
-            'EventsService: No events for district "$normalizedDistrict", '
-            'retrying city-only...',
-          );
           params.remove('keyword');
           return await _fetchEvents(params);
         }
 
         return results;
       });
-    } catch (e) {
-      debugPrint('Events Service Error: $e');
-      return [];
+
+      return EventsResult(
+        events: events,
+        city: resolvedCity,
+        district: resolvedDistrict,
+      );
+    } catch (_) {
+      return EventsResult(
+        events: const [],
+        city: resolvedCity,
+        district: resolvedDistrict,
+      );
     }
   }
 
   Future<List<Event>> _fetchEvents(Map<String, String> params) async {
     final url = Uri.parse(_baseUrl).replace(queryParameters: params);
-    final response =
-        await http.get(url).timeout(const Duration(seconds: 12));
+    final response = await http.get(url).timeout(const Duration(seconds: 12));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -100,15 +166,12 @@ class EventsService {
         final List<dynamic> events = data['_embedded']['events'];
         return events.map((e) => Event.fromTicketmaster(e)).toList();
       }
+      // 200 OK but no events — legitimate empty result
       return [];
-    } else if (response.statusCode == 401 || response.statusCode == 429) {
-      throw Exception('${response.statusCode}');
     }
 
-    debugPrint(
-      'Events API Error: ${response.statusCode} - ${response.body}',
-    );
-    return [];
+    // Any non-200 response throws so KeyManager can rotate to the next key
+    throw Exception('${response.statusCode}');
   }
 
   /// Converts Turkish characters to their ASCII equivalents for Ticketmaster.

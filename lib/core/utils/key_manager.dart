@@ -26,9 +26,6 @@ class KeyManager {
   KeyManager(List<String> keys, {required this.serviceName})
     : _keys = List.unmodifiable(keys) {
     if (_keys.isEmpty) {
-      debugPrint(
-        '⚠️ KeyManager for $serviceName initialized with empty key list!',
-      );
     }
   }
 
@@ -51,7 +48,6 @@ class KeyManager {
       final key = _keys[next];
       if (!_isKeyInCooldown(key)) {
         _currentIndex = next;
-        debugPrint('🔄 $serviceName: Rotated to key index $_currentIndex');
         return key;
       }
       next = (next + 1) % _keys.length;
@@ -59,9 +55,6 @@ class KeyManager {
 
     // If all keys are failed, just force rotate to next one to try anyway
     _currentIndex = (_currentIndex + 1) % _keys.length;
-    debugPrint(
-      '⚠️ $serviceName: All keys in cooldown, forcing rotation to $_currentIndex',
-    );
     return _keys[_currentIndex];
   }
 
@@ -80,9 +73,6 @@ class KeyManager {
     if (_keys.isEmpty) return;
 
     final key = currentKey;
-    debugPrint(
-      '❌ $serviceName: Failure reported ($type) on key ...${key.substring(key.length > 5 ? key.length - 5 : 0)}',
-    );
 
     if (type == FailureType.rateLimit || type == FailureType.unauthorized) {
       _failedKeys[key] = DateTime.now().add(_cooldown);

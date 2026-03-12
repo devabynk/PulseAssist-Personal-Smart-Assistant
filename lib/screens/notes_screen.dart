@@ -28,6 +28,7 @@ class NotesScreen extends StatefulWidget {
 
 class _NotesScreenState extends State<NotesScreen> {
   bool _isSearching = false;
+  bool _isGridView = true;
   final TextEditingController _searchController = TextEditingController();
   String _selectedFilter = 'all';
 
@@ -116,87 +117,98 @@ class _NotesScreenState extends State<NotesScreen> {
               });
             },
           ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.filter_list),
-            tooltip: 'Filter',
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+          IconButton(
+            icon: Icon(
+              _isGridView ? Icons.view_list_rounded : Icons.grid_view_rounded,
             ),
-            onSelected: (value) => setState(() => _selectedFilter = value),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'all',
-                child: Row(
-                  children: [
-                    const Text('🗂️'),
-                    const SizedBox(width: 8),
-                    Text(l10n.allNotes),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'pinned',
-                child: Row(
-                  children: [
-                    const Text('📌'),
-                    const SizedBox(width: 8),
-                    Text(l10n.pinned),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'images',
-                child: Row(
-                  children: [
-                    const Text('🖼️'),
-                    const SizedBox(width: 8),
-                    Text(l10n.withImages),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'voice',
-                child: Row(
-                  children: [
-                    const Text('🎤'),
-                    const SizedBox(width: 8),
-                    Text(l10n.voiceNotes),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'tags',
-                child: Row(
-                  children: [
-                    const Text('🏷️'),
-                    const SizedBox(width: 8),
-                    Text(l10n.tagged),
-                  ],
-                ),
-              ),
-            ],
+            tooltip: _isGridView ? l10n.listView : l10n.gridView,
+            onPressed: () => setState(() => _isGridView = !_isGridView),
           ),
         ],
       ),
       body: SafeArea(
         bottom: true,
-        child: Consumer<NoteProvider>(
-          builder: (context, noteProvider, child) {
-            if (noteProvider.isLoading) {
-              return Center(
-                child: CircularProgressIndicator(
-                  color: Theme.of(context).primaryColor,
-                ),
-              );
-            }
-            if (_filteredNotes.isEmpty) {
-              return _buildEmptyState(l10n);
-            }
-            return _buildNotesList();
-          },
+        child: Column(
+          children: [
+            _buildFilterChips(l10n),
+            Expanded(
+              child: Consumer<NoteProvider>(
+                builder: (context, noteProvider, child) {
+                  if (noteProvider.isLoading) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    );
+                  }
+                  if (_filteredNotes.isEmpty) {
+                    return _buildEmptyState(l10n);
+                  }
+                  return _buildNotesList();
+                },
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: _buildQuickAddBar(l10n),
+    );
+  }
+
+  Widget _buildFilterChips(AppLocalizations l10n) {
+    final filters = <(String, String, IconData)>[
+      ('all', l10n.allNotes, Icons.notes_rounded),
+      ('pinned', l10n.pinned, Icons.push_pin_rounded),
+      ('images', l10n.withImages, Icons.image_rounded),
+      ('voice', l10n.voiceNotes, Icons.mic_rounded),
+      ('tags', l10n.tagged, Icons.tag_rounded),
+    ];
+    return SizedBox(
+      height: 48,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        separatorBuilder: (context, index) =>const SizedBox(width: 8),
+        itemCount: filters.length,
+        itemBuilder: (context, index) {
+          final (value, label, icon) = filters[index];
+          final isSelected = _selectedFilter == value;
+          return FilterChip(
+            selected: isSelected,
+            label: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 14,
+                  color: isSelected
+                      ? Colors.white
+                      : Theme.of(context).iconTheme.color?.withAlpha(180),
+                ),
+                const SizedBox(width: 4),
+                Text(label),
+              ],
+            ),
+            labelStyle: TextStyle(
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              color: isSelected
+                  ? Colors.white
+                  : Theme.of(context).textTheme.bodyMedium?.color,
+            ),
+            selectedColor: Theme.of(context).primaryColor,
+            backgroundColor: Theme.of(context).cardColor,
+            showCheckmark: false,
+            side: BorderSide(
+              color: isSelected
+                  ? Colors.transparent
+                  : Theme.of(context).dividerColor.withAlpha(40),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+            onSelected: (_) => setState(() => _selectedFilter = value),
+          );
+        },
+      ),
     );
   }
 
@@ -358,22 +370,30 @@ class _NotesScreenState extends State<NotesScreen> {
   }
 
   Widget _buildNotesGrid(List<Note> notes) {
+    final padding = EdgeInsets.fromLTRB(
+      context.horizontalPadding,
+      16,
+      context.horizontalPadding,
+      80,
+    );
+    if (_isGridView) {
+      return SliverPadding(
+        padding: padding,
+        sliver: SliverMasonryGrid.count(
+          crossAxisCount: Responsive.isMobile(context) ? 2 : 4,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childCount: notes.length,
+          itemBuilder: (context, index) => _buildNoteCard(notes[index]),
+        ),
+      );
+    }
     return SliverPadding(
-      padding: EdgeInsets.fromLTRB(
-        context.horizontalPadding,
-        16,
-        context.horizontalPadding,
-        80, // Extra padding at the bottom for the quick add bar
-      ),
-      sliver: SliverMasonryGrid.count(
-        crossAxisCount: Responsive.isMobile(context) ? 2 : 4,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childCount: notes.length,
-        itemBuilder: (context, index) {
-          final note = notes[index];
-          return _buildNoteCard(note);
-        },
+      padding: padding,
+      sliver: SliverList.separated(
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        itemCount: notes.length,
+        itemBuilder: (context, index) => _buildNoteCard(notes[index]),
       ),
     );
   }

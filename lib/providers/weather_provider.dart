@@ -106,7 +106,6 @@ class WeatherProvider with ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      debugPrint('Error loading weather from database: $e');
     }
   }
 
@@ -156,7 +155,6 @@ class WeatherProvider with ChangeNotifier {
         await prefs.setString(_lastUpdateKey, _lastUpdate!.toIso8601String());
       }
     } catch (e) {
-      debugPrint('Error saving weather to database: $e');
     }
   }
 
@@ -228,7 +226,6 @@ class WeatherProvider with ChangeNotifier {
       }
     } catch (e) {
       _error = 'Error: $e';
-      debugPrint('Error fetching weather: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -251,7 +248,6 @@ class WeatherProvider with ChangeNotifier {
         condition: _currentWeather!.description,
       );
     } catch (e) {
-      debugPrint('Error updating weather widget: $e');
     }
   }
 

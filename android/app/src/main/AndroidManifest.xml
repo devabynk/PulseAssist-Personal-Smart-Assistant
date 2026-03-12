@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
@@ -127,7 +127,13 @@
         </receiver>
         
         <!-- Alarm package notification on kill service -->
-        <service android:name="com.gdelataillade.alarm.services.NotificationOnKillService" />
+        <!-- stopWithTask="false" keeps it alive when user swipes app away -->
+        <!-- foregroundServiceType required on API 34+ for foreground services -->
+        <service
+            android:name="com.gdelataillade.alarm.services.NotificationOnKillService"
+            android:exported="false"
+            android:stopWithTask="false"
+            android:foregroundServiceType="mediaPlayback" />
     </application>
     <queries>
         <intent>

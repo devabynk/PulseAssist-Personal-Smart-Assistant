@@ -332,6 +332,40 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                 ),
               ),
 
+              // Quill Formatting Toolbar
+              Container(
+                decoration: BoxDecoration(
+                  color: isDark ? theme.cardColor : bgColor.withAlpha(230),
+                  border: Border(
+                    top: BorderSide(
+                      color: isDark ? theme.dividerColor : Colors.black12,
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 4,
+                  ),
+                  child: quill.QuillSimpleToolbar(
+                    controller: _quillController,
+                    config: const quill.QuillSimpleToolbarConfig(
+                      showFontFamily: false,
+                      showFontSize: false,
+                      showInlineCode: false,
+                      showColorButton: false,
+                      showBackgroundColorButton: false,
+                      showSubscript: false,
+                      showSuperscript: false,
+                      showSmallButton: false,
+                      showSearchButton: false,
+                    ),
+                  ),
+                ),
+              ),
+
               // Bottom Toolbar (Similar to Google Keep)
               Container(
                 decoration: BoxDecoration(
@@ -355,10 +389,6 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                           icon: Icon(Icons.add_box_outlined, color: fgColor),
                           onPressed: () => _showAddAttachmentMenu(context),
                         ),
-                        // IconButton(
-                        //   icon: Icon(Icons.palette_outlined, color: fgColor),
-                        //   onPressed: () => _showColorPicker(),
-                        // ),
                         Expanded(
                           child: Text(
                             lastEditedText,

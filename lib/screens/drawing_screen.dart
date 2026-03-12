@@ -24,7 +24,6 @@ class _DrawingScreenState extends State<DrawingScreen> {
       try {
         _loadDrawing(widget.initialData!);
       } catch (e) {
-        debugPrint('Error loading drawing: $e');
       }
     }
   }
@@ -69,7 +68,6 @@ class _DrawingScreenState extends State<DrawingScreen> {
 
       setState(() {});
     } catch (e) {
-      debugPrint('Error parsing drawing data: $e');
     }
   }
 

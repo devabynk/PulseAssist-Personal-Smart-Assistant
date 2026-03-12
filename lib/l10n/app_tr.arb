@@ -305,5 +305,61 @@
   "state": "Eyalet",
   "saveAndContinue": "Kaydet ve Devam Et",
   "pharmacyServiceTurkeyOnly": "Nöbetçi eczane hizmeti sadece Türkiye için kullanılabilir.\\n\\nLütfen hava durumu konumunuzu Türkiye'deki bir şehre ayarlayın.",
-  "eventsServiceTurkeyOnly": "Etkinlik hizmeti sadece Türkiye için kullanılabilir.\\n\\nLütfen hava durumu konumunuzu Türkiye'deki bir şehre ayarlayın."
+  "eventsServiceTurkeyOnly": "Etkinlik hizmeti sadece Türkiye için kullanılabilir.\\n\\nLütfen hava durumu konumunuzu Türkiye'deki bir şehre ayarlayın.",
+  "listView": "Liste görünümü",
+  "gridView": "Izgara görünümü",
+
+  "exactAlarmPermRequired": "Alarm kurmak için kesin alarm izni gereklidir. Lütfen Ayarlar'dan izin verin.",
+  "notificationPermRequired": "Alarm bildirimleri için bildirim izni gereklidir. Lütfen Ayarlar'dan izin verin.",
+  "alarmSaveFailed": "Alarm kaydedilemedi.",
+  "alarmPermissionError": "Alarm izni reddedildi. Lütfen Ayarlar'dan kesin alarm iznini verin.",
+  "turnOffAlarm": "Alarmı Kapat",
+  "repeatingAlarmMessage": "Bu tekrarlayan bir alarm. Yalnızca bir sonraki tekrarı atlamak mı yoksa tamamen kapatmak mı istersiniz?",
+  "skipOnlyNextOccurrence": "Sonrakini Atla",
+  "turnOffCompletely": "Tamamen Kapat",
+  "alarmSkipped": "Bir sonraki tekrar atlandı.",
+
+  "goodNight": "İyi geceler",
+  "note": "Not",
+  "remind": "Hatırlat",
+  "aiChat": "Yapay Zeka",
+  "goToChat": "Sohbete git",
+  "lastResponse": "Son yanıt",
+  "tasksLeft": "{count} görev kaldı",
+  "@tasksLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recentNotes": "Son Notlar",
+  "untitled": "Başlıksız",
+  "minutesShort": "dk",
+  "hoursShort": "sa",
+  "daysShort": "g",
+
+  "appearance": "Görünüm",
+  "language": "Dil",
+  "dataManagement": "Veri Yönetimi",
+  "backupData": "Verileri Yedekle",
+  "exportAllData": "Tüm verilerinizi dosya olarak dışa aktarın",
+  "restoreBackup": "Yedekten Geri Yükle",
+  "restoreFromBackup": "Verilerinizi yedek dosyasından geri yükleyin",
+  "resetData": "Tüm Verileri Sıfırla",
+  "permanentlyDeleteData": "Tüm verilerinizi kalıcı olarak silin",
+  "controlPermissions": "Uygulama izinlerini yönetin",
+  "aboutSection": "Hakkında",
+  "developer": "Geliştirici",
+  "website": "Web Sitesi",
+  "privacyPolicy": "Gizlilik Politikası",
+  "termsOfUse": "Kullanım Koşulları",
+  "legal": "Yasal",
+  "aboutDescription": "PulseAssist, yapay zeka destekli akıllı günlük asistanınızdır.",
+  "reset": "Sıfırla",
+  "resetConfirmTitle": "Tüm Verileri Sıfırla",
+  "resetConfirmMessage": "Bu işlem tüm notlarınızı, hatırlatıcılarınızı ve alarmlarınızı kalıcı olarak silecektir. Bu işlem geri alınamaz.",
+  "restore": "Geri Yükle",
+  "restoreConfirmTitle": "Yedeği Geri Yükle",
+  "restoreConfirmMessage": "Bu işlem mevcut tüm verilerinizi yedekle değiştirecektir. Bu işlem geri alınamaz."
 }

@@ -162,26 +162,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get permissionsTitle => 'Permissions';
 
   @override
-  String get permissionsSubtitle =>
-      'We need the following permissions for the app to work properly';
+  String get permissionsSubtitle => 'We need the following permissions for the app to work properly';
 
   @override
   String get permissionsOptional => 'All permissions are optional';
 
   @override
-  String get permissionsSkipInfo =>
-      'You can grant permissions later from settings';
+  String get permissionsSkipInfo => 'You can grant permissions later from settings';
 
   @override
   String get notificationPermission => 'Notification Permission';
 
   @override
-  String get notificationPermissionDesc =>
-      'Required for alarms and reminder notifications';
+  String get notificationPermissionDesc => 'Required for alarms and reminder notifications';
 
   @override
-  String get notificationPermissionUsage =>
-      'Show notifications for alarms and reminders';
+  String get notificationPermissionUsage => 'Show notifications for alarms and reminders';
 
   @override
   String get cameraPermission => 'Camera Permission';
@@ -199,19 +195,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get microphonePermissionDesc => 'Required to record voice notes';
 
   @override
-  String get microphonePermissionUsage =>
-      'Record voice notes and voice reminders';
+  String get microphonePermissionUsage => 'Record voice notes and voice reminders';
 
   @override
   String get schedulerPermission => 'Scheduler Permission';
 
   @override
-  String get schedulerPermissionDesc =>
-      'Required to send notifications at exact times';
+  String get schedulerPermissionDesc => 'Required to send notifications at exact times';
 
   @override
-  String get schedulerPermissionUsage =>
-      'Ensure alarms and reminders trigger on time';
+  String get schedulerPermissionUsage => 'Ensure alarms and reminders trigger on time';
 
   @override
   String get storagePermission => 'Storage Permission';
@@ -220,8 +213,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storagePermissionDesc => 'Required to add images to your notes';
 
   @override
-  String get storagePermissionUsage =>
-      'Add images to notes and save voice recordings';
+  String get storagePermissionUsage => 'Add images to notes and save voice recordings';
 
   @override
   String get grantAllPermissions => 'Grant All Permissions';
@@ -330,12 +322,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todoItem3 => 'Task to do 3';
 
   @override
-  String get chatWelcome =>
-      '🤖 Hello! I\'m your smart assistant.\n\nI can help you with:\n• ⏰ Setting alarms\n• 📝 Taking notes\n• 🔔 Creating reminders\n\nAsk me anything or use the menu below!';
+  String get chatWelcome => '🤖 Hello! I\'m your smart assistant.\n\nI can help you with:\n• ⏰ Setting alarms\n• 📝 Taking notes\n• 🔔 Creating reminders\n\nAsk me anything or use the menu below!';
 
   @override
-  String get helpResponse =>
-      '🤖 **What I can do:**\n\n⏰ **Set alarms:**\n\"Set alarm\" or \"Add alarm\"\n\n📝 **Take notes:**\n\"Take note\" or \"Write note\"\n\n🔔 **Reminders:**\n\"Create reminder\"\n\n💬 Ask anything for more help!';
+  String get helpResponse => '🤖 **What I can do:**\n\n⏰ **Set alarms:**\n\"Set alarm\" or \"Add alarm\"\n\n📝 **Take notes:**\n\"Take note\" or \"Write note\"\n\n🔔 **Reminders:**\n\"Create reminder\"\n\n💬 Ask anything for more help!';
 
   @override
   String get qaAlarm => 'Set alarm';
@@ -402,8 +392,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteAlarm => 'Delete Alarm';
 
   @override
-  String get deleteAlarmConfirm =>
-      'Are you sure you want to delete this alarm?';
+  String get deleteAlarmConfirm => 'Are you sure you want to delete this alarm?';
 
   @override
   String get noteContent => 'Start typing...';
@@ -436,8 +425,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearHistory => 'Clear History';
 
   @override
-  String get clearHistoryConfirm =>
-      'Are you sure you want to delete all conversations? (Learning data will stay)';
+  String get clearHistoryConfirm => 'Are you sure you want to delete all conversations? (Learning data will stay)';
 
   @override
   String get startConversation => 'Start a new conversation!';
@@ -707,8 +695,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectCountry => 'Select Country';
 
   @override
-  String get selectLocationForWeather =>
-      'Select country and location for weather.';
+  String get selectLocationForWeather => 'Select country and location for weather.';
 
   @override
   String get state => 'State';
@@ -717,12 +704,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveAndContinue => 'Save and Continue';
 
   @override
-  String get pharmacyServiceTurkeyOnly =>
-      'Pharmacy service is only available for Turkey.\\n\\nPlease set your weather location to a city in Turkey.';
+  String get pharmacyServiceTurkeyOnly => 'Pharmacy service is only available for Turkey.\\n\\nPlease set your weather location to a city in Turkey.';
 
   @override
-  String get eventsServiceTurkeyOnly =>
-      'Events service is only available for Turkey.\\n\\nPlease set your weather location to a city in Turkey.';
+  String get eventsServiceTurkeyOnly => 'Events service is only available for Turkey.\\n\\nPlease set your weather location to a city in Turkey.';
 
   @override
   String get duplicateAlarmTitle => 'Duplicate Alarm';
@@ -801,91 +786,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get completedItems => 'Completed';
 
   @override
-  String get aboutSection => 'About';
+  String get listView => 'List view';
 
   @override
-  String get appearance => 'Appearance';
+  String get gridView => 'Grid view';
 
   @override
-  String get dataManagement => 'Data Management';
+  String get exactAlarmPermRequired => 'Exact alarm permission is required to set alarms. Please grant it in Settings.';
 
   @override
-  String get language => 'Language';
+  String get notificationPermRequired => 'Notification permission is required for alarm alerts. Please grant it in Settings.';
 
   @override
-  String get legal => 'Legal';
+  String get alarmSaveFailed => 'Failed to save alarm.';
 
   @override
-  String get aboutDescription => 'Your smart assistant: Alarm, notes, reminders and chatbot features in one app.';
+  String get alarmPermissionError => 'Alarm permission denied. Please grant exact alarm permission in Settings.';
 
   @override
-  String get developer => 'Developer';
+  String get turnOffAlarm => 'Turn Off Alarm';
 
   @override
-  String get website => 'Website';
+  String get repeatingAlarmMessage => 'This is a repeating alarm. Would you like to skip only the next occurrence or turn it off completely?';
 
   @override
-  String get controlPermissions => 'Control app permissions';
+  String get skipOnlyNextOccurrence => 'Skip Next';
 
   @override
-  String get backupData => 'Backup Data';
+  String get turnOffCompletely => 'Turn Off Completely';
 
   @override
-  String get exportAllData => 'Export all your data';
+  String get alarmSkipped => 'Next occurrence skipped.';
 
   @override
-  String get restoreBackup => 'Restore Backup';
-
-  @override
-  String get restoreFromBackup => 'Restore from backup file';
-
-  @override
-  String get resetData => 'Reset Data';
-
-  @override
-  String get permanentlyDeleteData => 'Permanently delete all data';
-
-  @override
-  String get privacyPolicy => 'Privacy Policy';
-
-  @override
-  String get termsOfUse => 'Terms of Use';
-
-  @override
-  String get restoreConfirmTitle => 'Restore Backup';
-
-  @override
-  String get restoreConfirmMessage => 'Current data will be overwritten. Do you want to continue?';
-
-  @override
-  String get restore => 'Restore';
-
-  @override
-  String get resetConfirmTitle => 'Reset Data';
-
-  @override
-  String get resetConfirmMessage => 'All data will be PERMANENTLY deleted. This cannot be undone. Are you sure?';
-
-  @override
-  String get reset => 'Reset';
-
-  @override
-  String get goodNight => 'Good night! 🌙';
-
-  @override
-  String get aiChat => 'AI Chat';
-
-  @override
-  String get goToChat => 'Go to Chat';
-
-  @override
-  String get lastResponse => 'Last response';
-
-  @override
-  String get recentNotes => 'Recent Notes';
-
-  @override
-  String get untitled => 'Untitled';
+  String get goodNight => 'Good night';
 
   @override
   String get note => 'Note';
@@ -894,34 +828,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get remind => 'Remind';
 
   @override
-  String tasksLeft(int count) => '$count tasks left';
+  String get aiChat => 'AI Chat';
 
   @override
-  String get turnOffAlarm => 'Turn Off Alarm';
+  String get goToChat => 'Go to chat';
 
   @override
-  String get repeatingAlarmMessage => 'This is a repeating alarm. How do you want to turn it off?';
+  String get lastResponse => 'Last response';
 
   @override
-  String get skipOnlyNextOccurrence => 'Only for Tomorrow';
+  String tasksLeft(int count) {
+    return '$count tasks left';
+  }
 
   @override
-  String get turnOffCompletely => 'Turn Off Completely';
+  String get recentNotes => 'Recent Notes';
 
   @override
-  String get alarmSkipped => 'Alarm skipped for next occurrence';
-
-  @override
-  String get exactAlarmPermRequired => 'Please grant exact alarm permission in settings.';
-
-  @override
-  String get notificationPermRequired => 'Please grant notification permission in settings.';
-
-  @override
-  String get alarmSaveFailed => 'Failed to save alarm. Please check permissions.';
-
-  @override
-  String get alarmPermissionError => 'Permission error: Failed to save alarm.';
+  String get untitled => 'Untitled';
 
   @override
   String get minutesShort => 'm';
@@ -933,5 +857,71 @@ class AppLocalizationsEn extends AppLocalizations {
   String get daysShort => 'd';
 
   @override
-  String get daysCount => 'days';
+  String get appearance => 'Appearance';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get dataManagement => 'Data Management';
+
+  @override
+  String get backupData => 'Backup Data';
+
+  @override
+  String get exportAllData => 'Export all your data as a file';
+
+  @override
+  String get restoreBackup => 'Restore from Backup';
+
+  @override
+  String get restoreFromBackup => 'Restore your data from a backup file';
+
+  @override
+  String get resetData => 'Reset All Data';
+
+  @override
+  String get permanentlyDeleteData => 'Permanently delete all your data';
+
+  @override
+  String get controlPermissions => 'Manage app permissions';
+
+  @override
+  String get aboutSection => 'About';
+
+  @override
+  String get developer => 'Developer';
+
+  @override
+  String get website => 'Website';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get termsOfUse => 'Terms of Use';
+
+  @override
+  String get legal => 'Legal';
+
+  @override
+  String get aboutDescription => 'PulseAssist is your smart daily companion powered by AI.';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String get resetConfirmTitle => 'Reset All Data';
+
+  @override
+  String get resetConfirmMessage => 'This will permanently delete all your notes, reminders and alarms. This action cannot be undone.';
+
+  @override
+  String get restore => 'Restore';
+
+  @override
+  String get restoreConfirmTitle => 'Restore Backup';
+
+  @override
+  String get restoreConfirmMessage => 'This will replace all current data with the backup. This action cannot be undone.';
 }

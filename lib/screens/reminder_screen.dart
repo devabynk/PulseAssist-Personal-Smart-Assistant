@@ -266,84 +266,41 @@ class _ReminderScreenState extends State<ReminderScreen> {
               });
             },
           ),
-          PopupMenuButton<ReminderFilter>(
-            icon: const Icon(Icons.filter_list),
-            tooltip: 'Filter',
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            onSelected: (value) => setState(() => _selectedFilter = value),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: ReminderFilter.all,
-                child: Row(
-                  children: [
-                    const Text('🗂️'),
-                    const SizedBox(width: 8),
-                    Text(l10n.all),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: ReminderFilter.today,
-                child: Row(
-                  children: [
-                    const Text('📅'),
-                    const SizedBox(width: 8),
-                    Text(l10n.today),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: ReminderFilter.upcoming,
-                child: Row(
-                  children: [
-                    const Text('🗓️'),
-                    const SizedBox(width: 8),
-                    Text(l10n.upcoming),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: ReminderFilter.past,
-                child: Row(
-                  children: [
-                    const Text('🕰️'),
-                    const SizedBox(width: 8),
-                    Text(l10n.past),
-                  ],
-                ),
-              ),
-            ],
-          ),
         ],
       ),
       body: SafeArea(
         bottom: true,
-        child: Consumer<ReminderProvider>(
-          builder: (context, provider, child) {
-            if (provider.isLoading) {
-              return Center(
-                child: CircularProgressIndicator(
-                  color: Theme.of(context).primaryColor,
-                ),
-              );
-            }
+        child: Column(
+          children: [
+            _buildFilterChips(l10n),
+            Expanded(
+              child: Consumer<ReminderProvider>(
+                builder: (context, provider, child) {
+                  if (provider.isLoading) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    );
+                  }
 
-            final filteredReminders = _filterReminders(provider.reminders);
-            final isTablet = context.isTablet || context.isDesktop;
+                  final filteredReminders = _filterReminders(provider.reminders);
+                  final isTablet = context.isTablet || context.isDesktop;
 
-            if (filteredReminders.isEmpty && !_isSearching) {
-              return _buildEmptyState(l10n);
-            }
+                  if (filteredReminders.isEmpty && !_isSearching) {
+                    return _buildEmptyState(l10n);
+                  }
 
-            return _buildReminderList(
-              filteredReminders.where((r) => !r.isCompleted).toList(),
-              filteredReminders.where((r) => r.isCompleted).toList(),
-              l10n,
-              isTablet,
-            );
-          },
+                  return _buildReminderList(
+                    filteredReminders.where((r) => !r.isCompleted).toList(),
+                    filteredReminders.where((r) => r.isCompleted).toList(),
+                    l10n,
+                    isTablet,
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: Container(
@@ -371,6 +328,62 @@ class _ReminderScreenState extends State<ReminderScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildFilterChips(AppLocalizations l10n) {
+    final filters = <(ReminderFilter, String, IconData)>[
+      (ReminderFilter.all, l10n.all, Icons.apps_rounded),
+      (ReminderFilter.today, l10n.today, Icons.today_rounded),
+      (ReminderFilter.upcoming, l10n.upcoming, Icons.upcoming_rounded),
+      (ReminderFilter.past, l10n.past, Icons.history_rounded),
+    ];
+    return SizedBox(
+      height: 48,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        separatorBuilder: (context, index) => const SizedBox(width: 8),
+        itemCount: filters.length,
+        itemBuilder: (context, index) {
+          final (value, label, icon) = filters[index];
+          final isSelected = _selectedFilter == value;
+          return FilterChip(
+            selected: isSelected,
+            label: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 14,
+                  color: isSelected
+                      ? Colors.white
+                      : Theme.of(context).iconTheme.color?.withAlpha(180),
+                ),
+                const SizedBox(width: 4),
+                Text(label),
+              ],
+            ),
+            labelStyle: TextStyle(
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              color: isSelected
+                  ? Colors.white
+                  : Theme.of(context).textTheme.bodyMedium?.color,
+            ),
+            selectedColor: Theme.of(context).primaryColor,
+            backgroundColor: Theme.of(context).cardColor,
+            showCheckmark: false,
+            side: BorderSide(
+              color: isSelected
+                  ? Colors.transparent
+                  : Theme.of(context).dividerColor.withAlpha(40),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+            onSelected: (_) => setState(() => _selectedFilter = value),
+          );
+        },
       ),
     );
   }
@@ -679,9 +692,20 @@ class _ReminderScreenState extends State<ReminderScreen> {
             ),
           ],
         ),
-        child: InkWell(
-          onTap: () => _editReminder(reminder),
+        child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(width: 4, color: priorityColor),
+                Expanded(
+                  child: InkWell(
+          onTap: () => _editReminder(reminder),
+          borderRadius: const BorderRadius.only(
+            topRight: Radius.circular(16),
+            bottomRight: Radius.circular(16),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -803,32 +827,54 @@ class _ReminderScreenState extends State<ReminderScreen> {
                             const SizedBox(width: 12),
                             const Icon(Icons.mic, size: 16, color: Colors.blue),
                           ],
-                          if (reminder.subtasks.isNotEmpty) ...[
-                            const SizedBox(width: 12),
-                            const Icon(
-                              Icons.checklist,
-                              size: 16,
-                              color: Colors.green,
+                        ],
+                      ),
+                      if (reminder.subtasks.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: reminder.totalSubtasksCount > 0
+                                      ? reminder.completedSubtasksCount /
+                                          reminder.totalSubtasksCount
+                                      : 0,
+                                  backgroundColor: Colors.green.withAlpha(40),
+                                  valueColor: const AlwaysStoppedAnimation(
+                                    Colors.green,
+                                  ),
+                                  minHeight: 4,
+                                ),
+                              ),
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 8),
                             Text(
                               '${reminder.completedSubtasksCount}/${reminder.totalSubtasksCount}',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              style: Theme.of(
+                                context,
+                              ).textTheme.labelSmall?.copyWith(
                                 color: Colors.green,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
-                        ],
-                      ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
               ],
             ),
-          ),
-        ),
-      ),
+          ),    // Padding
+        ),      // InkWell
+                ),  // Expanded
+              ],    // stretched Row children
+            ),      // stretched Row
+          ),        // IntrinsicHeight
+        ),          // ClipRRect
+      ),            // Container
     );
   }
 }

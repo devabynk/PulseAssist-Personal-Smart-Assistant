@@ -213,7 +213,6 @@ class ChatProvider with ChangeNotifier {
 
         // Check existence
         if (!await file.exists()) {
-          debugPrint('File does not exist at path: $path');
           return false;
         }
 
@@ -235,7 +234,6 @@ class ChatProvider with ChangeNotifier {
         }
         return true;
       } catch (e) {
-        debugPrint('File validation error: $e');
         if (!context.mounted) return false;
         _showError(context, l10n.fileProcessingError);
         return false;
@@ -305,7 +303,6 @@ class ChatProvider with ChangeNotifier {
         }
       }
     } catch (e) {
-      debugPrint('Error picking attachment: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red),
@@ -405,9 +402,13 @@ class ChatProvider with ChangeNotifier {
                 savedDistrict.isNotEmpty &&
                 savedDistrict != pharmacyCity)
             ? savedDistrict
-            : null; // If district is null or same as city, let AI decide or ask, or use city as district if appropriate (usually not)
+            : null;
 
-        // Use a fallback if district is unknown but needed
+        // For events: Turkey uses province (state/il); other countries use city_name.
+        final eventCity = countryCode == 'TR'
+            ? pharmacyCity
+            : (savedCity != null && savedCity.isNotEmpty ? savedCity : pharmacyCity);
+        final eventDistrict = pharmacyDistrict;
 
 
         // Build location info with conditional pharmacy/events instructions
@@ -435,16 +436,21 @@ class ChatProvider with ChangeNotifier {
           locInfo = isTurkish
               ? '\n📍 GEÇERLİ KONUM BİLGİSİ (Dashboard): $fullLocation\n'
                     '⚠️ NOT: Nöbetçi eczane hizmeti sadece Türkiye için kullanılabilir.\n'
-                    '✅ Etkinlik hizmeti her ülkede kullanılabilir. Konum: $fullLocation'
+                    '✅ Etkinlik hizmeti her ülkede kullanılabilir. Konum: $fullLocation\n'
+                    '⚠️ ÖNEMLİ KURAL: Kullanıcı "etkinlik" sorduğunda ve BAŞKA BİR YER BELİRTMEDİYSE:\n'
+                    '1. ASLA "hangi şehir?" diye sorma! Dashboard konumunu kullan.\n'
+                    '2. Etkinlikler için şu JSON\'u: {"action": "get_events", "city": "${eventCity ?? ''}", "district": "${eventDistrict ?? ''}"}'
               : '\n📍 CURRENT LOCATION (Dashboard): $fullLocation\n'
                     '⚠️ NOTE: Pharmacy service is only available for Turkey.\n'
-                    '✅ Events service is available globally. Location: $fullLocation';
+                    '✅ Events service is available globally. Location: $fullLocation\n'
+                    '⚠️ IMPORTANT RULE: If user asks for "events" and DOES NOT specify a location:\n'
+                    '1. NEVER ask "which city?". Use the Dashboard location above.\n'
+                    '2. For Events, return: {"action": "get_events", "city": "${eventCity ?? ''}", "district": "${eventDistrict ?? ''}"}';
         }
 
         weatherContext = (weatherContext ?? '') + locInfo;
       }
     } catch (e) {
-      debugPrint('Error loading location context: $e');
     }
 
     if (text.trim().isEmpty && finalAttachmentPath == null) return;
@@ -629,7 +635,6 @@ class ChatProvider with ChangeNotifier {
         _isTyping = false;
         notifyListeners();
 
-        debugPrint('AI Error: $e');
         // Fall back to local NLP on AI error - don't show offline note
         await _handleWithLocalNlp(
           text,
@@ -847,11 +852,9 @@ class ChatProvider with ChangeNotifier {
     NoteProvider? noteProvider,
     ReminderProvider? reminderProvider,
   ) async {
-    debugPrint('🔍 Parsing AI response for action: $aiResponse');
 
     // Check if response contains JSON-like structure
     if (!aiResponse.contains('{') || !aiResponse.contains('}')) {
-      debugPrint('❌ No JSON found in response');
       return null;
     }
 
@@ -859,22 +862,17 @@ class ChatProvider with ChangeNotifier {
       // Extract JSON from response - handle various formats
       final jsonStr = _extractJson(aiResponse);
       if (jsonStr == null) {
-        debugPrint('❌ Could not extract JSON');
         return null;
       }
 
-      debugPrint('📝 Extracted JSON: $jsonStr');
 
       final Map<String, dynamic> actionData = jsonDecode(jsonStr);
-      debugPrint('✅ Parsed action data: $actionData');
 
       final action = actionData['action']?.toString().toLowerCase();
       if (action == null) {
-        debugPrint('❌ No action field in JSON');
         return null;
       }
 
-      debugPrint('🎯 Action type: $action');
 
       switch (action) {
         // === ALARM CRUD ===
@@ -993,12 +991,9 @@ class ChatProvider with ChangeNotifier {
           );
 
         default:
-          debugPrint('❌ Unknown action: $action');
           return null;
       }
     } catch (e, stackTrace) {
-      debugPrint('❌ AI action parse error: $e');
-      debugPrint('Stack trace: $stackTrace');
       return null;
     }
   }
@@ -1150,7 +1145,6 @@ class ChatProvider with ChangeNotifier {
           ? '✅ Alarm kuruldu: $timeFormatted - "$label"$repeatInfo'
           : '✅ Alarm set: $timeFormatted - "$label"$repeatInfo';
     } catch (e) {
-      debugPrint('Error creating alarm: $e');
       return isTurkish
           ? 'Alarm oluşturulurken hata oluştu.'
           : 'Error creating alarm.';
@@ -1355,7 +1349,6 @@ class ChatProvider with ChangeNotifier {
           ? '✅ Alarm güncellendi: $searchTimeStr → $newTimeFormatted "$newLabel"'
           : '✅ Alarm updated: $searchTimeStr → $newTimeFormatted "$newLabel"';
     } catch (e) {
-      debugPrint('Error updating alarm: $e');
       return isTurkish
           ? 'Alarm güncellenirken hata oluştu.'
           : 'Error updating alarm.';
@@ -2350,7 +2343,6 @@ class ChatProvider with ChangeNotifier {
             : '❌ Pharmacy service is only available for Turkey.\n\n💡 Please set your weather location to a city in Turkey.';
       }
     } catch (e) {
-      debugPrint('Error checking country for pharmacy: $e');
     }
 
     var city = data['city']?.toString();
@@ -2375,7 +2367,6 @@ class ChatProvider with ChangeNotifier {
           }
         }
       } catch (e) {
-        debugPrint('Error loading saved location for pharmacy: $e');
       }
     }
 
@@ -2448,103 +2439,65 @@ class ChatProvider with ChangeNotifier {
     Map<String, dynamic> data,
     bool isTurkish,
   ) async {
-    // Support new schema: {"city": "İstanbul", "district": "Kadıköy"}
-    // and old schema:     {"location": "İstanbul"} for backward compatibility
-    var city = (data['city']?.toString() ?? data['location']?.toString() ?? '').trim();
-    var district = (data['district']?.toString() ?? '').trim();
+    // Support {"city": "İstanbul", "district": "Kadıköy"} and legacy {"location": "..."}
+    final cityFromAi = (data['city']?.toString() ?? data['location']?.toString() ?? '').trim();
+    final districtFromAi = (data['district']?.toString() ?? '').trim();
 
-    // Fallback to saved dashboard location if AI didn't provide one
-    if (city.isEmpty) {
-      try {
-        final locData = await _db.getUserLocation();
-        if (locData != null) {
-          // state = il (province), city_name = ilçe or closest city name
-          final savedState = (locData['state']?.toString() ?? '').trim();
-          final savedCityName = (locData['city_name']?.toString() ?? '').trim();
-          final savedDistrict = (locData['district']?.toString() ?? '').trim();
+    // Delegate all location resolution (DB fallback, country_code, province vs
+    // city_name selection) to EventsService — it owns that logic.
+    final result = await EventsService().getNearbyEvents(
+      city: cityFromAi.isNotEmpty ? cityFromAi : null,
+      district: districtFromAi.isNotEmpty ? districtFromAi : null,
+      lang: isTurkish ? 'tr' : 'en',
+    );
 
-          // Use state (il) as city; city_name as district if different
-          city = savedState.isNotEmpty ? savedState : savedCityName;
-          if (district.isEmpty) {
-            if (savedDistrict.isNotEmpty && savedDistrict != city) {
-              district = savedDistrict;
-            } else if (savedCityName.isNotEmpty && savedCityName != city) {
-              district = savedCityName;
-            }
-          }
-        }
-      } catch (e) {
-        debugPrint('Error loading saved location for events: $e');
-      }
-    }
-
-    if (city.isEmpty) {
+    if (result.city.isEmpty) {
       return isTurkish
           ? '❌ Hangi şehir veya bölgede etkinlik arıyorsunuz?\n\n_Örnek: "İstanbul etkinlikler" veya "Ankara Kadıköy konserleri"_'
           : '❌ Which city or area are you looking for events in?\n\n_Example: "events in Istanbul" or "concerts in Istanbul Kadikoy"_';
     }
 
-    // Display label for header
-    final displayLocation = district.isNotEmpty && district != city
-        ? '$district, $city'
-        : city;
-
-    try {
-      final service = EventsService();
-      final events = await service.getNearbyEvents(
-        city,
-        district: district.isNotEmpty ? district : null,
-        lang: isTurkish ? 'tr' : 'en',
-      );
-
-      if (events.isEmpty) {
-        return isTurkish
-            ? "❌ '$displayLocation' bölgesinde yaklaşan etkinlik bulunamadı.\n\n🔄 _Farklı konum aramak için: \"Ankara etkinlikler\" yazabilirsiniz._"
-            : "❌ No upcoming events found in '$displayLocation'.\n\n🔄 _To search different location: type \"events in Ankara\"_";
-      }
-
-      final buffer = StringBuffer();
-
-      final now = DateTime.now();
-      final dateStr = DateFormat(
-        'd MMMM yyyy, EEEE',
-        isTurkish ? 'tr' : 'en',
-      ).format(now);
-      buffer.writeln('📅 **$dateStr**');
-
-      buffer.writeln(
-        isTurkish
-            ? '🎭 **$displayLocation Etkinlikleri:**'
-            : '🎭 **Events in $displayLocation:**',
-      );
-
-      for (final e in events) {
-        buffer.writeln('');
-        buffer.writeln('🔹 **${e.title}**');
-        buffer.writeln('📅 ${e.date}'); // Removed time
-        if (e.location.isNotEmpty) {
-          buffer.writeln('📍 ${e.location}'); // venue -> location
-        }
-        buffer.writeln(
-          "🔗 [${isTurkish ? 'Bilet/Detay' : 'Tickets/Details'}](${e.link})",
-        );
-      }
-
-      // Add location change hint
-      buffer.writeln('');
-      buffer.writeln(
-        isTurkish
-            ? '---\n🔄 _Farklı konum aramak için: "Ankara etkinlikler" yazabilirsiniz._'
-            : '---\n🔄 _To search different location: type "events in Boston"_',
-      );
-
-      return buffer.toString();
-    } catch (e) {
-      debugPrint('Error fetching events: $e');
+    if (result.isEmpty) {
       return isTurkish
-          ? '❌ Etkinlik bilgileri alınırken bir hata oluştu.'
-          : '❌ An error occurred while fetching events.';
+          ? "❌ '${result.displayLocation}' bölgesinde yaklaşan etkinlik bulunamadı.\n\n🔄 _Farklı konum aramak için: \"Ankara etkinlikler\" yazabilirsiniz._"
+          : "❌ No upcoming events found in '${result.displayLocation}'.\n\n🔄 _To search different location: type \"events in Ankara\"_";
     }
+
+    final buffer = StringBuffer();
+
+    final now = DateTime.now();
+    final dateStr = DateFormat(
+      'd MMMM yyyy, EEEE',
+      isTurkish ? 'tr' : 'en',
+    ).format(now);
+    buffer.writeln('📅 **$dateStr**');
+
+    buffer.writeln(
+      isTurkish
+          ? '🎭 **${result.displayLocation} Etkinlikleri:**'
+          : '🎭 **Events in ${result.displayLocation}:**',
+    );
+
+    for (final e in result.events) {
+      buffer.writeln('');
+      buffer.writeln('🔹 **${e.title}**');
+      buffer.writeln('📅 ${e.date}');
+      if (e.location.isNotEmpty) {
+        buffer.writeln('📍 ${e.location}');
+      }
+      buffer.writeln(
+        "🔗 [${isTurkish ? 'Bilet/Detay' : 'Tickets/Details'}](${e.link})",
+      );
+    }
+
+    buffer.writeln('');
+    buffer.writeln(
+      isTurkish
+          ? '---\n🔄 _Farklı konum aramak için: "Ankara etkinlikler" yazabilirsiniz._'
+          : '---\n🔄 _To search different location: type "events in Boston"_',
+    );
+
+    return buffer.toString();
   }
 
   // ============================================================

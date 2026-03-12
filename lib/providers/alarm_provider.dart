@@ -81,7 +81,6 @@ class AlarmProvider with ChangeNotifier {
       (a) => _alarmSystemId(a.id) == alarmId,
     );
     if (source == null) {
-      debugPrint('Cannot snooze: alarm with system id $alarmId not found');
       return;
     }
 
@@ -98,7 +97,6 @@ class AlarmProvider with ChangeNotifier {
     );
 
     await addAlarm(snoozedAlarm);
-    debugPrint('Alarm snoozed until $snoozeTime');
   }
 
   /// Skip the next occurrence of a repeating alarm without disabling it entirely
@@ -160,7 +158,6 @@ class AlarmProvider with ChangeNotifier {
 
   /// Handle alarm ring event (called from main.dart)
   Future<void> handleAlarmRing(alarm_pkg.AlarmSettings alarmSettings) async {
-    debugPrint('Alarm ringing (handled by provider): ${alarmSettings.id}');
 
     // Find the alarm in our list by matching the ID
     try {
@@ -183,21 +180,17 @@ class AlarmProvider with ChangeNotifier {
           ),
         );
       } catch (e) {
-        debugPrint('Failed to log alarm notification: $e');
       }
 
       // If it's a one-time alarm (no repeat days), deactivate it
       if (alarm.repeatDays.isEmpty) {
-        debugPrint('One-time alarm finished, deactivating: ${alarm.title}');
         final deactivated = alarm.copyWith(isActive: false);
         await _db.updateAlarm(deactivated);
         await loadAlarms(); // Refresh the list
       } else {
-        debugPrint('Repeating alarm, keeping active: ${alarm.title}');
         // Repeating alarms stay active and will reschedule automatically
       }
     } catch (e) {
-      debugPrint('Alarm not found locally or error processing ring: $e');
     }
   }
 
@@ -253,13 +246,9 @@ class AlarmProvider with ChangeNotifier {
             }
 
             if (shouldReschedule) {
-              debugPrint(
-                'Rescheduling missing system alarm found in DB: ${dbAlarm.title}',
-              );
               await _scheduleAlarm(dbAlarm);
             } else {
               // It's old and one-time, simple deactivate
-              debugPrint('Deactivating expired orphan alarm: ${dbAlarm.title}');
               final deactivated = dbAlarm.copyWith(isActive: false);
               await _db.updateAlarm(deactivated);
             }
@@ -270,7 +259,6 @@ class AlarmProvider with ChangeNotifier {
       // Reload alarms after cleanup/reschedule
       await loadAlarms();
     } catch (e) {
-      debugPrint('Error syncing alarms: $e');
     }
   }
 
@@ -280,7 +268,6 @@ class AlarmProvider with ChangeNotifier {
       await _scheduleAlarm(alarm);
       await loadAlarms();
     } catch (e) {
-      debugPrint('Error adding alarm: $e');
       await _db.deleteAlarm(alarm.id);
       rethrow;
     }
@@ -295,7 +282,6 @@ class AlarmProvider with ChangeNotifier {
       }
       await loadAlarms();
     } catch (e) {
-      debugPrint('Error updating alarm: $e');
       rethrow;
     }
   }
@@ -347,7 +333,6 @@ class AlarmProvider with ChangeNotifier {
             d.month == scheduledDateOnly.month &&
             d.day == scheduledDateOnly.day,
       )) {
-        debugPrint('Skipping alarm ${alarm.title} for $scheduledDateOnly');
         scheduledTime = scheduledTime.add(const Duration(days: 1));
         var skipFallbackIter = 0;
         while (!alarm.repeatDays.contains(scheduledTime.weekday) &&
@@ -367,7 +352,6 @@ class AlarmProvider with ChangeNotifier {
     // Final safety check: if time passed during async processing, push 1 minute ahead
     if (scheduledTime.isBefore(DateTime.now())) {
       scheduledTime = DateTime.now().add(const Duration(minutes: 1));
-      debugPrint('Scheduled time was in the past; pushed to 1 minute from now');
     }
 
     final alarmSettings = alarm_pkg.AlarmSettings(
@@ -389,15 +373,10 @@ class AlarmProvider with ChangeNotifier {
       ),
     );
 
-    debugPrint(
-      'Scheduling alarm: ${alarm.title} for $scheduledTime (ID: ${alarmSettings.id})',
-    );
 
     try {
       await alarm_pkg.Alarm.set(alarmSettings: alarmSettings);
-      debugPrint('Alarm scheduled successfully');
     } catch (e) {
-      debugPrint('CRITICAL ERROR: Failed to schedule alarm: $e');
       throw Exception('Failed to schedule alarm: $e');
     }
   }
@@ -405,7 +384,6 @@ class AlarmProvider with ChangeNotifier {
   /// Cancel an alarm
   Future<void> _cancelAlarm(app_alarm.Alarm alarm) async {
     final alarmId = _alarmSystemId(alarm.id);
-    debugPrint('Cancelling alarm ID: $alarmId');
     await alarm_pkg.Alarm.stop(alarmId);
   }
 
@@ -427,16 +405,12 @@ class AlarmProvider with ChangeNotifier {
       if (alarmIndex != -1) {
         final alarm = _alarms[alarmIndex];
         if (alarm.repeatDays.isEmpty && alarm.isActive) {
-          debugPrint(
-            'Stopping one-time alarm manually, deactivating: ${alarm.title}',
-          );
           final deactivated = alarm.copyWith(isActive: false);
           await _db.updateAlarm(deactivated);
           await loadAlarms();
         }
       }
     } catch (e) {
-      debugPrint('Error deactivating alarm on stop: $e');
     }
   }
 

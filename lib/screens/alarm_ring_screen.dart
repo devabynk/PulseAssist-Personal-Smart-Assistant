@@ -73,7 +73,6 @@ class AlarmRingScreen extends StatelessWidget {
                             alarmSettings.notificationSettings.body,
                           );
                         } catch (e) {
-                          debugPrint('Error snoozing alarm: $e');
                         }
                         if (context.mounted) {
                           Navigator.of(context).pop();
@@ -106,7 +105,6 @@ class AlarmRingScreen extends StatelessWidget {
                             listen: false,
                           ).stopRingingAlarm(alarmSettings.id);
                         } catch (e) {
-                          debugPrint('Error stopping alarm: $e');
                         }
                         if (context.mounted) {
                           Navigator.of(context).pop();

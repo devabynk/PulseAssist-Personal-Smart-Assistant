@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart'; // For debugPrint
 import 'package:http/http.dart' as http;
 
 import '../core/config/api_config.dart';
@@ -25,9 +24,6 @@ class PharmacyService {
           '$_baseUrl?il=${_normalize(city)}&ilce=${_normalize(district)}',
         );
 
-        debugPrint(
-          'PharmacyService: Fetching $url with key ending in ...${apiKey.substring(apiKey.length > 5 ? apiKey.length - 5 : 0)}',
-        );
         final response = await http.get(
           url,
           headers: {
@@ -69,20 +65,15 @@ class PharmacyService {
             // So we return empty list and do NOT throw to retry (unless we want to retry on logic error?)
             // Actually, if it's "invalid authorization" it might come as 401.
             // If success: false, it might be city mismatch.
-            debugPrint('Pharmacy API Logical Error: ${data['message']}');
             return <Pharmacy>[];
           }
         } else if (response.statusCode == 401 || response.statusCode == 429) {
           throw Exception('${response.statusCode}'); // Refund/Retry
         } else {
-          debugPrint(
-            'Pharmacy API Error: ${response.statusCode} - ${response.body}',
-          );
           throw Exception('Service Error');
         }
       });
     } catch (e) {
-      debugPrint('PharmacyService: All keys exhausted or failed: $e');
       return [];
     }
   }

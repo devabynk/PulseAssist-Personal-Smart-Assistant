@@ -67,7 +67,6 @@ class GroqProvider implements AiProvider {
       _isInitialized = true;
       return true;
     } catch (e) {
-      debugPrint('Failed to set Groq API key: $e');
       return false;
     }
   }
@@ -120,7 +119,6 @@ class GroqProvider implements AiProvider {
       if (errorStr.contains('model') &&
           (errorStr.contains('not found') || errorStr.contains('deprecated'))) {
         if (_currentModel == _primaryModel) {
-          debugPrint('⚠️ Primary model unavailable, switching to $_fallbackModel');
           _currentModel = _fallbackModel;
         }
         if (_currentVisionModel == _visionModel) {
@@ -144,17 +142,14 @@ class GroqProvider implements AiProvider {
           return null;
         }
       }
-      debugPrint('❌ All Groq attempts exhausted: $e');
       return null;
     }
   }
 
   Future<String?> _transcribeAudio(String path) async {
     try {
-      debugPrint('🎙️ Transcribing audio: $path');
       final audioFile = File(path);
       if (!await audioFile.exists()) {
-        debugPrint('❌ Audio file not found');
         return null;
       }
 
@@ -175,16 +170,11 @@ class GroqProvider implements AiProvider {
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         final text = data['text'] as String?;
-        debugPrint('✅ Transcription: $text');
         return text;
       } else {
-        debugPrint(
-          '❌ Transcription error: ${response.statusCode} ${response.body}',
-        );
         return null;
       }
     } catch (e) {
-      debugPrint('❌ Transcription failed: $e');
       return null;
     }
   }
@@ -239,7 +229,6 @@ class GroqProvider implements AiProvider {
     if (attachmentPath != null && attachmentType == 'image') {
       // VISION MODE
       modelToUse = _currentVisionModel;
-      debugPrint('👁️ Using VISION model: $modelToUse');
 
       try {
         final bytes = await File(attachmentPath).readAsBytes();
@@ -257,12 +246,10 @@ class GroqProvider implements AiProvider {
           ),
         ];
       } catch (e) {
-        debugPrint('Failed to process image: $e');
         userContent = '$message [Image upload failed]';
       }
     } else if (attachmentPath != null && attachmentType == 'audio') {
       // AUDIO MODE
-      debugPrint('🎙️ Processing Audio mode');
       // Transcribe first
       final transcription = await _transcribeAudio(attachmentPath);
       final audioTag = ' [User attached a voice note: $attachmentPath]';
@@ -278,7 +265,6 @@ class GroqProvider implements AiProvider {
       userContent = textContent;
     } else if (attachmentPath != null && attachmentType == 'file') {
       // DOCUMENT FILE MODE (PDF, DOCX, XLSX, TXT, CSV)
-      debugPrint('📄 Reading file: $attachmentPath');
       try {
         var fileContent = '';
         final lowerPath = attachmentPath.toLowerCase();
@@ -287,7 +273,6 @@ class GroqProvider implements AiProvider {
           try {
             fileContent = await ReadPdfText.getPDFtext(attachmentPath);
           } catch (e) {
-            debugPrint('PDF Read error: $e');
             fileContent =
                 "PDF text could not be extracted. Filename: ${attachmentPath.split('/').last}";
           }
@@ -296,7 +281,6 @@ class GroqProvider implements AiProvider {
           try {
             fileContent = await _extractDocxText(attachmentPath);
           } catch (e) {
-            debugPrint('DOCX Read error: $e');
             fileContent =
                 "DOCX text could not be extracted. Filename: ${attachmentPath.split('/').last}";
           }
@@ -305,7 +289,6 @@ class GroqProvider implements AiProvider {
           try {
             fileContent = await _extractXlsxData(attachmentPath);
           } catch (e) {
-            debugPrint('XLSX Read error: $e');
             fileContent =
                 "XLSX data could not be extracted. Filename: ${attachmentPath.split('/').last}";
           }
@@ -314,7 +297,6 @@ class GroqProvider implements AiProvider {
           try {
             fileContent = await File(attachmentPath).readAsString();
           } catch (e) {
-            debugPrint('Text Read error: $e');
             fileContent =
                 "File content could not be read. Filename: ${attachmentPath.split('/').last}";
           }
@@ -326,7 +308,6 @@ class GroqProvider implements AiProvider {
 
         userContent = "$message\n\n--- FILE CONTENT (${attachmentPath.split('/').last}) ---\n$truncatedContent\n--- END FILE ---\n\n[User attached a file: $attachmentPath]";
       } catch (e) {
-        debugPrint('Failed to read file: $e');
         userContent = '$message [File read failed]';
       }
     } else {
@@ -350,7 +331,6 @@ class GroqProvider implements AiProvider {
         .timeout(
           const Duration(seconds: 40), // Increased timeout for analysis
           onTimeout: () {
-            debugPrint('⏱️ AI request timed out');
             throw TimeoutException('AI request timed out');
           },
         );
@@ -792,7 +772,6 @@ When all info is available, return ONLY the JSON. No extra text.
 
       return textParts.join(' ');
     } catch (e) {
-      debugPrint('DOCX extraction error: $e');
       rethrow;
     }
   }
@@ -832,7 +811,6 @@ When all info is available, return ONLY the JSON. No extra text.
 
       return buffer.toString();
     } catch (e) {
-      debugPrint('XLSX extraction error: $e');
       rethrow;
     }
   }
@@ -840,6 +818,5 @@ When all info is available, return ONLY the JSON. No extra text.
   @override
   void clearSession() {
     // No session state to clear for REST API
-    debugPrint('Groq session cleared');
   }
 }

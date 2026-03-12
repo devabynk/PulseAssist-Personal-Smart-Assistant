@@ -20,9 +20,7 @@ class NotificationService {
     try {
       final deviceTimeZone = await FlutterTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(deviceTimeZone));
-      debugPrint('Timezone set to: $deviceTimeZone');
     } catch (e) {
-      debugPrint('Failed to get device timezone, falling back to UTC: $e');
       tz.setLocalLocation(tz.UTC);
     }
 
@@ -76,18 +74,15 @@ class NotificationService {
       );
     }
 
-    debugPrint('NotificationService initialized successfully');
   }
 
   /// Request notification permission (Android 13+ and iOS)
   Future<bool> requestNotificationPermission() async {
     if (Platform.isAndroid) {
       final status = await Permission.notification.request();
-      debugPrint('Notification permission status: $status');
       return status.isGranted;
     } else if (Platform.isIOS) {
       final status = await Permission.notification.request();
-      debugPrint('iOS notification permission status: $status');
       // Accept granted, limited (provisional), and provisional states
       return status.isGranted || status.isLimited || status.isProvisional;
     }
@@ -98,11 +93,9 @@ class NotificationService {
   Future<bool> requestExactAlarmPermission() async {
     if (Platform.isAndroid) {
       final status = await Permission.scheduleExactAlarm.status;
-      debugPrint('Exact alarm permission status: $status');
 
       if (status.isDenied || status.isPermanentlyDenied) {
         final result = await Permission.scheduleExactAlarm.request();
-        debugPrint('Exact alarm permission request result: $result');
         return result.isGranted;
       }
       return status.isGranted;
@@ -116,9 +109,6 @@ class NotificationService {
       final notificationStatus = await Permission.notification.status;
       final exactAlarmStatus = await Permission.scheduleExactAlarm.status;
 
-      debugPrint(
-        'Notification: $notificationStatus, Exact Alarm: $exactAlarmStatus',
-      );
 
       return notificationStatus.isGranted && exactAlarmStatus.isGranted;
     }
@@ -135,7 +125,6 @@ class NotificationService {
 
   void _onNotificationTap(NotificationResponse response) {
     // Handle notification tap - could navigate to alarm/reminder screen
-    debugPrint('Notification tapped: ${response.payload}');
   }
 
   Future<void> showNotification({
@@ -180,7 +169,6 @@ class NotificationService {
   }) async {
     // Ensure scheduled date is in the future
     if (scheduledDate.isBefore(DateTime.now())) {
-      debugPrint('Alarm date is in the past, skipping: $scheduledDate');
       return;
     }
 
@@ -209,7 +197,6 @@ class NotificationService {
     );
 
     final tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
-    debugPrint('Scheduling alarm for: $tzScheduledDate (ID: $id)');
 
     await notifications.zonedSchedule(
       id: id,
@@ -231,7 +218,6 @@ class NotificationService {
   }) async {
     // Ensure scheduled date is in the future
     if (scheduledDate.isBefore(DateTime.now())) {
-      debugPrint('Reminder date is in the past, skipping: $scheduledDate');
       return false;
     }
 
@@ -239,10 +225,8 @@ class NotificationService {
     if (Platform.isAndroid) {
       final hasPermission = await Permission.scheduleExactAlarm.status;
       if (!hasPermission.isGranted) {
-        debugPrint('Exact alarm permission not granted, requesting...');
         final granted = await requestExactAlarmPermission();
         if (!granted) {
-          debugPrint('Cannot schedule reminder: exact alarm permission denied');
           return false;
         }
       }
@@ -272,7 +256,6 @@ class NotificationService {
     );
 
     final tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
-    debugPrint('Scheduling reminder for: $tzScheduledDate (ID: $id)');
 
     try {
       await notifications.zonedSchedule(
@@ -284,10 +267,8 @@ class NotificationService {
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: 'reminder_$id',
       );
-      debugPrint('Reminder scheduled successfully');
       return true;
     } catch (e) {
-      debugPrint('Error scheduling reminder: $e');
       return false;
     }
   }

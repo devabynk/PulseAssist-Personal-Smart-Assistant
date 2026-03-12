@@ -33,7 +33,6 @@ class DatabaseService {
 
     // EXPLICIT PATH: Ensure data persists across restarts
     final appDocumentDir = await getApplicationDocumentsDirectory();
-    debugPrint('📂 Hive DB Directory: ${appDocumentDir.path}');
     await Hive.initFlutter(appDocumentDir.path);
     // await Hive.initFlutter(); // OLD MIGRATION: might default to temp on some configs
 
@@ -50,21 +49,13 @@ class DatabaseService {
 
     // Open Boxes
     _messagesBox = await Hive.openBox<Message>('messages');
-    debugPrint('📦 Hive Box Opened: messages at ${_messagesBox.path}');
 
     _conversationsBox = await Hive.openBox<Conversation>('conversations');
     _alarmsBox = await Hive.openBox<Alarm>('alarms');
-    debugPrint(
-      '📦 Hive Box Opened: alarms at ${_alarmsBox.path} (Count: ${_alarmsBox.length})',
-    );
 
     _notesBox = await Hive.openBox<Note>('notes');
-    debugPrint('📦 Hive Box Opened: notes (Count: ${_notesBox.length})');
 
     _remindersBox = await Hive.openBox<Reminder>('reminders');
-    debugPrint(
-      '📦 Hive Box Opened: reminders (Count: ${_remindersBox.length})',
-    );
 
     _notificationLogsBox = await Hive.openBox<NotificationLog>(
       'notification_logs',
@@ -73,7 +64,6 @@ class DatabaseService {
     _userLocationBox = await Hive.openBox<UserLocation>('user_location');
 
     _isInitialized = true;
-    debugPrint('✅ DatabaseService Initialized Successfully');
   }
 
   // Helper to ensure init is called if accessed lazily (though explicit init is better)
@@ -161,16 +151,12 @@ class DatabaseService {
     await _ensureInitialized();
     await _alarmsBox.put(alarm.id, alarm);
     await _alarmsBox.flush();
-    debugPrint(
-      '💾 Inserted Alarm: ${alarm.id} (Title: ${alarm.title}). Total: ${_alarmsBox.length}',
-    );
   }
 
   Future<void> updateAlarm(Alarm alarm) async {
     await _ensureInitialized();
     await _alarmsBox.put(alarm.id, alarm);
     await _alarmsBox.flush();
-    debugPrint('💾 Updated Alarm: ${alarm.id}');
   }
 
   Future<void> deleteAlarm(String id) async {
@@ -178,11 +164,8 @@ class DatabaseService {
     if (_alarmsBox.containsKey(id)) {
       await _alarmsBox.delete(id);
       await _alarmsBox.flush();
-      debugPrint('🗑️ Deleted Alarm: $id. Remaining: ${_alarmsBox.length}');
     } else {
-      debugPrint('⚠️ Delete Failed: Alarm ID $id not found in box.');
       // Dump keys
-      debugPrint('Keys available: ${_alarmsBox.keys.toList()}');
     }
   }
 

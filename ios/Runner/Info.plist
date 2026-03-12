@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Smart Assistant</string>
+	<string>PulseAssist</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -46,6 +46,10 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	
+	<!-- Local network access (used by development tools and local services) -->
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app uses local networking for development and debugging purposes. / Bu uygulama geliştirme ve hata ayıklama amacıyla yerel ağ kullanır.</string>
+
 	<!-- Microphone permission for voice notes -->
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app needs access to your microphone to record voice notes and voice reminders. / Bu uygulama sesli notlar ve sesli hatırlatıcılar kaydetmek için mikrofon erişimine ihtiyaç duyar.</string>
@@ -67,6 +71,7 @@
     <array>
         <string>fetch</string>
         <string>audio</string>
+        <string>background-processing</string>
         </array>
     
     <key>BGTaskSchedulerPermittedIdentifiers</key>

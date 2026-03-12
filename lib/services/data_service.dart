@@ -65,7 +65,6 @@ class DataService {
             }
           }
         } catch (e) {
-          debugPrint('Error backing up box $boxName: $e');
         }
       }
 
@@ -86,7 +85,6 @@ class DataService {
             : 'PulseAssist Backup - ${DateTime.now()}',
       );
     } catch (e) {
-      debugPrint('Export failed: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -108,8 +106,8 @@ class DataService {
         allowedExtensions: ['zip'],
       );
 
-      if (result != null && result.files.single.path != null) {
-        final zipFile = File(result.files.single.path!);
+      if (result != null && result.files.isNotEmpty && result.files.first.path != null) {
+        final zipFile = File(result.files.first.path!);
         final bytes = await zipFile.readAsBytes();
         final archive = ZipDecoder().decodeBytes(bytes);
 
@@ -196,7 +194,6 @@ class DataService {
         }
       }
     } catch (e) {
-      debugPrint('Import failed: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -249,7 +246,6 @@ class DataService {
         );
       }
     } catch (e) {
-      debugPrint('Reset failed: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

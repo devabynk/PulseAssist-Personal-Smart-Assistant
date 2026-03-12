@@ -789,7 +789,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                             await launchUrl(uri);
                           }
                         } catch (e) {
-                          debugPrint('Error launching URL: $e');
                         }
                       }
                     },

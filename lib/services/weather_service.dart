@@ -45,12 +45,10 @@ class WeatherService {
         } else if (response.statusCode == 401 || response.statusCode == 429) {
           throw Exception('${response.statusCode} Error'); // Trigger retry
         } else {
-          debugPrint('Geocoding API Error: ${response.statusCode}');
           return null;
         }
       });
     } catch (e) {
-      debugPrint('Geocoding Error: $e');
       return null;
     }
   }
@@ -73,7 +71,6 @@ class WeatherService {
         country: coords['country'],
       );
     } catch (e) {
-      debugPrint('Get Current Weather Error: $e');
       return null;
     }
   }
@@ -109,9 +106,6 @@ class WeatherService {
           // Special case: valid key but no subscription.
           // This is NOT an auth failure to rotate, just feature unavailable.
           // Fall through to 2.5
-          debugPrint(
-            'OneCall 3.0 requires subscription. Falling back to Standard 2.5...',
-          );
         } else if (response.statusCode == 401 || response.statusCode == 429) {
           throw Exception('${response.statusCode}'); // Key failure
         }
@@ -119,7 +113,6 @@ class WeatherService {
         if (e.toString().contains('401') || e.toString().contains('429')) {
           rethrow;
         }
-        debugPrint('OneCall 3.0 Error: $e');
       }
 
       // 2. Fallback: Standard 2.5/weather API (Free, no card required)
@@ -139,7 +132,6 @@ class WeatherService {
       } else if (response.statusCode == 401 || response.statusCode == 429) {
         throw Exception('${response.statusCode}');
       } else {
-        debugPrint('Weather API Error: ${response.statusCode}');
         return null;
       }
     });
@@ -161,7 +153,6 @@ class WeatherService {
         language: language,
       );
     } catch (e) {
-      debugPrint('Get Forecast Error: $e');
       return null;
     }
   }
@@ -202,9 +193,6 @@ class WeatherService {
           }).toList();
         } else if (response.statusCode == 401 &&
             response.body.contains('subscription')) {
-          debugPrint(
-            'OneCall 3.0 requires subscription. Falling back to Standard 2.5...',
-          );
         } else if (response.statusCode == 401 || response.statusCode == 429) {
           throw Exception('${response.statusCode}'); // Key failure
         }
@@ -212,7 +200,6 @@ class WeatherService {
         if (e.toString().contains('401') || e.toString().contains('429')) {
           rethrow;
         }
-        debugPrint('OneCall 3.0 Forecast Error: $e');
       }
 
       // 2. Fallback: Standard 2.5/forecast API (5 days / 3 hour)
@@ -275,14 +262,12 @@ class WeatherService {
         } else if (response.statusCode == 401 || response.statusCode == 429) {
           throw Exception('${response.statusCode}');
         } else {
-          debugPrint('Forecast API Error: ${response.statusCode}');
           return null;
         }
       } catch (e) {
         if (e.toString().contains('401') || e.toString().contains('429')) {
           rethrow;
         }
-        debugPrint('Forecast Service Error: $e');
         return null;
       }
     });
@@ -323,9 +308,6 @@ class WeatherService {
           }).toList();
         } else if (response.statusCode == 401 &&
             response.body.contains('subscription')) {
-          debugPrint(
-            'OneCall 3.0 requires subscription. Falling back to Standard 2.5...',
-          );
         } else if (response.statusCode == 401 || response.statusCode == 429) {
           throw Exception('${response.statusCode}');
         }
@@ -333,7 +315,6 @@ class WeatherService {
         if (e.toString().contains('401') || e.toString().contains('429')) {
           rethrow;
         }
-        debugPrint('OneCall 3.0 Hourly Error: $e');
       }
 
       // 2. Fallback: Standard 2.5/forecast API (3-hourly)
@@ -369,7 +350,6 @@ class WeatherService {
         if (e.toString().contains('401') || e.toString().contains('429')) {
           rethrow;
         }
-        debugPrint('Hourly Forecast Error: $e');
         return null;
       }
     });
@@ -417,7 +397,6 @@ class WeatherService {
       return null;
     } catch (e) {
       if (e.toString().contains('401') || e.toString().contains('429')) rethrow;
-      debugPrint('Reverse Geocoding Error: $e');
       return null;
     }
   }
@@ -548,12 +527,10 @@ class WeatherService {
         } else if (response.statusCode == 401 || response.statusCode == 429) {
           throw Exception('${response.statusCode}');
         } else {
-          debugPrint('Search API Error: ${response.statusCode}');
           return [];
         }
       });
     } catch (e) {
-      debugPrint('Search Service Error: $e');
       return [];
     }
   }

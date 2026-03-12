@@ -370,5 +370,61 @@
   "state": "State",
   "saveAndContinue": "Save and Continue",
   "pharmacyServiceTurkeyOnly": "Pharmacy service is only available for Turkey.\\n\\nPlease set your weather location to a city in Turkey.",
-  "eventsServiceTurkeyOnly": "Events service is only available for Turkey.\\n\\nPlease set your weather location to a city in Turkey."
+  "eventsServiceTurkeyOnly": "Events service is only available for Turkey.\\n\\nPlease set your weather location to a city in Turkey.",
+  "listView": "List view",
+  "gridView": "Grid view",
+
+  "exactAlarmPermRequired": "Exact alarm permission is required to set alarms. Please grant it in Settings.",
+  "notificationPermRequired": "Notification permission is required for alarm alerts. Please grant it in Settings.",
+  "alarmSaveFailed": "Failed to save alarm.",
+  "alarmPermissionError": "Alarm permission denied. Please grant exact alarm permission in Settings.",
+  "turnOffAlarm": "Turn Off Alarm",
+  "repeatingAlarmMessage": "This is a repeating alarm. Would you like to skip only the next occurrence or turn it off completely?",
+  "skipOnlyNextOccurrence": "Skip Next",
+  "turnOffCompletely": "Turn Off Completely",
+  "alarmSkipped": "Next occurrence skipped.",
+
+  "goodNight": "Good night",
+  "note": "Note",
+  "remind": "Remind",
+  "aiChat": "AI Chat",
+  "goToChat": "Go to chat",
+  "lastResponse": "Last response",
+  "tasksLeft": "{count} tasks left",
+  "@tasksLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recentNotes": "Recent Notes",
+  "untitled": "Untitled",
+  "minutesShort": "m",
+  "hoursShort": "h",
+  "daysShort": "d",
+
+  "appearance": "Appearance",
+  "language": "Language",
+  "dataManagement": "Data Management",
+  "backupData": "Backup Data",
+  "exportAllData": "Export all your data as a file",
+  "restoreBackup": "Restore from Backup",
+  "restoreFromBackup": "Restore your data from a backup file",
+  "resetData": "Reset All Data",
+  "permanentlyDeleteData": "Permanently delete all your data",
+  "controlPermissions": "Manage app permissions",
+  "aboutSection": "About",
+  "developer": "Developer",
+  "website": "Website",
+  "privacyPolicy": "Privacy Policy",
+  "termsOfUse": "Terms of Use",
+  "legal": "Legal",
+  "aboutDescription": "PulseAssist is your smart daily companion powered by AI.",
+  "reset": "Reset",
+  "resetConfirmTitle": "Reset All Data",
+  "resetConfirmMessage": "This will permanently delete all your notes, reminders and alarms. This action cannot be undone.",
+  "restore": "Restore",
+  "restoreConfirmTitle": "Restore Backup",
+  "restoreConfirmMessage": "This will replace all current data with the backup. This action cannot be undone."
 }

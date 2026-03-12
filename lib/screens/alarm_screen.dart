@@ -97,7 +97,6 @@ class _AlarmScreenState extends State<AlarmScreen> {
           await alarmsProvider.updateAlarm(result);
         }
       } catch (e) {
-        debugPrint('Error saving alarm: $e');
         if (!mounted) return;
 
         var errorMsg = l10n.alarmSaveFailed;
@@ -776,16 +775,9 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
   }
 
   void _save() {
-    final now = DateTime.now();
-
-    // Construct DateTime based on picker just for Hour/Minute info
-    final alarmTimeDate = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      _selectedTime.hour,
-      _selectedTime.minute,
-    );
+    // Use _selectedTime directly — it has the correct date (from date picker)
+    // and correct hour/minute (from time picker).
+    final alarmTimeDate = _selectedTime;
 
     final alarm = Alarm(
       id: widget.alarm?.id ?? const Uuid().v4(),
@@ -838,7 +830,6 @@ class _RingtonePickerSheetState extends State<_RingtonePickerSheet> {
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error loading ringtones: $e');
       setState(() => _isLoading = false);
     }
   }

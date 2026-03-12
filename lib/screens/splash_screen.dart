@@ -69,7 +69,6 @@ class _SplashScreenState extends State<SplashScreen>
       }
     } catch (e) {
       // If any error (including timeout), show notification screen on first launch
-      debugPrint('Error in splash navigation: $e');
 
       // Wait minimum animation time
       await Future.delayed(const Duration(milliseconds: 1500));

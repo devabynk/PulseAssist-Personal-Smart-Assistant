@@ -62,8 +62,7 @@ import 'app_localizations_tr.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,18 +82,17 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('tr'),
+    Locale('tr')
   ];
 
   /// No description provided for @appTitle.
@@ -1604,55 +1601,284 @@ abstract class AppLocalizations {
   /// **'Completed'**
   String get completedItems;
 
-  String get aboutSection;
-  String get appearance;
-  String get dataManagement;
-  String get language;
-  String get legal;
-  String get aboutDescription;
-  String get developer;
-  String get website;
-  String get controlPermissions;
-  String get backupData;
-  String get exportAllData;
-  String get restoreBackup;
-  String get restoreFromBackup;
-  String get resetData;
-  String get permanentlyDeleteData;
-  String get privacyPolicy;
-  String get termsOfUse;
-  String get restoreConfirmTitle;
-  String get restoreConfirmMessage;
-  String get restore;
-  String get resetConfirmTitle;
-  String get resetConfirmMessage;
-  String get reset;
-  String get goodNight;
-  String get aiChat;
-  String get goToChat;
-  String get lastResponse;
-  String get recentNotes;
-  String get untitled;
-  String get note;
-  String get remind;
-  String tasksLeft(int count);
-  String get turnOffAlarm;
-  String get repeatingAlarmMessage;
-  String get skipOnlyNextOccurrence;
-  String get turnOffCompletely;
-  String get alarmSkipped;
+  /// No description provided for @listView.
+  ///
+  /// In en, this message translates to:
+  /// **'List view'**
+  String get listView;
+
+  /// No description provided for @gridView.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid view'**
+  String get gridView;
+
+  /// No description provided for @exactAlarmPermRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact alarm permission is required to set alarms. Please grant it in Settings.'**
   String get exactAlarmPermRequired;
+
+  /// No description provided for @notificationPermRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification permission is required for alarm alerts. Please grant it in Settings.'**
   String get notificationPermRequired;
+
+  /// No description provided for @alarmSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save alarm.'**
   String get alarmSaveFailed;
+
+  /// No description provided for @alarmPermissionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarm permission denied. Please grant exact alarm permission in Settings.'**
   String get alarmPermissionError;
+
+  /// No description provided for @turnOffAlarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Off Alarm'**
+  String get turnOffAlarm;
+
+  /// No description provided for @repeatingAlarmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a repeating alarm. Would you like to skip only the next occurrence or turn it off completely?'**
+  String get repeatingAlarmMessage;
+
+  /// No description provided for @skipOnlyNextOccurrence.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip Next'**
+  String get skipOnlyNextOccurrence;
+
+  /// No description provided for @turnOffCompletely.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Off Completely'**
+  String get turnOffCompletely;
+
+  /// No description provided for @alarmSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Next occurrence skipped.'**
+  String get alarmSkipped;
+
+  /// No description provided for @goodNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Good night'**
+  String get goodNight;
+
+  /// No description provided for @note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get note;
+
+  /// No description provided for @remind.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind'**
+  String get remind;
+
+  /// No description provided for @aiChat.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Chat'**
+  String get aiChat;
+
+  /// No description provided for @goToChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to chat'**
+  String get goToChat;
+
+  /// No description provided for @lastResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Last response'**
+  String get lastResponse;
+
+  /// No description provided for @tasksLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} tasks left'**
+  String tasksLeft(int count);
+
+  /// No description provided for @recentNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Notes'**
+  String get recentNotes;
+
+  /// No description provided for @untitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled'**
+  String get untitled;
+
+  /// No description provided for @minutesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'m'**
   String get minutesShort;
+
+  /// No description provided for @hoursShort.
+  ///
+  /// In en, this message translates to:
+  /// **'h'**
   String get hoursShort;
+
+  /// No description provided for @daysShort.
+  ///
+  /// In en, this message translates to:
+  /// **'d'**
   String get daysShort;
-  String get daysCount;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @dataManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Management'**
+  String get dataManagement;
+
+  /// No description provided for @backupData.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup Data'**
+  String get backupData;
+
+  /// No description provided for @exportAllData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export all your data as a file'**
+  String get exportAllData;
+
+  /// No description provided for @restoreBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from Backup'**
+  String get restoreBackup;
+
+  /// No description provided for @restoreFromBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore your data from a backup file'**
+  String get restoreFromBackup;
+
+  /// No description provided for @resetData.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset All Data'**
+  String get resetData;
+
+  /// No description provided for @permanentlyDeleteData.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete all your data'**
+  String get permanentlyDeleteData;
+
+  /// No description provided for @controlPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage app permissions'**
+  String get controlPermissions;
+
+  /// No description provided for @aboutSection.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get aboutSection;
+
+  /// No description provided for @developer.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer'**
+  String get developer;
+
+  /// No description provided for @website.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get website;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @termsOfUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Use'**
+  String get termsOfUse;
+
+  /// No description provided for @legal.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get legal;
+
+  /// No description provided for @aboutDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'PulseAssist is your smart daily companion powered by AI.'**
+  String get aboutDescription;
+
+  /// No description provided for @reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get reset;
+
+  /// No description provided for @resetConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset All Data'**
+  String get resetConfirmTitle;
+
+  /// No description provided for @resetConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete all your notes, reminders and alarms. This action cannot be undone.'**
+  String get resetConfirmMessage;
+
+  /// No description provided for @restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restore;
+
+  /// No description provided for @restoreConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Backup'**
+  String get restoreConfirmTitle;
+
+  /// No description provided for @restoreConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will replace all current data with the backup. This action cannot be undone.'**
+  String get restoreConfirmMessage;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -1661,26 +1887,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'tr'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'tr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'tr':
-      return AppLocalizationsTr();
+    case 'en': return AppLocalizationsEn();
+    case 'tr': return AppLocalizationsTr();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }

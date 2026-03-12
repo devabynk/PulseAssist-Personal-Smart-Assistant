@@ -162,33 +162,28 @@ class AppLocalizationsTr extends AppLocalizations {
   String get permissionsTitle => 'İzinler';
 
   @override
-  String get permissionsSubtitle =>
-      'Uygulamanın düzgün çalışması için aşağıdaki izinlere ihtiyacımız var';
+  String get permissionsSubtitle => 'Uygulamanın düzgün çalışması için aşağıdaki izinlere ihtiyacımız var';
 
   @override
   String get permissionsOptional => 'Tüm izinler isteğe bağlıdır';
 
   @override
-  String get permissionsSkipInfo =>
-      'İzinleri daha sonra ayarlardan verebilirsiniz';
+  String get permissionsSkipInfo => 'İzinleri daha sonra ayarlardan verebilirsiniz';
 
   @override
   String get notificationPermission => 'Bildirim İzni';
 
   @override
-  String get notificationPermissionDesc =>
-      'Alarm ve hatırlatıcı bildirimleri için gerekli';
+  String get notificationPermissionDesc => 'Alarm ve hatırlatıcı bildirimleri için gerekli';
 
   @override
-  String get notificationPermissionUsage =>
-      'Alarmlar ve hatırlatıcılar için bildirim göstermek';
+  String get notificationPermissionUsage => 'Alarmlar ve hatırlatıcılar için bildirim göstermek';
 
   @override
   String get cameraPermission => 'Kamera İzni';
 
   @override
-  String get cameraPermissionDesc =>
-      'Notlarınıza fotoğraf eklemek için gerekli';
+  String get cameraPermissionDesc => 'Notlarınıza fotoğraf eklemek için gerekli';
 
   @override
   String get cameraPermissionUsage => 'Notlarınıza fotoğraf çekmek ve eklemek';
@@ -200,19 +195,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get microphonePermissionDesc => 'Sesli not kaydetmek için gerekli';
 
   @override
-  String get microphonePermissionUsage =>
-      'Sesli not kaydetmek ve sesli hatırlatıcılar oluşturmak';
+  String get microphonePermissionUsage => 'Sesli not kaydetmek ve sesli hatırlatıcılar oluşturmak';
 
   @override
   String get schedulerPermission => 'Zamanlayıcı İzni';
 
   @override
-  String get schedulerPermissionDesc =>
-      'Bildirimleri tam zamanında göndermek için gerekli';
+  String get schedulerPermissionDesc => 'Bildirimleri tam zamanında göndermek için gerekli';
 
   @override
-  String get schedulerPermissionUsage =>
-      'Alarmların ve hatırlatıcıların tam zamanında çalması';
+  String get schedulerPermissionUsage => 'Alarmların ve hatırlatıcıların tam zamanında çalması';
 
   @override
   String get storagePermission => 'Depolama İzni';
@@ -221,8 +213,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get storagePermissionDesc => 'Notlarınıza resim eklemek için gerekli';
 
   @override
-  String get storagePermissionUsage =>
-      'Notlarınıza resim eklemek ve sesli notları kaydetmek';
+  String get storagePermissionUsage => 'Notlarınıza resim eklemek ve sesli notları kaydetmek';
 
   @override
   String get grantAllPermissions => 'Tüm İzinleri Ver';
@@ -331,12 +322,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get todoItem3 => 'Yapılacak görev 3';
 
   @override
-  String get chatWelcome =>
-      '🤖 Merhaba! Ben senin akıllı asistanınım.\n\nSana şu konularda yardımcı olabilirim:\n• ⏰ Alarm kurma\n• 📝 Not alma\n• 🔔 Hatırlatıcı oluşturma\n\nBir şey sor veya alt menüden istediğin özelliği seç!';
+  String get chatWelcome => '🤖 Merhaba! Ben senin akıllı asistanınım.\n\nSana şu konularda yardımcı olabilirim:\n• ⏰ Alarm kurma\n• 📝 Not alma\n• 🔔 Hatırlatıcı oluşturma\n\nBir şey sor veya alt menüden istediğin özelliği seç!';
 
   @override
-  String get helpResponse =>
-      '🤖 **Yapabileceğim şeyler:**\n\n⏰ **Alarm kurma:**\n\"Alarm kur\" veya \"Alarm ekle\"\n\n📝 **Not alma:**\n\"Not al\" veya \"Not yaz\"\n\n🔔 **Hatırlatıcı:**\n\"Hatırlatıcı oluştur\"\n\n💬 Daha fazla yardım için herhangi bir şey sor!';
+  String get helpResponse => '🤖 **Yapabileceğim şeyler:**\n\n⏰ **Alarm kurma:**\n\"Alarm kur\" veya \"Alarm ekle\"\n\n📝 **Not alma:**\n\"Not al\" veya \"Not yaz\"\n\n🔔 **Hatırlatıcı:**\n\"Hatırlatıcı oluştur\"\n\n💬 Daha fazla yardım için herhangi bir şey sor!';
 
   @override
   String get qaAlarm => 'Alarm kur';
@@ -403,8 +392,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get deleteAlarm => 'Alarmı Sil';
 
   @override
-  String get deleteAlarmConfirm =>
-      'Bu alarmı silmek istediğinize emin misiniz?';
+  String get deleteAlarmConfirm => 'Bu alarmı silmek istediğinize emin misiniz?';
 
   @override
   String get noteContent => 'Yazmaya başlayın...';
@@ -437,8 +425,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get clearHistory => 'Geçmişi Temizle';
 
   @override
-  String get clearHistoryConfirm =>
-      'Tüm sohbetleri silmek istediğinize emin misiniz? (Öğrenilen veriler saklanır)';
+  String get clearHistoryConfirm => 'Tüm sohbetleri silmek istediğinize emin misiniz? (Öğrenilen veriler saklanır)';
 
   @override
   String get startConversation => 'Yeni bir sohbet başlat!';
@@ -708,8 +695,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get selectCountry => 'Ülke Seçin';
 
   @override
-  String get selectLocationForWeather =>
-      'Hava durumu için ülke ve konum seçin.';
+  String get selectLocationForWeather => 'Hava durumu için ülke ve konum seçin.';
 
   @override
   String get state => 'Eyalet';
@@ -718,12 +704,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get saveAndContinue => 'Kaydet ve Devam Et';
 
   @override
-  String get pharmacyServiceTurkeyOnly =>
-      'Nöbetçi eczane hizmeti sadece Türkiye için kullanılabilir.\\n\\nLütfen hava durumu konumunuzu Türkiye\'deki bir şehre ayarlayın.';
+  String get pharmacyServiceTurkeyOnly => 'Nöbetçi eczane hizmeti sadece Türkiye için kullanılabilir.\\n\\nLütfen hava durumu konumunuzu Türkiye\'deki bir şehre ayarlayın.';
 
   @override
-  String get eventsServiceTurkeyOnly =>
-      'Etkinlik hizmeti sadece Türkiye için kullanılabilir.\\n\\nLütfen hava durumu konumunuzu Türkiye\'deki bir şehre ayarlayın.';
+  String get eventsServiceTurkeyOnly => 'Etkinlik hizmeti sadece Türkiye için kullanılabilir.\\n\\nLütfen hava durumu konumunuzu Türkiye\'deki bir şehre ayarlayın.';
 
   @override
   String get duplicateAlarmTitle => 'Tekrar Eden Alarm';
@@ -769,8 +753,7 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get actionCancelled =>
-      'İptal edildi. Başka nasıl yardımcı olabilirim?';
+  String get actionCancelled => 'İptal edildi. Başka nasıl yardımcı olabilirim?';
 
   @override
   String get askAlarmTime => 'Alarmı saat kaça kurayım?';
@@ -803,91 +786,40 @@ class AppLocalizationsTr extends AppLocalizations {
   String get completedItems => 'Tamamlanan';
 
   @override
-  String get aboutSection => 'Hakkında';
+  String get listView => 'Liste görünümü';
 
   @override
-  String get appearance => 'Görünüm';
+  String get gridView => 'Izgara görünümü';
 
   @override
-  String get dataManagement => 'Veri Yönetimi';
+  String get exactAlarmPermRequired => 'Alarm kurmak için kesin alarm izni gereklidir. Lütfen Ayarlar\'dan izin verin.';
 
   @override
-  String get language => 'Dil';
+  String get notificationPermRequired => 'Alarm bildirimleri için bildirim izni gereklidir. Lütfen Ayarlar\'dan izin verin.';
 
   @override
-  String get legal => 'Yasal';
+  String get alarmSaveFailed => 'Alarm kaydedilemedi.';
 
   @override
-  String get aboutDescription => 'Akıllı asistanınız: Alarm, not, hatırlatıcı ve chatbot özellikleri tek uygulamada.';
+  String get alarmPermissionError => 'Alarm izni reddedildi. Lütfen Ayarlar\'dan kesin alarm iznini verin.';
 
   @override
-  String get developer => 'Geliştirici';
+  String get turnOffAlarm => 'Alarmı Kapat';
 
   @override
-  String get website => 'Web Sitesi';
+  String get repeatingAlarmMessage => 'Bu tekrarlayan bir alarm. Yalnızca bir sonraki tekrarı atlamak mı yoksa tamamen kapatmak mı istersiniz?';
 
   @override
-  String get controlPermissions => 'Uygulama izinlerini kontrol et';
+  String get skipOnlyNextOccurrence => 'Sonrakini Atla';
 
   @override
-  String get backupData => 'Verileri Yedekle';
+  String get turnOffCompletely => 'Tamamen Kapat';
 
   @override
-  String get exportAllData => 'Tüm verilerinizi dışa aktarın';
+  String get alarmSkipped => 'Bir sonraki tekrar atlandı.';
 
   @override
-  String get restoreBackup => 'Yedeği Geri Yükle';
-
-  @override
-  String get restoreFromBackup => 'Yedek dosyasından geri yükleyin';
-
-  @override
-  String get resetData => 'Verileri Sıfırla';
-
-  @override
-  String get permanentlyDeleteData => 'Tüm verileri kalıcı olarak siler';
-
-  @override
-  String get privacyPolicy => 'Gizlilik Politikası';
-
-  @override
-  String get termsOfUse => 'Kullanım Koşulları';
-
-  @override
-  String get restoreConfirmTitle => 'Yedeği Geri Yükle';
-
-  @override
-  String get restoreConfirmMessage => 'Mevcut verilerinizin üzerine yazılacak. Devam etmek istiyor musunuz?';
-
-  @override
-  String get restore => 'Geri Yükle';
-
-  @override
-  String get resetConfirmTitle => 'Verileri Sıfırla';
-
-  @override
-  String get resetConfirmMessage => 'Tüm veriler KALICI OLARAK silinecek. Bu işlem geri alınamaz. Emin misiniz?';
-
-  @override
-  String get reset => 'Sıfırla';
-
-  @override
-  String get goodNight => 'İyi geceler! 🌙';
-
-  @override
-  String get aiChat => 'AI Sohbet';
-
-  @override
-  String get goToChat => 'Sohbete Dön';
-
-  @override
-  String get lastResponse => 'Son yanıt';
-
-  @override
-  String get recentNotes => 'Son Notlar';
-
-  @override
-  String get untitled => 'Başlıksız';
+  String get goodNight => 'İyi geceler';
 
   @override
   String get note => 'Not';
@@ -896,44 +828,100 @@ class AppLocalizationsTr extends AppLocalizations {
   String get remind => 'Hatırlat';
 
   @override
-  String tasksLeft(int count) => '$count görev kaldı';
+  String get aiChat => 'Yapay Zeka';
 
   @override
-  String get turnOffAlarm => 'Alarmı Kapat';
+  String get goToChat => 'Sohbete git';
 
   @override
-  String get repeatingAlarmMessage => 'Bu tekrarlayan bir alarm. Nasıl kapatmak istersiniz?';
+  String get lastResponse => 'Son yanıt';
 
   @override
-  String get skipOnlyNextOccurrence => 'Sadece Yarın İçin';
+  String tasksLeft(int count) {
+    return '$count görev kaldı';
+  }
 
   @override
-  String get turnOffCompletely => 'Tamamen Kapat';
+  String get recentNotes => 'Son Notlar';
 
   @override
-  String get alarmSkipped => 'Alarm bir sonraki gün için atlandı';
-
-  @override
-  String get exactAlarmPermRequired => 'Lütfen ayarlardan tam zamanlı alarm izni verin.';
-
-  @override
-  String get notificationPermRequired => 'Lütfen ayarlardan bildirim izni verin.';
-
-  @override
-  String get alarmSaveFailed => 'Alarm kaydedilemedi. Lütfen izinleri kontrol edin.';
-
-  @override
-  String get alarmPermissionError => 'İzin hatası: Alarm kaydedilemedi.';
+  String get untitled => 'Başlıksız';
 
   @override
   String get minutesShort => 'dk';
 
   @override
-  String get hoursShort => 's';
+  String get hoursShort => 'sa';
 
   @override
   String get daysShort => 'g';
 
   @override
-  String get daysCount => 'gün';
+  String get appearance => 'Görünüm';
+
+  @override
+  String get language => 'Dil';
+
+  @override
+  String get dataManagement => 'Veri Yönetimi';
+
+  @override
+  String get backupData => 'Verileri Yedekle';
+
+  @override
+  String get exportAllData => 'Tüm verilerinizi dosya olarak dışa aktarın';
+
+  @override
+  String get restoreBackup => 'Yedekten Geri Yükle';
+
+  @override
+  String get restoreFromBackup => 'Verilerinizi yedek dosyasından geri yükleyin';
+
+  @override
+  String get resetData => 'Tüm Verileri Sıfırla';
+
+  @override
+  String get permanentlyDeleteData => 'Tüm verilerinizi kalıcı olarak silin';
+
+  @override
+  String get controlPermissions => 'Uygulama izinlerini yönetin';
+
+  @override
+  String get aboutSection => 'Hakkında';
+
+  @override
+  String get developer => 'Geliştirici';
+
+  @override
+  String get website => 'Web Sitesi';
+
+  @override
+  String get privacyPolicy => 'Gizlilik Politikası';
+
+  @override
+  String get termsOfUse => 'Kullanım Koşulları';
+
+  @override
+  String get legal => 'Yasal';
+
+  @override
+  String get aboutDescription => 'PulseAssist, yapay zeka destekli akıllı günlük asistanınızdır.';
+
+  @override
+  String get reset => 'Sıfırla';
+
+  @override
+  String get resetConfirmTitle => 'Tüm Verileri Sıfırla';
+
+  @override
+  String get resetConfirmMessage => 'Bu işlem tüm notlarınızı, hatırlatıcılarınızı ve alarmlarınızı kalıcı olarak silecektir. Bu işlem geri alınamaz.';
+
+  @override
+  String get restore => 'Geri Yükle';
+
+  @override
+  String get restoreConfirmTitle => 'Yedeği Geri Yükle';
+
+  @override
+  String get restoreConfirmMessage => 'Bu işlem mevcut tüm verilerinizi yedekle değiştirecektir. Bu işlem geri alınamaz.';
 }

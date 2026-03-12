@@ -1603,6 +1603,52 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Completed'**
   String get completedItems;
+
+  String get aboutSection;
+  String get appearance;
+  String get dataManagement;
+  String get language;
+  String get legal;
+  String get aboutDescription;
+  String get developer;
+  String get website;
+  String get controlPermissions;
+  String get backupData;
+  String get exportAllData;
+  String get restoreBackup;
+  String get restoreFromBackup;
+  String get resetData;
+  String get permanentlyDeleteData;
+  String get privacyPolicy;
+  String get termsOfUse;
+  String get restoreConfirmTitle;
+  String get restoreConfirmMessage;
+  String get restore;
+  String get resetConfirmTitle;
+  String get resetConfirmMessage;
+  String get reset;
+  String get goodNight;
+  String get aiChat;
+  String get goToChat;
+  String get lastResponse;
+  String get recentNotes;
+  String get untitled;
+  String get note;
+  String get remind;
+  String tasksLeft(int count);
+  String get turnOffAlarm;
+  String get repeatingAlarmMessage;
+  String get skipOnlyNextOccurrence;
+  String get turnOffCompletely;
+  String get alarmSkipped;
+  String get exactAlarmPermRequired;
+  String get notificationPermRequired;
+  String get alarmSaveFailed;
+  String get alarmPermissionError;
+  String get minutesShort;
+  String get hoursShort;
+  String get daysShort;
+  String get daysCount;
 }
 
 class _AppLocalizationsDelegate

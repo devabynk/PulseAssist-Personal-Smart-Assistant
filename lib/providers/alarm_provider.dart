@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:alarm/alarm.dart' as alarm_pkg;
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -19,6 +20,15 @@ class AlarmProvider with ChangeNotifier {
 
   List<app_alarm.Alarm> get alarms => _alarms;
   bool get isLoading => _isLoading;
+
+  /// Converts a UUID string to a stable, positive 32-bit int for use as the
+  /// system alarm ID. Uses the first 8 hex digits of the UUID to produce a
+  /// deterministic value that fits within Android's int32 ID range, avoiding
+  /// the instability and potential 64-bit overflow of String.hashCode.
+  static int _alarmSystemId(String uuid) {
+    final hex = uuid.replaceAll('-', '').substring(0, 8);
+    return int.parse(hex, radix: 16) & 0x7FFFFFFF;
+  }
 
   /// Check if a duplicate alarm exists
   /// Returns the duplicate alarm if found, null otherwise
@@ -67,20 +77,24 @@ class AlarmProvider with ChangeNotifier {
     final now = DateTime.now();
     final snoozeTime = now.add(duration);
 
+    final source = _alarms.firstWhereOrNull(
+      (a) => _alarmSystemId(a.id) == alarmId,
+    );
+    if (source == null) {
+      debugPrint('Cannot snooze: alarm with system id $alarmId not found');
+      return;
+    }
+
     final snoozedAlarm = app_alarm.Alarm(
       id: _uuid.v4(),
       title: title != null && title.isNotEmpty
           ? '$title (Erte)'
           : 'Ertelenmiş Alarm',
       time: snoozeTime,
-      isActive: true, // Auto active
-      repeatDays: [], // One-time
-      soundPath: _alarms
-          .firstWhere((a) => a.id.hashCode.abs() == alarmId)
-          .soundPath,
-      soundName: _alarms
-          .firstWhere((a) => a.id.hashCode.abs() == alarmId)
-          .soundName,
+      isActive: true,
+      repeatDays: [],
+      soundPath: source.soundPath,
+      soundName: source.soundName,
     );
 
     await addAlarm(snoozedAlarm);
@@ -106,9 +120,11 @@ class AlarmProvider with ChangeNotifier {
       next = next.add(const Duration(days: 1));
     }
 
-    // Find next valid repeating day
-    while (!alarm.repeatDays.contains(next.weekday)) {
+    // Find next valid repeating day (max 7 iterations — one full week)
+    var skipIter = 0;
+    while (!alarm.repeatDays.contains(next.weekday) && skipIter < 7) {
       next = next.add(const Duration(days: 1));
+      skipIter++;
     }
 
     // Add date only (normlized to midnight) to skippedDates to avoid time confusion
@@ -149,7 +165,7 @@ class AlarmProvider with ChangeNotifier {
     // Find the alarm in our list by matching the ID
     try {
       final alarm = _alarms.firstWhere(
-        (a) => a.id.hashCode.abs() == alarmSettings.id,
+        (a) => _alarmSystemId(a.id) == alarmSettings.id,
       );
 
       // Log notification
@@ -187,6 +203,7 @@ class AlarmProvider with ChangeNotifier {
 
   Future<void> loadAlarms() async {
     _isLoading = true;
+    notifyListeners();
     final alarms = await _db.getAlarms();
     _alarms = alarms;
     _isLoading = false;
@@ -222,7 +239,7 @@ class AlarmProvider with ChangeNotifier {
       final now = DateTime.now();
 
       for (var dbAlarm in dbAlarms) {
-        final alarmId = dbAlarm.id.hashCode.abs();
+        final alarmId = _alarmSystemId(dbAlarm.id);
 
         if (!systemAlarmIds.contains(alarmId)) {
           // Alarm is in DB but not in System.
@@ -309,9 +326,13 @@ class AlarmProvider with ChangeNotifier {
         alarm.time.minute,
       );
 
-      while (scheduledTime.isBefore(now) ||
-          !alarm.repeatDays.contains(scheduledTime.weekday)) {
+      // Cap iterations at 14 days (2 weeks) to prevent infinite loop on bad state
+      var mainIter = 0;
+      while ((scheduledTime.isBefore(now) ||
+              !alarm.repeatDays.contains(scheduledTime.weekday)) &&
+          mainIter < 14) {
         scheduledTime = scheduledTime.add(const Duration(days: 1));
+        mainIter++;
       }
 
       // Check if this date is skipped
@@ -328,8 +349,11 @@ class AlarmProvider with ChangeNotifier {
       )) {
         debugPrint('Skipping alarm ${alarm.title} for $scheduledDateOnly');
         scheduledTime = scheduledTime.add(const Duration(days: 1));
-        while (!alarm.repeatDays.contains(scheduledTime.weekday)) {
+        var skipFallbackIter = 0;
+        while (!alarm.repeatDays.contains(scheduledTime.weekday) &&
+            skipFallbackIter < 7) {
           scheduledTime = scheduledTime.add(const Duration(days: 1));
+          skipFallbackIter++;
         }
       }
     } else {
@@ -340,8 +364,14 @@ class AlarmProvider with ChangeNotifier {
       }
     }
 
+    // Final safety check: if time passed during async processing, push 1 minute ahead
+    if (scheduledTime.isBefore(DateTime.now())) {
+      scheduledTime = DateTime.now().add(const Duration(minutes: 1));
+      debugPrint('Scheduled time was in the past; pushed to 1 minute from now');
+    }
+
     final alarmSettings = alarm_pkg.AlarmSettings(
-      id: alarm.id.hashCode.abs(),
+      id: _alarmSystemId(alarm.id),
       dateTime: scheduledTime,
       assetAudioPath: alarm.soundPath ?? 'assets/alarm.mp3',
       loopAudio: true,
@@ -374,7 +404,7 @@ class AlarmProvider with ChangeNotifier {
 
   /// Cancel an alarm
   Future<void> _cancelAlarm(app_alarm.Alarm alarm) async {
-    final alarmId = alarm.id.hashCode.abs();
+    final alarmId = _alarmSystemId(alarm.id);
     debugPrint('Cancelling alarm ID: $alarmId');
     await alarm_pkg.Alarm.stop(alarmId);
   }
@@ -392,7 +422,7 @@ class AlarmProvider with ChangeNotifier {
       }
 
       final alarmIndex = _alarms.indexWhere(
-        (a) => a.id.hashCode.abs() == alarmId,
+        (a) => _alarmSystemId(a.id) == alarmId,
       );
       if (alarmIndex != -1) {
         final alarm = _alarms[alarmIndex];

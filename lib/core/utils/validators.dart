@@ -12,10 +12,14 @@ class Validators {
     return emailRegex.hasMatch(email);
   }
 
-  /// Validate phone number (basic validation)
+  /// Validate phone number — requires at least 10 actual digit characters,
+  /// ignoring formatting chars (spaces, dashes, parentheses).
   static bool isValidPhone(String phone) {
-    final phoneRegex = RegExp(r'^\+?[\d\s-()]{10,}$');
-    return phoneRegex.hasMatch(phone);
+    // Strip formatting, count raw digits
+    final digitsOnly = phone.replaceAll(RegExp(r'[^\d]'), '');
+    if (digitsOnly.length < 10) return false;
+    // Allow only valid phone formatting characters
+    return RegExp(r'^\+?[\d\s\-(). ]+$').hasMatch(phone);
   }
 
   /// Validate URL

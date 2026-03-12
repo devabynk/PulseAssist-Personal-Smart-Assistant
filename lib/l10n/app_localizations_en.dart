@@ -799,4 +799,139 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get completedItems => 'Completed';
+
+  @override
+  String get aboutSection => 'About';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get dataManagement => 'Data Management';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get legal => 'Legal';
+
+  @override
+  String get aboutDescription => 'Your smart assistant: Alarm, notes, reminders and chatbot features in one app.';
+
+  @override
+  String get developer => 'Developer';
+
+  @override
+  String get website => 'Website';
+
+  @override
+  String get controlPermissions => 'Control app permissions';
+
+  @override
+  String get backupData => 'Backup Data';
+
+  @override
+  String get exportAllData => 'Export all your data';
+
+  @override
+  String get restoreBackup => 'Restore Backup';
+
+  @override
+  String get restoreFromBackup => 'Restore from backup file';
+
+  @override
+  String get resetData => 'Reset Data';
+
+  @override
+  String get permanentlyDeleteData => 'Permanently delete all data';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get termsOfUse => 'Terms of Use';
+
+  @override
+  String get restoreConfirmTitle => 'Restore Backup';
+
+  @override
+  String get restoreConfirmMessage => 'Current data will be overwritten. Do you want to continue?';
+
+  @override
+  String get restore => 'Restore';
+
+  @override
+  String get resetConfirmTitle => 'Reset Data';
+
+  @override
+  String get resetConfirmMessage => 'All data will be PERMANENTLY deleted. This cannot be undone. Are you sure?';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String get goodNight => 'Good night! 🌙';
+
+  @override
+  String get aiChat => 'AI Chat';
+
+  @override
+  String get goToChat => 'Go to Chat';
+
+  @override
+  String get lastResponse => 'Last response';
+
+  @override
+  String get recentNotes => 'Recent Notes';
+
+  @override
+  String get untitled => 'Untitled';
+
+  @override
+  String get note => 'Note';
+
+  @override
+  String get remind => 'Remind';
+
+  @override
+  String tasksLeft(int count) => '$count tasks left';
+
+  @override
+  String get turnOffAlarm => 'Turn Off Alarm';
+
+  @override
+  String get repeatingAlarmMessage => 'This is a repeating alarm. How do you want to turn it off?';
+
+  @override
+  String get skipOnlyNextOccurrence => 'Only for Tomorrow';
+
+  @override
+  String get turnOffCompletely => 'Turn Off Completely';
+
+  @override
+  String get alarmSkipped => 'Alarm skipped for next occurrence';
+
+  @override
+  String get exactAlarmPermRequired => 'Please grant exact alarm permission in settings.';
+
+  @override
+  String get notificationPermRequired => 'Please grant notification permission in settings.';
+
+  @override
+  String get alarmSaveFailed => 'Failed to save alarm. Please check permissions.';
+
+  @override
+  String get alarmPermissionError => 'Permission error: Failed to save alarm.';
+
+  @override
+  String get minutesShort => 'm';
+
+  @override
+  String get hoursShort => 'h';
+
+  @override
+  String get daysShort => 'd';
+
+  @override
+  String get daysCount => 'days';
 }

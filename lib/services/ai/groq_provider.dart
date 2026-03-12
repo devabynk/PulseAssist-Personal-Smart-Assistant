@@ -27,15 +27,22 @@ class GroqProvider implements AiProvider {
   // Primary model: GPT-OSS 120B with web search and reasoning
   static const String _primaryModel = 'openai/gpt-oss-120b';
 
+  // Fallback model used if primary is unavailable/deprecated
+  static const String _fallbackModel = 'llama-3.3-70b-versatile';
+
   // Vision models - use Llama 4 Scout for better multimodal understanding
   static const String _visionModel =
-      'meta-llama/llama-4-scout-17b-16e-instruct'; // Llama 4 Scout for vision
+      'meta-llama/llama-4-scout-17b-16e-instruct';
+
+  // Vision fallback
+  static const String _visionFallbackModel = 'llama-3.2-11b-vision-preview';
 
   // Audio model
   static const String _audioModel = 'whisper-large-v3';
 
-  // Current active model
-  final String _currentModel = _primaryModel;
+  // Current active model (mutable so we can downgrade on model-not-found errors)
+  String _currentModel = _primaryModel;
+  String _currentVisionModel = _visionModel;
 
   openai.OpenAIClient? _client;
   bool _isInitialized = false;
@@ -108,6 +115,35 @@ class GroqProvider implements AiProvider {
         );
       });
     } catch (e) {
+      final errorStr = e.toString().toLowerCase();
+      // If the primary model is gone, downgrade and retry once with fallbacks
+      if (errorStr.contains('model') &&
+          (errorStr.contains('not found') || errorStr.contains('deprecated'))) {
+        if (_currentModel == _primaryModel) {
+          debugPrint('⚠️ Primary model unavailable, switching to $_fallbackModel');
+          _currentModel = _fallbackModel;
+        }
+        if (_currentVisionModel == _visionModel) {
+          _currentVisionModel = _visionFallbackModel;
+        }
+        // One more attempt with fallback models
+        try {
+          return await _keyManager.executeWithRetry<String?>((apiKey) async {
+            if (_currentApiKey != apiKey) await setApiKey(apiKey);
+            return await _makeRequest(
+              message,
+              isTurkish,
+              userName,
+              conversationHistory,
+              attachmentPath,
+              attachmentType,
+              weatherContext,
+            );
+          });
+        } catch (_) {
+          return null;
+        }
+      }
       debugPrint('❌ All Groq attempts exhausted: $e');
       return null;
     }
@@ -202,7 +238,7 @@ class GroqProvider implements AiProvider {
 
     if (attachmentPath != null && attachmentType == 'image') {
       // VISION MODE
-      modelToUse = _visionModel;
+      modelToUse = _currentVisionModel;
       debugPrint('👁️ Using VISION model: $modelToUse');
 
       try {
@@ -514,8 +550,12 @@ Tüm bilgiler (özellikle Saat/İçerik) mevcutsa, SADECE JSON döndür, başka 
 
 **Etkinlikler:**
 ```json
-{"action": "get_events", "location": "İstanbul"}
+{"action": "get_events", "city": "İstanbul", "district": "Kadıköy"}
 ```
+- `city`: İl (şehir) adı — ör. "İstanbul", "Ankara", "İzmir" (zorunlu)
+- `district`: İlçe adı — ör. "Kadıköy", "Beşiktaş", "Çankaya" (opsiyonel, sonuçları daraltır)
+- Kullanıcı sadece ilçe belirtirse (ör. "Kadıköy etkinlikleri"), `city` olarak province'ı bul ve `district` olarak ilçeyi kullan.
+- Kullanıcı şehir belirtmezse, mevcut konum bilgisini (yukarıda verildi) kullan.
 
 ---
 
@@ -690,8 +730,12 @@ When all info is available, return ONLY the JSON. No extra text.
 
 **Events:**
 ```json
-{"action": "get_events", "location": "Istanbul"}
+{"action": "get_events", "city": "Istanbul", "district": "Kadikoy"}
 ```
+- `city`: Province/city (il) — e.g. "Istanbul", "Ankara", "Izmir" (required)
+- `district`: Sub-district (ilçe) — e.g. "Kadikoy", "Besiktas" (optional, narrows results)
+- If user only mentions a district (e.g. "events in Kadikoy"), infer the province for `city` and put the district in `district`.
+- If no location given, use the current location from context above.
 
 ---
 

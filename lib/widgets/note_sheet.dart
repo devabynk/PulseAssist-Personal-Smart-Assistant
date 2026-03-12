@@ -93,11 +93,11 @@ class _NoteSheetState extends State<NoteSheet> {
       _titleController.text = l10n.templateMeeting;
       _contentController.text =
           '**${l10n.templateMeeting}**\n\n'
-          '**Tarih:** ${DateFormat('dd/MM/yyyy').format(DateTime.now())}\n\n'
-          '**Katılımcılar:**\n- \n\n'
-          '**Gündem:**\n- \n\n'
-          '**Notlar:**\n\n'
-          '**Aksiyon Maddeleri:**\n- [ ] ';
+          '**${l10n.meetingDate}:** ${DateFormat('dd/MM/yyyy').format(DateTime.now())}\n\n'
+          '**${l10n.meetingParticipants}:**\n- \n\n'
+          '**${l10n.meetingAgenda}:**\n- \n\n'
+          '**${l10n.meetingNotes}:**\n\n'
+          '**${l10n.meetingActionItems}:**\n- [ ] ';
     }
   }
 

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../core/utils/extensions.dart';
 import '../core/utils/responsive.dart';
+import '../l10n/app_localizations.dart';
 import '../models/alarm.dart';
 import '../models/note.dart';
 import '../models/notification_log.dart';
@@ -64,16 +65,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  String _getGreeting(bool isTurkish) {
+  String _getGreeting(AppLocalizations l10n) {
     final hour = DateTime.now().hour;
     if (hour >= 5 && hour < 12) {
-      return isTurkish ? 'Günaydın' : 'Good Morning';
+      return l10n.goodMorning;
     } else if (hour >= 12 && hour < 17) {
-      return isTurkish ? 'İyi Günler' : 'Good Afternoon';
+      return l10n.goodAfternoon;
     } else if (hour >= 17 && hour < 21) {
-      return isTurkish ? 'İyi Akşamlar' : 'Good Evening';
+      return l10n.goodEvening;
     } else {
-      return isTurkish ? 'İyi Geceler' : 'Good Night';
+      return l10n.goodNight;
     }
   }
 
@@ -96,6 +97,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isTurkish = settings.locale.languageCode == 'tr';
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final userName = settings.userName ?? '';
+    final l10n = context.l10n;
 
     final isTablet = context.isTablet || context.isDesktop;
 
@@ -109,23 +111,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
             vertical: 16,
           ),
           child: isTablet
-              ? _buildTabletView(isTurkish, userName, isDark)
-              : _buildMobileView(isTurkish, userName, isDark),
+              ? _buildTabletView(isTurkish, userName, isDark, l10n)
+              : _buildMobileView(isTurkish, userName, isDark, l10n),
         ),
       ),
     );
   }
 
-  Widget _buildMobileView(bool isTurkish, String userName, bool isDark) {
+  Widget _buildMobileView(bool isTurkish, String userName, bool isDark, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Header with greeting
-        _buildHeader(isTurkish, userName, isDark),
+        _buildHeader(isTurkish, userName, isDark, l10n),
         const SizedBox(height: 24),
 
         // Quick Actions
-        _buildQuickActions(isTurkish),
+        _buildQuickActions(l10n),
         const SizedBox(height: 20),
 
         // Weather Card
@@ -133,25 +135,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
         const SizedBox(height: 16),
 
         // AI Chatbot Card
-        _buildAIChatbotCard(isTurkish, isDark),
+        _buildAIChatbotCard(isTurkish, isDark, l10n),
         const SizedBox(height: 16),
 
         // Alarm & Tasks Row
-        _buildAlarmTasksRow(isTurkish, isDark),
+        _buildAlarmTasksRow(isTurkish, isDark, l10n),
         const SizedBox(height: 16),
 
         // Recent Notes
-        _buildRecentNotes(isTurkish, isDark),
+        _buildRecentNotes(isTurkish, isDark, l10n),
         const SizedBox(height: 80), // Space for bottom nav
       ],
     );
   }
 
-  Widget _buildTabletView(bool isTurkish, String userName, bool isDark) {
+  Widget _buildTabletView(bool isTurkish, String userName, bool isDark, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildHeader(isTurkish, userName, isDark),
+        _buildHeader(isTurkish, userName, isDark, l10n),
         const SizedBox(height: 32),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,7 +165,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   _buildWeatherCard(isTurkish, isDark),
                   const SizedBox(height: 16),
-                  _buildAIChatbotCard(isTurkish, isDark),
+                  _buildAIChatbotCard(isTurkish, isDark, l10n),
                 ],
               ),
             ),
@@ -173,11 +175,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               flex: 4,
               child: Column(
                 children: [
-                  _buildQuickActions(isTurkish),
+                  _buildQuickActions(l10n),
                   const SizedBox(height: 24),
-                  _buildAlarmTasksRow(isTurkish, isDark),
+                  _buildAlarmTasksRow(isTurkish, isDark, l10n),
                   const SizedBox(height: 24),
-                  _buildRecentNotes(isTurkish, isDark),
+                  _buildRecentNotes(isTurkish, isDark, l10n),
                 ],
               ),
             ),
@@ -188,7 +190,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildHeader(bool isTurkish, String userName, bool isDark) {
+  Widget _buildHeader(bool isTurkish, String userName, bool isDark, AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -200,7 +202,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Icon(_getGreetingIcon(), color: Colors.amber, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  _getGreeting(isTurkish),
+                  _getGreeting(l10n),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
@@ -273,33 +275,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildQuickActions(bool isTurkish) {
+  Widget _buildQuickActions(AppLocalizations l10n) {
     return Row(
       children: [
         _buildQuickActionButton(
           icon: Icons.smart_toy,
-          label: isTurkish ? 'Asistan' : 'Assistant',
+          label: l10n.chatbot,
           color: AppColors.primary,
           onTap: widget.onNavigateToChatbot,
         ),
         const SizedBox(width: 12),
         _buildQuickActionButton(
           icon: Icons.note_alt,
-          label: isTurkish ? 'Not' : 'Note',
+          label: l10n.note,
           color: Colors.amber,
           onTap: widget.onNavigateToNotes,
         ),
         const SizedBox(width: 12),
         _buildQuickActionButton(
           icon: Icons.alarm,
-          label: isTurkish ? 'Alarm' : 'Alarm',
+          label: l10n.alarm,
           color: Colors.purple,
           onTap: widget.onNavigateToAlarm,
         ),
         const SizedBox(width: 12),
         _buildQuickActionButton(
           icon: Icons.notifications,
-          label: isTurkish ? 'Hatırlat' : 'Remind',
+          label: l10n.remind,
           color: Colors.teal,
           onTap: widget.onNavigateToReminders,
         ),
@@ -341,7 +343,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildAIChatbotCard(bool isTurkish, bool isDark) {
+  Widget _buildAIChatbotCard(bool isTurkish, bool isDark, AppLocalizations l10n) {
     return Consumer<ChatProvider>(
       builder: (context, chatProvider, child) {
         final lastMessage = chatProvider.messages.isNotEmpty
@@ -388,13 +390,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isTurkish ? 'AI Sohbet' : 'AI Chat',
+                            l10n.aiChat,
                             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            isTurkish ? 'Aktif' : 'Active',
+                            l10n.widgetActive,
                             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: Colors.green[400],
                             ),
@@ -407,7 +409,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          isTurkish ? 'Sohbete Dön' : 'Go to Chat',
+                          l10n.goToChat,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600,
@@ -438,7 +440,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isTurkish ? 'Son yanıt' : 'Last response',
+                          l10n.lastResponse,
                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             color: Theme.of(context).textTheme.bodySmall?.color,
                           ),
@@ -464,7 +466,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildAlarmTasksRow(bool isTurkish, bool isDark) {
+  Widget _buildAlarmTasksRow(bool isTurkish, bool isDark, AppLocalizations l10n) {
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -540,8 +542,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                             Text(
-                              nextAlarm?.title ??
-                                  (isTurkish ? 'Alarm yok' : 'No alarm'),
+                              nextAlarm?.title ?? l10n.noAlarms,
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(
                                   context,
@@ -613,7 +614,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                isTurkish ? 'BUGÜN' : 'TODAY',
+                                l10n.today.toUpperCase(),
                                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: isDark
@@ -666,7 +667,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              '$remaining ${isTurkish ? 'görev kaldı' : 'tasks left'}',
+                              l10n.tasksLeft(remaining),
                               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                 color: Theme.of(
                                   context,
@@ -687,7 +688,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildRecentNotes(bool isTurkish, bool isDark) {
+  Widget _buildRecentNotes(bool isTurkish, bool isDark, AppLocalizations l10n) {
     return Consumer<NoteProvider>(
       builder: (context, noteProvider, child) {
         final recentNotes = noteProvider.notes.take(2).toList();
@@ -710,7 +711,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      isTurkish ? 'Son Notlar' : 'Recent Notes',
+                      l10n.recentNotes,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -737,7 +738,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 child: Center(
                   child: Text(
-                    isTurkish ? 'Henüz not yok' : 'No notes yet',
+                    l10n.noNotes,
                     style: TextStyle(
                       color: Theme.of(context).textTheme.bodySmall?.color,
                     ),
@@ -745,14 +746,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               )
             else
-              ...recentNotes.map((note) => _buildNoteItem(note, isTurkish)),
+              ...recentNotes.map((note) => _buildNoteItem(note, l10n)),
           ],
         );
       },
     );
   }
 
-  Widget _buildNoteItem(Note note, bool isTurkish) {
+  Widget _buildNoteItem(Note note, AppLocalizations l10n) {
     Color color;
     try {
       final hexCode = note.color.replaceAll('#', '');
@@ -763,11 +764,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final timeDiff = DateTime.now().difference(note.updatedAt);
     String timeAgo;
     if (timeDiff.inMinutes < 60) {
-      timeAgo = '${timeDiff.inMinutes}${isTurkish ? 'dk' : 'm'}';
+      timeAgo = '${timeDiff.inMinutes}${l10n.minutesShort}';
     } else if (timeDiff.inHours < 24) {
-      timeAgo = '${timeDiff.inHours}${isTurkish ? 's' : 'h'}';
+      timeAgo = '${timeDiff.inHours}${l10n.hoursShort}';
     } else {
-      timeAgo = '${timeDiff.inDays}${isTurkish ? 'g' : 'd'}';
+      timeAgo = '${timeDiff.inDays}${l10n.daysShort}';
     }
 
     return GestureDetector(
@@ -805,7 +806,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Expanded(
                         child: Text(
                           note.title.isEmpty
-                              ? (isTurkish ? 'Başlıksız' : 'Untitled')
+                              ? l10n.untitled
                               : note.title,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w600,
@@ -1402,7 +1403,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: forecast.map((day) {
                             final date = DateTime.parse(day['date']);
-                            final dayName = _getDayName(date, isTurkish);
+                            final dayName = _getDayName(date, isTurkish, context.l10n);
                             return Column(
                               children: [
                                 Text(
@@ -1438,15 +1439,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  String _getDayName(DateTime date, bool isTurkish) {
+  String _getDayName(DateTime date, bool isTurkish, AppLocalizations l10n) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final targetDate = DateTime(date.year, date.month, date.day);
 
     if (targetDate == today) {
-      return isTurkish ? 'Bugün' : 'Today';
+      return l10n.today;
     } else if (targetDate == today.add(const Duration(days: 1))) {
-      return isTurkish ? 'Yarın' : 'Tomorrow';
+      return l10n.tomorrow;
     } else {
       final days = isTurkish
           ? ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz']

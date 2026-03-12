@@ -206,7 +206,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.history),
-            tooltip: 'History',
+            tooltip: l10n.conversationHistory,
             onPressed: () => _showHistorySheet(context),
           ),
         ],

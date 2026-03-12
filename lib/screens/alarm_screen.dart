@@ -53,9 +53,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
 
       final alarmsProvider = Provider.of<AlarmProvider>(context, listen: false);
       final messenger = ScaffoldMessenger.of(context);
-      final isTurkish = l10n.localeName == 'tr';
-
-      try {
+        try {
         if (Platform.isAndroid) {
           final isGranted = await Permission.scheduleExactAlarm.isGranted;
           if (!isGranted) {
@@ -64,11 +62,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
               if (!mounted) return;
               messenger.showSnackBar(
                 SnackBar(
-                  content: Text(
-                    isTurkish
-                        ? 'Lütfen ayarlardan tam zamanlı alarm izni verin.'
-                        : 'Please grant exact alarm permission in settings.',
-                  ),
+                  content: Text(l10n.exactAlarmPermRequired),
                   backgroundColor: theme.colorScheme.error,
                   behavior: SnackBarBehavior.floating,
                 ),
@@ -85,11 +79,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
               if (!mounted) return;
               messenger.showSnackBar(
                 SnackBar(
-                  content: Text(
-                    isTurkish
-                        ? 'Lütfen ayarlardan bildirim izni verin.'
-                        : 'Please grant notification permission in settings.',
-                  ),
+                  content: Text(l10n.notificationPermRequired),
                   backgroundColor: theme.colorScheme.error,
                   behavior: SnackBarBehavior.floating,
                 ),
@@ -109,16 +99,12 @@ class _AlarmScreenState extends State<AlarmScreen> {
       } catch (e) {
         debugPrint('Error saving alarm: $e');
         if (!mounted) return;
-        
-        String errorMsg = isTurkish
-            ? 'Alarm kaydedilemedi. Lütfen izinleri kontrol edin.'
-            : 'Failed to save alarm. Please check permissions.';
-            
+
+        var errorMsg = l10n.alarmSaveFailed;
+
         // Provide more specific feedback if possible
         if (e.toString().contains('permission') || e.toString().contains('Permission')) {
-           errorMsg = isTurkish 
-              ? 'İzin hatası: Alarm kaydedilemedi.' 
-              : 'Permission error: Failed to save alarm.';
+           errorMsg = l10n.alarmPermissionError;
         }
 
         messenger.showSnackBar(
@@ -134,7 +120,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
 
   Future<void> _toggleAlarm(Alarm alarm) async {
     final alarmsProvider = Provider.of<AlarmProvider>(context, listen: false);
-    final isTurkish = Localizations.localeOf(context).languageCode == 'tr';
+    final l10n = context.l10n;
 
     // If turning OFF and it's a repeating alarm
     if (alarm.isActive && alarm.repeatDays.isNotEmpty) {
@@ -142,26 +128,20 @@ class _AlarmScreenState extends State<AlarmScreen> {
       final choice = await showDialog<String>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text(isTurkish ? 'Alarmı Kapat' : 'Turn Off Alarm'),
-          content: Text(
-            isTurkish
-                ? 'Bu tekrarlayan bir alarm. Nasıl kapatmak istersiniz?'
-                : 'This is a repeating alarm. How do you want to turn it off?',
-          ),
+          title: Text(l10n.turnOffAlarm),
+          content: Text(l10n.repeatingAlarmMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, 'skip'),
-              child: Text(
-                isTurkish ? 'Sadece Yarın İçin' : 'Only for Tomorrow',
-              ),
+              child: Text(l10n.skipOnlyNextOccurrence),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, 'all'),
-              child: Text(isTurkish ? 'Tamamen Kapat' : 'Turn Off Completely'),
+              child: Text(l10n.turnOffCompletely),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: Text(context.l10n.cancel),
+              child: Text(l10n.cancel),
             ),
           ],
         ),
@@ -172,11 +152,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                isTurkish
-                    ? 'Alarm bir sonraki gün için atlandı'
-                    : 'Alarm skipped for next occurrence',
-              ),
+              content: Text(l10n.alarmSkipped),
             ),
           );
         }
@@ -745,7 +721,7 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
     if (_repeatDays.length == 2 && [6, 7].every((d) => _repeatDays.contains(d))) {
       return l10n.weekends;
     }
-    return '${_repeatDays.length} gün'; // todo properly format this if needed, keeping simple for now
+    return l10n.custom;
   }
 
   Widget _buildSoundSection(AppLocalizations l10n) {

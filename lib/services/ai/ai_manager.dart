@@ -57,9 +57,9 @@ class AiManager {
       return _hasInternet;
     } catch (e) {
       debugPrint('Connectivity check failed: $e');
-      // On error, assume we have internet and let the API call fail if not
-      _hasInternet = true;
-      return true;
+      // Treat outer check failure as no connection to avoid masking real issues
+      _hasInternet = false;
+      return false;
     }
   }
 

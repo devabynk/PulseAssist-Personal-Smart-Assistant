@@ -263,8 +263,8 @@ class ChatProvider with ChangeNotifier {
           type: FileType.custom,
           allowedExtensions: validDocExt,
         );
-        if (result != null && result.files.single.path != null) {
-          final path = result.files.single.path!;
+        if (result != null && result.files.isNotEmpty && result.files.first.path != null) {
+          final path = result.files.first.path!;
           if (await validateFile(
             path,
             validDocExt,
@@ -280,8 +280,8 @@ class ChatProvider with ChangeNotifier {
         final result = await FilePicker.platform.pickFiles(
           type: FileType.audio,
         );
-        if (result != null && result.files.single.path != null) {
-          final path = result.files.single.path!;
+        if (result != null && result.files.isNotEmpty && result.files.first.path != null) {
+          final path = result.files.first.path!;
           if (await validateFile(path, validAudioExt, maxAudioSize, 'audio')) {
             _attachmentPath = path;
             _attachmentType = 'audio';
@@ -421,7 +421,7 @@ class ChatProvider with ChangeNotifier {
                     '⚠️ ÖNEMLİ KURAL: Kullanıcı "nöbetçi eczane" veya "etkinlik" sorduğunda ve BAŞKA BİR YER BELİRTMEDİYSE:\n'
                     '1. ASLA "hangi şehir?" veya "konumunuz neresi?" diye sorma! Dashboard konumunu kullan.\n'
                     '2. Eczane için şu JSON\'u: {"action": "get_pharmacy", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}\n'
-                    '3. Etkinlikler için şu JSON\'u: {"action": "get_events", "location": "$pharmacyCity"}\n'
+                    '3. Etkinlikler için şu JSON\'u: {"action": "get_events", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}\n'
                     '4. Not: Eğer ilçe (district) boşsa, eczane için district değerini boş bırak veya tahmin etme.'
               : '\n📍 CURRENT LOCATION (Dashboard): $fullLocation\n'
                     '- City/Province: $pharmacyCity\n'
@@ -429,7 +429,7 @@ class ChatProvider with ChangeNotifier {
                     '⚠️ IMPORTANT RULE: If user asks for "pharmacy" or "events" and DOES NOT specify a location:\n'
                     '1. NEVER ask "which city?". Use the Dashboard location above.\n'
                     '2. For Pharmacy, return: {"action": "get_pharmacy", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}\n'
-                    '3. For Events, return: {"action": "get_events", "location": "$pharmacyCity"}';
+                    '3. For Events, return: {"action": "get_events", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}';
         } else {
           // Non-Turkey - pharmacy is Turkey-only, events work globally
           locInfo = isTurkish
@@ -2448,43 +2448,59 @@ class ChatProvider with ChangeNotifier {
     Map<String, dynamic> data,
     bool isTurkish,
   ) async {
-    var location = data['location']?.toString();
+    // Support new schema: {"city": "İstanbul", "district": "Kadıköy"}
+    // and old schema:     {"location": "İstanbul"} for backward compatibility
+    var city = (data['city']?.toString() ?? data['location']?.toString() ?? '').trim();
+    var district = (data['district']?.toString() ?? '').trim();
 
-    // Fallback to saved location if not provided
-    if (location == null || location.isEmpty) {
+    // Fallback to saved dashboard location if AI didn't provide one
+    if (city.isEmpty) {
       try {
         final locData = await _db.getUserLocation();
         if (locData != null) {
-          final savedState = locData['state']?.toString();
-          final savedDistrict = locData['district']?.toString();
-          final savedCity = locData['city_name']?.toString();
+          // state = il (province), city_name = ilçe or closest city name
+          final savedState = (locData['state']?.toString() ?? '').trim();
+          final savedCityName = (locData['city_name']?.toString() ?? '').trim();
+          final savedDistrict = (locData['district']?.toString() ?? '').trim();
 
-          // Prefer state (il) or city_name for events search to match Dashboard selection
-          location = savedState ?? savedCity ?? savedDistrict;
+          // Use state (il) as city; city_name as district if different
+          city = savedState.isNotEmpty ? savedState : savedCityName;
+          if (district.isEmpty) {
+            if (savedDistrict.isNotEmpty && savedDistrict != city) {
+              district = savedDistrict;
+            } else if (savedCityName.isNotEmpty && savedCityName != city) {
+              district = savedCityName;
+            }
+          }
         }
       } catch (e) {
         debugPrint('Error loading saved location for events: $e');
       }
     }
 
-    if (location == null || location.isEmpty) {
+    if (city.isEmpty) {
       return isTurkish
-          ? '❌ Hangi şehir veya bölgede etkinlik arıyorsunuz?\n\n_Örnek: "İstanbul etkinlikler" veya "Ankara konserler"_'
-          : '❌ Which city or area are you looking for events in?\n\n_Example: "events in New York" or "concerts in London"_';
+          ? '❌ Hangi şehir veya bölgede etkinlik arıyorsunuz?\n\n_Örnek: "İstanbul etkinlikler" veya "Ankara Kadıköy konserleri"_'
+          : '❌ Which city or area are you looking for events in?\n\n_Example: "events in Istanbul" or "concerts in Istanbul Kadikoy"_';
     }
+
+    // Display label for header
+    final displayLocation = district.isNotEmpty && district != city
+        ? '$district, $city'
+        : city;
 
     try {
       final service = EventsService();
-      // Using generic getNearbyEvents - assuming 'days' has a default in service
       final events = await service.getNearbyEvents(
-        location,
+        city,
+        district: district.isNotEmpty ? district : null,
         lang: isTurkish ? 'tr' : 'en',
       );
 
       if (events.isEmpty) {
         return isTurkish
-            ? "❌ '$location' bölgesinde yaklaşan etkinlik bulunamadı.\n\n🔄 _Farklı konum aramak için: \"İstanbul etkinlikler\" yazabilirsiniz._"
-            : "❌ No upcoming events found in '$location'.\n\n🔄 _To search different location: type \"events in Chicago\"_";
+            ? "❌ '$displayLocation' bölgesinde yaklaşan etkinlik bulunamadı.\n\n🔄 _Farklı konum aramak için: \"Ankara etkinlikler\" yazabilirsiniz._"
+            : "❌ No upcoming events found in '$displayLocation'.\n\n🔄 _To search different location: type \"events in Ankara\"_";
       }
 
       final buffer = StringBuffer();
@@ -2498,8 +2514,8 @@ class ChatProvider with ChangeNotifier {
 
       buffer.writeln(
         isTurkish
-            ? '🎭 **$location Etkinlikleri:**'
-            : '🎭 **Events in $location:**',
+            ? '🎭 **$displayLocation Etkinlikleri:**'
+            : '🎭 **Events in $displayLocation:**',
       );
 
       for (final e in events) {

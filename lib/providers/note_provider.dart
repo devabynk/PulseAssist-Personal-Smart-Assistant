@@ -18,6 +18,7 @@ class NoteProvider with ChangeNotifier {
 
   Future<void> loadNotes() async {
     _isLoading = true;
+    notifyListeners();
     final notes = await _db.getNotes();
     _notes = notes;
     _isLoading = false;

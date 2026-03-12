@@ -17,13 +17,14 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = Provider.of<SettingsProvider>(context);
+    final l10n = context.l10n;
 
     final isTurkish = settings.locale.languageCode == 'tr';
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(isTurkish ? 'Ayarlar' : 'Settings'),
+        title: Text(l10n.settingsTitle),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
       ),
@@ -36,45 +37,42 @@ class SettingsScreen extends StatelessWidget {
           ),
           children: [
             // About Section
-            _buildSectionHeader(context, isTurkish ? 'Hakkında' : 'About'),
+            _buildSectionHeader(context, l10n.aboutSection),
             const SizedBox(height: 8),
             _buildAboutSection(context, isTurkish),
 
             const SizedBox(height: 24),
 
             // Theme Section
-            _buildSectionHeader(context, isTurkish ? 'Görünüm' : 'Appearance'),
+            _buildSectionHeader(context, l10n.appearance),
             const SizedBox(height: 8),
             _buildThemeSelector(context, settings, isTurkish),
 
             const SizedBox(height: 24),
 
             // Permissions Section
-            _buildSectionHeader(context, isTurkish ? 'İzinler' : 'Permissions'),
+            _buildSectionHeader(context, l10n.permissionsTitle),
             const SizedBox(height: 8),
             _buildPermissionsSection(context, isTurkish, settings),
 
             const SizedBox(height: 24),
 
             // Data Management Section
-            _buildSectionHeader(
-              context,
-              isTurkish ? 'Veri Yönetimi' : 'Data Management',
-            ),
+            _buildSectionHeader(context, l10n.dataManagement),
             const SizedBox(height: 8),
             _buildDataManagementSection(context, isTurkish),
 
             const SizedBox(height: 24),
 
             // Language Section
-            _buildSectionHeader(context, isTurkish ? 'Dil' : 'Language'),
+            _buildSectionHeader(context, l10n.language),
             const SizedBox(height: 8),
             _buildLanguageSelector(context, settings),
 
             const SizedBox(height: 24),
 
             // Legal Section
-            _buildSectionHeader(context, isTurkish ? 'Yasal' : 'Legal'),
+            _buildSectionHeader(context, l10n.legal),
             const SizedBox(height: 8),
             _buildLegalSection(context, isTurkish),
           ],
@@ -333,9 +331,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            isTurkish
-                ? 'Akıllı asistanınız: Alarm, not, hatırlatıcı ve chatbot özellikleri tek uygulamada.'
-                : 'Your smart assistant: Alarm, notes, reminders and chatbot features in one app.',
+            l10n.aboutDescription,
             style: TextStyle(
               color: Theme.of(context).textTheme.bodyMedium?.color,
               height: 1.5,
@@ -367,7 +363,7 @@ class SettingsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isTurkish ? 'Geliştirici' : 'Developer',
+                          l10n.developer,
                           style: TextStyle(
                             color: Theme.of(context).textTheme.bodySmall?.color,
                           ),
@@ -404,7 +400,7 @@ class SettingsScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            isTurkish ? 'Web Sitesi' : 'Website',
+                            l10n.website,
                             style: TextStyle(
                               color: Theme.of(
                                 context,
@@ -468,11 +464,9 @@ class SettingsScreen extends StatelessWidget {
       ),
       child: ListTile(
         leading: Icon(Icons.security, color: Theme.of(context).primaryColor),
-        title: Text(isTurkish ? 'İzinleri Yönet' : 'Manage Permissions'),
+        title: Text(context.l10n.managePermissions),
         subtitle: Text(
-          isTurkish
-              ? 'Uygulama izinlerini kontrol et'
-              : 'Control app permissions',
+          context.l10n.controlPermissions,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         trailing: const Icon(Icons.chevron_right),
@@ -511,11 +505,9 @@ class SettingsScreen extends StatelessWidget {
         children: [
           ListTile(
             leading: Icon(Icons.backup, color: Theme.of(context).primaryColor),
-            title: Text(isTurkish ? 'Verileri Yedekle' : 'Backup Data'),
+            title: Text(context.l10n.backupData),
             subtitle: Text(
-              isTurkish
-                  ? 'Tüm verilerinizi dışa aktarın'
-                  : 'Export all your data',
+              context.l10n.exportAllData,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             trailing: const Icon(Icons.chevron_right),
@@ -524,11 +516,9 @@ class SettingsScreen extends StatelessWidget {
           _buildDivider(),
           ListTile(
             leading: Icon(Icons.restore, color: Theme.of(context).primaryColor),
-            title: Text(isTurkish ? 'Yedeği Geri Yükle' : 'Restore Backup'),
+            title: Text(context.l10n.restoreBackup),
             subtitle: Text(
-              isTurkish
-                  ? 'Yedek dosyasından geri yükleyin'
-                  : 'Restore from backup file',
+              context.l10n.restoreFromBackup,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             trailing: const Icon(Icons.chevron_right),
@@ -538,13 +528,11 @@ class SettingsScreen extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.delete_forever, color: Colors.red),
             title: Text(
-              isTurkish ? 'Verileri Sıfırla' : 'Reset Data',
+              context.l10n.resetData,
               style: const TextStyle(color: Colors.red),
             ),
             subtitle: Text(
-              isTurkish
-                  ? 'Tüm verileri kalıcı olarak siler'
-                  : 'Permanently delete all data',
+              context.l10n.permanentlyDeleteData,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             onTap: () => _showResetConfirmation(context, isTurkish),
@@ -576,7 +564,7 @@ class SettingsScreen extends StatelessWidget {
               Icons.privacy_tip,
               color: Theme.of(context).primaryColor,
             ),
-            title: Text(isTurkish ? 'Gizlilik Politikası' : 'Privacy Policy'),
+            title: Text(context.l10n.privacyPolicy),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.push(
@@ -591,7 +579,7 @@ class SettingsScreen extends StatelessWidget {
           _buildDivider(),
           ListTile(
             leading: Icon(Icons.gavel, color: Theme.of(context).primaryColor),
-            title: Text(isTurkish ? 'Kullanım Koşulları' : 'Terms of Use'),
+            title: Text(context.l10n.termsOfUse),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.push(
@@ -608,26 +596,23 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showRestoreConfirmation(BuildContext context, bool isTurkish) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isTurkish ? 'Yedeği Geri Yükle' : 'Restore Backup'),
-        content: Text(
-          isTurkish
-              ? 'Mevcut verilerinizin üzerine yazılacak. Devam etmek istiyor musunuz?'
-              : 'Current data will be overwritten. Do you want to continue?',
-        ),
+        title: Text(l10n.restoreConfirmTitle),
+        content: Text(l10n.restoreConfirmMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(isTurkish ? 'İptal' : 'Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () {
               Navigator.pop(context);
               DataService.importData(context, isTurkish);
             },
-            child: Text(isTurkish ? 'Geri Yükle' : 'Restore'),
+            child: Text(l10n.restore),
           ),
         ],
       ),
@@ -635,19 +620,16 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showResetConfirmation(BuildContext context, bool isTurkish) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isTurkish ? 'Verileri Sıfırla' : 'Reset Data'),
-        content: Text(
-          isTurkish
-              ? 'Tüm veriler KALICI OLARAK silinecek. Bu işlem geri alınamaz. Emin misiniz?'
-              : 'All data will be PERMANENTLY deleted. This cannot be undone. Are you sure?',
-        ),
+        title: Text(l10n.resetConfirmTitle),
+        content: Text(l10n.resetConfirmMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(isTurkish ? 'İptal' : 'Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
@@ -655,7 +637,7 @@ class SettingsScreen extends StatelessWidget {
               Navigator.pop(context);
               DataService.resetData(context, isTurkish);
             },
-            child: Text(isTurkish ? 'Sıfırla' : 'Reset'),
+            child: Text(l10n.reset),
           ),
         ],
       ),

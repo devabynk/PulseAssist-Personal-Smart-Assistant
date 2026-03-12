@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
@@ -14,11 +15,16 @@ class NotificationService {
   NotificationService._init();
 
   Future<void> initialize() async {
-    // Initialize timezone database
+    // Initialize timezone database and set to device's local timezone
     tzdata.initializeTimeZones();
-
-    // Set local timezone (Turkey is Europe/Istanbul)
-    tz.setLocalLocation(tz.getLocation('Europe/Istanbul'));
+    try {
+      final deviceTimeZone = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(deviceTimeZone));
+      debugPrint('Timezone set to: $deviceTimeZone');
+    } catch (e) {
+      debugPrint('Failed to get device timezone, falling back to UTC: $e');
+      tz.setLocalLocation(tz.UTC);
+    }
 
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
@@ -73,15 +79,17 @@ class NotificationService {
     debugPrint('NotificationService initialized successfully');
   }
 
-  /// Request notification permission for Android 13+
+  /// Request notification permission (Android 13+ and iOS)
   Future<bool> requestNotificationPermission() async {
     if (Platform.isAndroid) {
       final status = await Permission.notification.request();
       debugPrint('Notification permission status: $status');
       return status.isGranted;
     } else if (Platform.isIOS) {
-      // iOS permission is handled during initialization
-      return true;
+      final status = await Permission.notification.request();
+      debugPrint('iOS notification permission status: $status');
+      // Accept granted, limited (provisional), and provisional states
+      return status.isGranted || status.isLimited || status.isProvisional;
     }
     return true;
   }

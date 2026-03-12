@@ -39,31 +39,53 @@ class Event {
 
   factory Event.fromTicketmaster(Map<String, dynamic> json) {
     final String title = json['name'] ?? 'Etkinlik';
-    final String date = json['dates']?['start']?['localDate'] ?? '';
-    
-    var venue = 'Adres yok';
-    if (json['_embedded'] != null &&
-        json['_embedded']['venues'] != null &&
+
+    // Date + time
+    final date = (json['dates']?['start']?['localDate'] ?? '') as String;
+    final time = (json['dates']?['start']?['localTime'] ?? '') as String;
+    final dateTime = (date.isNotEmpty && time.isNotEmpty)
+        ? '$date $time'
+        : date;
+
+    // Full venue: "Venue Name, Address, City"
+    var location = '';
+    if (json['_embedded']?['venues'] is List &&
         (json['_embedded']['venues'] as List).isNotEmpty) {
-      venue = json['_embedded']['venues'][0]['name'] ?? 'Adres yok';
+      final v = json['_embedded']['venues'][0] as Map<String, dynamic>;
+      final venueName = v['name']?.toString() ?? '';
+      final venueAddress = v['address']?['line1']?.toString() ?? '';
+      final venueCity = v['city']?['name']?.toString() ?? '';
+
+      final parts = <String>[];
+      if (venueName.isNotEmpty) parts.add(venueName);
+      if (venueAddress.isNotEmpty && venueAddress != venueName) parts.add(venueAddress);
+      if (venueCity.isNotEmpty) parts.add(venueCity);
+      location = parts.join(', ');
     }
 
+    // Best image: prefer 16:9 ratio at least 640px wide, fall back to first
     var imageUrl = '';
-    if (json['images'] != null && (json['images'] as List).isNotEmpty) {
-      // Find a suitable image or just take the first one
-      imageUrl = json['images'][0]['url'] ?? '';
+    if (json['images'] is List && (json['images'] as List).isNotEmpty) {
+      final images = json['images'] as List;
+      final wide = images.firstWhere(
+        (img) =>
+            img['ratio'] == '16_9' && ((img['width'] ?? 0) as int) >= 640,
+        orElse: () => images.first,
+      );
+      imageUrl = wide['url']?.toString() ?? '';
     }
 
-    // Description is often in 'info' or missing
-    final String description = json['info'] ?? json['pleaseNote'] ?? '';
+    final description = json['info']?.toString() ??
+        json['pleaseNote']?.toString() ??
+        '';
 
     return Event(
       title: title,
-      date: date,
-      location: venue,
+      date: dateTime,
+      location: location,
       description: description,
       imageUrl: imageUrl,
-      link: json['url'] ?? '',
+      link: json['url']?.toString() ?? '',
     );
   }
 }

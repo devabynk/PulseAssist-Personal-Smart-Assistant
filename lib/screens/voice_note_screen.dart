@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:record/record.dart';
-import 'package:smart_assistant/providers/settings_provider.dart';
+
+import '../core/utils/extensions.dart';
 
 class VoiceNoteScreen extends StatefulWidget {
   final String? existingPath;
@@ -28,12 +28,11 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isTr =
-        Provider.of<SettingsProvider>(context).locale.languageCode == 'tr';
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isTr ? 'Sesli Not' : 'Voice Note'),
+        title: Text(l10n.voiceNote),
         actions: [
           if (_recordingPath != null)
             IconButton(
@@ -69,9 +68,7 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      _isPaused
-                          ? (isTr ? 'DURAKLATILDI' : 'PAUSED')
-                          : (isTr ? 'KAYDEDİLİYOR' : 'RECORDING'),
+                      l10n.recording.toUpperCase(),
                       style: const TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
@@ -169,7 +166,7 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
               Column(
                 children: [
                   Text(
-                    isTr ? 'Kayıt Yapıldı' : 'Recording Saved',
+                    l10n.voiceNoteAttached,
                     style: const TextStyle(
                       color: Colors.green,
                       fontWeight: FontWeight.bold,
@@ -183,7 +180,7 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
                         onPressed: () => setState(() => _recordingPath = null),
                         icon: const Icon(Icons.delete, color: Colors.red),
                         label: Text(
-                          isTr ? 'Sil' : 'Discard',
+                          l10n.delete,
                           style: const TextStyle(color: Colors.red),
                         ),
                       ),
@@ -191,9 +188,9 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
                       ElevatedButton.icon(
                         onPressed: () => Navigator.pop(context, _recordingPath),
                         icon: const Icon(Icons.check),
-                        label: Text(isTr ? 'Kaydı Kullan' : 'Use Recording'),
+                        label: Text(l10n.save),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
+                          backgroundColor: Theme.of(context).primaryColor,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,

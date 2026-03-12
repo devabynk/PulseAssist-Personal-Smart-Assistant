@@ -68,24 +68,24 @@ class PulseAssistApp extends StatefulWidget {
   State<PulseAssistApp> createState() => _PulseAssistAppState();
 }
 
-class _PulseAssistAppState extends State<PulseAssistApp> {
+class _PulseAssistAppState extends State<PulseAssistApp>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     // Listen for alarm ring events
-    // Updated to use the new 'ringing' stream as 'ringStream' is deprecated
     Alarm.ringing.listen((alarmSet) {
       if (alarmSet.alarms.isEmpty) return;
       final alarmSettings = alarmSet.alarms.last;
       debugPrint('Alarm Ring Stream Received: ${alarmSettings.id}');
 
-      // Delegate state updates (logging, deactivation) to provider
-      // context.read is safe to use within the callback usually, but check mounted
-      if (mounted) {
-        context.read<AlarmProvider>().handleAlarmRing(alarmSettings);
-      }
+      // Both provider update and navigation must be guarded by mounted
+      if (!mounted) return;
 
-      // Navigate to Ring Screen
+      context.read<AlarmProvider>().handleAlarmRing(alarmSettings);
+
       navigatorKey.currentState?.push(
         MaterialPageRoute(
           builder: (context) =>
@@ -93,6 +93,20 @@ class _PulseAssistAppState extends State<PulseAssistApp> {
         ),
       );
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      // Flush and close Hive boxes cleanly when the app process is ending
+      DatabaseService.instance.close();
+    }
   }
 
   @override

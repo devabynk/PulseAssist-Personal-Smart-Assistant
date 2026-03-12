@@ -801,4 +801,139 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get completedItems => 'Tamamlanan';
+
+  @override
+  String get aboutSection => 'Hakkında';
+
+  @override
+  String get appearance => 'Görünüm';
+
+  @override
+  String get dataManagement => 'Veri Yönetimi';
+
+  @override
+  String get language => 'Dil';
+
+  @override
+  String get legal => 'Yasal';
+
+  @override
+  String get aboutDescription => 'Akıllı asistanınız: Alarm, not, hatırlatıcı ve chatbot özellikleri tek uygulamada.';
+
+  @override
+  String get developer => 'Geliştirici';
+
+  @override
+  String get website => 'Web Sitesi';
+
+  @override
+  String get controlPermissions => 'Uygulama izinlerini kontrol et';
+
+  @override
+  String get backupData => 'Verileri Yedekle';
+
+  @override
+  String get exportAllData => 'Tüm verilerinizi dışa aktarın';
+
+  @override
+  String get restoreBackup => 'Yedeği Geri Yükle';
+
+  @override
+  String get restoreFromBackup => 'Yedek dosyasından geri yükleyin';
+
+  @override
+  String get resetData => 'Verileri Sıfırla';
+
+  @override
+  String get permanentlyDeleteData => 'Tüm verileri kalıcı olarak siler';
+
+  @override
+  String get privacyPolicy => 'Gizlilik Politikası';
+
+  @override
+  String get termsOfUse => 'Kullanım Koşulları';
+
+  @override
+  String get restoreConfirmTitle => 'Yedeği Geri Yükle';
+
+  @override
+  String get restoreConfirmMessage => 'Mevcut verilerinizin üzerine yazılacak. Devam etmek istiyor musunuz?';
+
+  @override
+  String get restore => 'Geri Yükle';
+
+  @override
+  String get resetConfirmTitle => 'Verileri Sıfırla';
+
+  @override
+  String get resetConfirmMessage => 'Tüm veriler KALICI OLARAK silinecek. Bu işlem geri alınamaz. Emin misiniz?';
+
+  @override
+  String get reset => 'Sıfırla';
+
+  @override
+  String get goodNight => 'İyi geceler! 🌙';
+
+  @override
+  String get aiChat => 'AI Sohbet';
+
+  @override
+  String get goToChat => 'Sohbete Dön';
+
+  @override
+  String get lastResponse => 'Son yanıt';
+
+  @override
+  String get recentNotes => 'Son Notlar';
+
+  @override
+  String get untitled => 'Başlıksız';
+
+  @override
+  String get note => 'Not';
+
+  @override
+  String get remind => 'Hatırlat';
+
+  @override
+  String tasksLeft(int count) => '$count görev kaldı';
+
+  @override
+  String get turnOffAlarm => 'Alarmı Kapat';
+
+  @override
+  String get repeatingAlarmMessage => 'Bu tekrarlayan bir alarm. Nasıl kapatmak istersiniz?';
+
+  @override
+  String get skipOnlyNextOccurrence => 'Sadece Yarın İçin';
+
+  @override
+  String get turnOffCompletely => 'Tamamen Kapat';
+
+  @override
+  String get alarmSkipped => 'Alarm bir sonraki gün için atlandı';
+
+  @override
+  String get exactAlarmPermRequired => 'Lütfen ayarlardan tam zamanlı alarm izni verin.';
+
+  @override
+  String get notificationPermRequired => 'Lütfen ayarlardan bildirim izni verin.';
+
+  @override
+  String get alarmSaveFailed => 'Alarm kaydedilemedi. Lütfen izinleri kontrol edin.';
+
+  @override
+  String get alarmPermissionError => 'İzin hatası: Alarm kaydedilemedi.';
+
+  @override
+  String get minutesShort => 'dk';
+
+  @override
+  String get hoursShort => 's';
+
+  @override
+  String get daysShort => 'g';
+
+  @override
+  String get daysCount => 'gün';
 }

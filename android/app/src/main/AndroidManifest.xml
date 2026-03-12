@@ -2,7 +2,7 @@
     <!-- Hardware Features: Marked as optional to allow installation on Tablets -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
-    <uses-feature android:name="android.hardware.telephony" android:required="false" /> // Critical for WiFi-only tablets
+    <uses-feature android:name="android.hardware.telephony" android:required="false" /> <!-- Critical for WiFi-only tablets -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>

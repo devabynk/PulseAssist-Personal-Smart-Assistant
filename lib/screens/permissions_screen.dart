@@ -224,10 +224,13 @@ class _PermissionsScreenState extends State<PermissionsScreen>
   Future<void> _continue() async {
     if (!widget.fromSettings) {
       try {
-        final prefs = await SharedPreferences.getInstance();
+        // Timeout prevents infinite hang on slow devices; navigation must always proceed
+        final prefs = await SharedPreferences.getInstance().timeout(
+          const Duration(seconds: 3),
+        );
         await prefs.setBool('has_seen_onboarding', true);
       } catch (e) {
-        // Ignore pref error
+        debugPrint('SharedPreferences error in _continue (non-fatal): $e');
       }
     }
 
@@ -710,7 +713,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
               activeTrackColor: AppColors.primary,
               onChanged: (value) async {
                 if (value) {
-                  if (onTap != null) onTap!();
+                  if (onTap != null) onTap();
                 } else {
                   // If turning off a granted permission, direct to settings
                   if (isGranted) {

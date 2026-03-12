@@ -74,7 +74,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
       }
     } else {
       _titleController = TextEditingController();
-      _selectedColor = widget.colors.first;
+      _selectedColor = ''; // no color — use scaffold background (matches reminder sheet)
       _isPinned = false;
       _isFullWidth = false;
       _imagePaths = [];
@@ -208,6 +208,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
 
   // Convert hex string like '#RRGGBB' to Color
   Color _getBackgroundColor() {
+    if (_selectedColor.isEmpty) return Theme.of(context).scaffoldBackgroundColor;
     try {
       final hexCode = _selectedColor.replaceAll('#', '');
       return Color(int.parse(hexCode, radix: 16) | 0xFF000000);
@@ -705,6 +706,10 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
           itemBuilder: (context, index) {
             final color = widget.colors[index];
             final isSelected = color == _selectedColor;
+            final isNoColor = color.isEmpty;
+            final circleColor = isNoColor
+                ? Theme.of(context).scaffoldBackgroundColor
+                : Color(int.parse(color.substring(1), radix: 16) + 0xFF000000);
             return GestureDetector(
               onTap: () {
                 setState(() => _selectedColor = color);
@@ -715,9 +720,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                 height: 50,
                 margin: const EdgeInsets.only(right: 12),
                 decoration: BoxDecoration(
-                  color: Color(
-                    int.parse(color.substring(1), radix: 16) + 0xFF000000,
-                  ),
+                  color: circleColor,
                   shape: BoxShape.circle,
                   border: isSelected
                       ? Border.all(
@@ -726,9 +729,13 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                         )
                       : Border.all(color: Colors.grey.withAlpha(80), width: 1),
                 ),
-                child: isSelected
-                    ? const Icon(Icons.check, color: Colors.white)
-                    : null,
+                child: isNoColor
+                    ? Icon(Icons.format_color_reset,
+                        size: 20,
+                        color: Theme.of(context).iconTheme.color?.withAlpha(120))
+                    : isSelected
+                        ? const Icon(Icons.check, color: Colors.white)
+                        : null,
               ),
             );
           },

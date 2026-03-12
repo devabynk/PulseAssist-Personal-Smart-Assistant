@@ -684,12 +684,13 @@ class _NotesScreenState extends State<NotesScreen> {
       MaterialPageRoute(
         builder: (context) => NoteEditScreen(
           note: note,
-          colors: AppColors.noteColors
-              .map(
-                (c) =>
-                    '#${c.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
-              )
-              .toList(),
+          colors: [
+            '', // empty = "no color" (uses scaffold background, same as reminder sheet)
+            ...AppColors.noteColors.map(
+              (c) =>
+                  '#${c.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
+            ),
+          ],
           template: template,
         ),
       ),

@@ -73,10 +73,21 @@ class _PulseAssistAppState extends State<PulseAssistApp>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    // Listen for alarm ring events
+    // Listen for alarm ring events.
+    // Alarm.ringing is a BehaviorSubject that emits on every state change
+    // (including when a new alarm is merely scheduled). Track the last shown
+    // alarm ID to avoid pushing a duplicate ring screen for the same event.
+    int? _lastShownRingingId;
     Alarm.ringing.listen((alarmSet) {
-      if (alarmSet.alarms.isEmpty) return;
+      if (alarmSet.alarms.isEmpty) {
+        _lastShownRingingId = null;
+        return;
+      }
       final alarmSettings = alarmSet.alarms.last;
+
+      // Skip if we already opened the ring screen for this alarm instance.
+      if (alarmSettings.id == _lastShownRingingId) return;
+      _lastShownRingingId = alarmSettings.id;
 
       // Both provider update and navigation must be guarded by mounted
       if (!mounted) return;

@@ -74,15 +74,16 @@ class EventsService {
           // (e.g. "Los Angeles", not "California").
           if (resolvedCountryCode == 'TR') {
             resolvedCity = savedState.isNotEmpty ? savedState : savedCityName;
+            // Don't use district as keyword for TR — Ticketmaster's keyword filter
+            // is too narrow for district names and returns no results.
           } else {
             resolvedCity = savedCityName.isNotEmpty ? savedCityName : savedState;
-          }
-
-          if (resolvedDistrict.isEmpty) {
-            if (savedDistrict.isNotEmpty && savedDistrict != resolvedCity) {
-              resolvedDistrict = savedDistrict;
-            } else if (savedCityName.isNotEmpty && savedCityName != resolvedCity) {
-              resolvedDistrict = savedCityName;
+            if (resolvedDistrict.isEmpty) {
+              if (savedDistrict.isNotEmpty && savedDistrict != resolvedCity) {
+                resolvedDistrict = savedDistrict;
+              } else if (savedCityName.isNotEmpty && savedCityName != resolvedCity) {
+                resolvedDistrict = savedCityName;
+              }
             }
           }
         }
@@ -118,8 +119,8 @@ class EventsService {
         };
 
         // Scope to country only when known — omitting enables global search
-        if (resolvedCountryCode != null && resolvedCountryCode!.isNotEmpty) {
-          params['countryCode'] = resolvedCountryCode!;
+        if (resolvedCountryCode != null && resolvedCountryCode.isNotEmpty) {
+          params['countryCode'] = resolvedCountryCode;
         }
 
         // District as keyword filter (Ticketmaster has no native district field)

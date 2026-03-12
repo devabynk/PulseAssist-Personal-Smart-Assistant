@@ -27,7 +27,9 @@ class AlarmProvider with ChangeNotifier {
   /// the instability and potential 64-bit overflow of String.hashCode.
   static int _alarmSystemId(String uuid) {
     final hex = uuid.replaceAll('-', '').substring(0, 8);
-    return int.parse(hex, radix: 16) & 0x7FFFFFFF;
+    final id = int.parse(hex, radix: 16) & 0x7FFFFFFF;
+    // Alarm package rejects id == 0 or id == -1; nudge zero to 1.
+    return id == 0 ? 1 : id;
   }
 
   /// Check if a duplicate alarm exists
@@ -232,27 +234,32 @@ class AlarmProvider with ChangeNotifier {
       final now = DateTime.now();
 
       for (var dbAlarm in dbAlarms) {
-        final alarmId = _alarmSystemId(dbAlarm.id);
+        // Isolate per-alarm errors so one failure doesn't abort the rest.
+        try {
+          final alarmId = _alarmSystemId(dbAlarm.id);
 
-        if (!systemAlarmIds.contains(alarmId)) {
-          // Alarm is in DB but not in System.
-          if (dbAlarm.isActive) {
-            // It should be running. Check if it's in the future or repeating.
-            var shouldReschedule = false;
-            if (dbAlarm.repeatDays.isNotEmpty) {
-              shouldReschedule = true;
-            } else if (dbAlarm.time.isAfter(now)) {
-              shouldReschedule = true;
-            }
+          if (!systemAlarmIds.contains(alarmId)) {
+            // Alarm is in DB but not in System.
+            if (dbAlarm.isActive) {
+              // It should be running. Check if it's in the future or repeating.
+              var shouldReschedule = false;
+              if (dbAlarm.repeatDays.isNotEmpty) {
+                shouldReschedule = true;
+              } else if (dbAlarm.time.isAfter(now)) {
+                shouldReschedule = true;
+              }
 
-            if (shouldReschedule) {
-              await _scheduleAlarm(dbAlarm);
-            } else {
-              // It's old and one-time, simple deactivate
-              final deactivated = dbAlarm.copyWith(isActive: false);
-              await _db.updateAlarm(deactivated);
+              if (shouldReschedule) {
+                await _scheduleAlarm(dbAlarm);
+              } else {
+                // It's old and one-time, simple deactivate
+                final deactivated = dbAlarm.copyWith(isActive: false);
+                await _db.updateAlarm(deactivated);
+              }
             }
           }
+        } catch (_) {
+          // Skip this alarm and continue with the rest.
         }
       }
 
@@ -268,7 +275,11 @@ class AlarmProvider with ChangeNotifier {
       await _scheduleAlarm(alarm);
       await loadAlarms();
     } catch (e) {
-      await _db.deleteAlarm(alarm.id);
+      // Best-effort cleanup: ignore any delete error so the original
+      // scheduling exception is preserved and rethrown to the caller.
+      try {
+        await _db.deleteAlarm(alarm.id);
+      } catch (_) {}
       rethrow;
     }
   }
@@ -357,7 +368,11 @@ class AlarmProvider with ChangeNotifier {
     final alarmSettings = alarm_pkg.AlarmSettings(
       id: _alarmSystemId(alarm.id),
       dateTime: scheduledTime,
-      assetAudioPath: alarm.soundPath ?? 'assets/alarm.mp3',
+      // Only asset paths are supported; content:// URIs (system ringtones) are not.
+      assetAudioPath: (alarm.soundPath != null &&
+              alarm.soundPath!.startsWith('assets/'))
+          ? alarm.soundPath!
+          : 'assets/alarm.mp3',
       loopAudio: true,
       vibrate: true,
       warningNotificationOnKill: Platform.isIOS,
@@ -374,11 +389,7 @@ class AlarmProvider with ChangeNotifier {
     );
 
 
-    try {
-      await alarm_pkg.Alarm.set(alarmSettings: alarmSettings);
-    } catch (e) {
-      throw Exception('Failed to schedule alarm: $e');
-    }
+    await alarm_pkg.Alarm.set(alarmSettings: alarmSettings);
   }
 
   /// Cancel an alarm

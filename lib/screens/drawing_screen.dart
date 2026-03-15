@@ -23,8 +23,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
     if (widget.initialData != null && widget.initialData!.isNotEmpty) {
       try {
         _loadDrawing(widget.initialData!);
-      } catch (e) {
-      }
+      } catch (_) {}
     }
   }
 
@@ -67,8 +66,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
       }
 
       setState(() {});
-    } catch (e) {
-    }
+    } catch (_) {}
   }
 
   @override

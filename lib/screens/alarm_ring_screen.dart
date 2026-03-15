@@ -72,8 +72,7 @@ class AlarmRingScreen extends StatelessWidget {
                             alarmSettings.notificationSettings.title,
                             alarmSettings.notificationSettings.body,
                           );
-                        } catch (e) {
-                        }
+                        } catch (_) {}
                         if (context.mounted) {
                           Navigator.of(context).pop();
                         }
@@ -104,8 +103,7 @@ class AlarmRingScreen extends StatelessWidget {
                             context,
                             listen: false,
                           ).stopRingingAlarm(alarmSettings.id);
-                        } catch (e) {
-                        }
+                        } catch (_) {}
                         if (context.mounted) {
                           Navigator.of(context).pop();
                         }

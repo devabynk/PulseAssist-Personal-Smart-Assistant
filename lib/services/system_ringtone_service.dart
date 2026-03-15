@@ -33,7 +33,7 @@ class SystemRingtoneService {
       if (result == null) return [];
 
       return result.map((e) => SystemRingtone.fromMap(e as Map)).toList();
-    } on PlatformException catch (e) {
+    } on PlatformException catch (_) {
       return [];
     }
   }
@@ -42,7 +42,7 @@ class SystemRingtoneService {
   static Future<void> playRingtone(String uri) async {
     try {
       await _channel.invokeMethod('playRingtone', {'uri': uri});
-    } on PlatformException catch (e) {
+    } on PlatformException catch (_) {
     }
   }
 
@@ -50,7 +50,7 @@ class SystemRingtoneService {
   static Future<void> stopRingtone() async {
     try {
       await _channel.invokeMethod('stopRingtone');
-    } on PlatformException catch (e) {
+    } on PlatformException catch (_) {
     }
   }
 }

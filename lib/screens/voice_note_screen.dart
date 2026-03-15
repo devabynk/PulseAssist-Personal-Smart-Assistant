@@ -262,8 +262,7 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
         _isRecording = false;
         _isPaused = false;
       });
-    } catch (e) {
-    }
+    } catch (_) {}
   }
 
   Future<void> _togglePause() async {
@@ -274,8 +273,7 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
         await _recorder.pause();
       }
       setState(() => _isPaused = !_isPaused);
-    } catch (e) {
-    }
+    } catch (_) {}
   }
 
   void _startTimer() {

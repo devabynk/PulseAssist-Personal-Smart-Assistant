@@ -71,12 +71,14 @@ class WeatherProvider with ChangeNotifier {
       // Load location from database
       final locationData = await _db.getUserLocation();
       if (locationData != null) {
-        _selectedLocation = locationData['city_name'] as String;
-        _selectedState = locationData['state'] as String?;
-        _selectedDistrict = locationData['district'] as String?;
+        final cityName = locationData['city_name']?.toString() ?? '';
+        if (cityName.isNotEmpty) {
+          _selectedLocation = cityName;
+        }
+        _selectedState = locationData['state']?.toString();
+        _selectedDistrict = locationData['district']?.toString();
         _selectedCountry =
-            locationData['country_code'] as String? ??
-            'TR'; // Load country code
+            locationData['country_code']?.toString() ?? 'TR';
       }
 
       // Load weather from SharedPreferences (temporary cache)
@@ -105,8 +107,7 @@ class WeatherProvider with ChangeNotifier {
       }
 
       notifyListeners();
-    } catch (e) {
-    }
+    } catch (_) {}
   }
 
   /// Save weather data to database and cache
@@ -154,8 +155,7 @@ class WeatherProvider with ChangeNotifier {
       if (_lastUpdate != null) {
         await prefs.setString(_lastUpdateKey, _lastUpdate!.toIso8601String());
       }
-    } catch (e) {
-    }
+    } catch (_) {}
   }
 
   /// Fetch weather for a location
@@ -247,8 +247,7 @@ class WeatherProvider with ChangeNotifier {
         temp: _currentWeather!.temperature,
         condition: _currentWeather!.description,
       );
-    } catch (e) {
-    }
+    } catch (_) {}
   }
 
   /// Toggle expand/collapse state

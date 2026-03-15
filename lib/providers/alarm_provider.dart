@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:alarm/alarm.dart' as alarm_pkg;
@@ -142,20 +141,12 @@ class AlarmProvider with ChangeNotifier {
     await updateAlarm(updatedAlarm);
   }
 
-  StreamSubscription<alarm_pkg.AlarmSettings>? _subscription;
-
   AlarmProvider() {
     _init();
   }
 
   Future<void> _init() async {
     await syncAlarms(); // Sync first to clean up orphaned alarms
-  }
-
-  @override
-  void dispose() {
-    _subscription?.cancel();
-    super.dispose();
   }
 
   /// Handle alarm ring event (called from main.dart)
@@ -181,8 +172,7 @@ class AlarmProvider with ChangeNotifier {
             payload: alarm.id,
           ),
         );
-      } catch (e) {
-      }
+      } catch (_) {}
 
       // If it's a one-time alarm (no repeat days), deactivate it
       if (alarm.repeatDays.isEmpty) {
@@ -192,8 +182,7 @@ class AlarmProvider with ChangeNotifier {
       } else {
         // Repeating alarms stay active and will reschedule automatically
       }
-    } catch (e) {
-    }
+    } catch (_) {}
   }
 
   Future<void> loadAlarms() async {
@@ -203,9 +192,12 @@ class AlarmProvider with ChangeNotifier {
     _alarms = alarms;
     _isLoading = false;
     notifyListeners();
-    // Update all alarm widgets
-    await WidgetService.updateAlarmsListWidget(alarms);
-    await WidgetService.updateSingleAlarmWidget(alarms);
+    // Widget updates are best-effort: never let them propagate an exception and
+    // corrupt the core alarm flow (addAlarm/deleteAlarm would wrongly roll back).
+    try {
+      await WidgetService.updateAlarmsListWidget(alarms);
+      await WidgetService.updateSingleAlarmWidget(alarms);
+    } catch (_) {}
   }
 
   /// Sync database alarms with system alarms
@@ -265,8 +257,7 @@ class AlarmProvider with ChangeNotifier {
 
       // Reload alarms after cleanup/reschedule
       await loadAlarms();
-    } catch (e) {
-    }
+    } catch (_) {}
   }
 
   Future<void> addAlarm(app_alarm.Alarm alarm) async {
@@ -275,10 +266,14 @@ class AlarmProvider with ChangeNotifier {
       await _scheduleAlarm(alarm);
       await loadAlarms();
     } catch (e) {
-      // Best-effort cleanup: ignore any delete error so the original
-      // scheduling exception is preserved and rethrown to the caller.
+      // Roll back: remove from DB AND cancel the system alarm so the two
+      // stores stay in sync (system alarm may already be scheduled if
+      // the failure happened in loadAlarms rather than _scheduleAlarm).
       try {
         await _db.deleteAlarm(alarm.id);
+      } catch (_) {}
+      try {
+        await alarm_pkg.Alarm.stop(_alarmSystemId(alarm.id));
       } catch (_) {}
       rethrow;
     }
@@ -298,8 +293,8 @@ class AlarmProvider with ChangeNotifier {
   }
 
   Future<void> deleteAlarm(app_alarm.Alarm alarm) async {
-    await _db.deleteAlarm(alarm.id);
     await _cancelAlarm(alarm);
+    await _db.deleteAlarm(alarm.id);
     await loadAlarms();
   }
 
@@ -360,6 +355,22 @@ class AlarmProvider with ChangeNotifier {
       }
     }
 
+    // Give every alarm a deterministic, unique second (1-59) derived from its ID.
+    // The alarm package's Alarm.set() cancels any existing alarm whose
+    // dateTime matches the new one to the second (isSameSecond check). With all
+    // alarms defaulting to second=0, two alarms at the same hour:minute would
+    // silently cancel each other. The unique offset makes collisions essentially
+    // impossible.
+    final secondsOffset = _alarmSystemId(alarm.id) % 59 + 1; // 1–59
+    scheduledTime = DateTime(
+      scheduledTime.year,
+      scheduledTime.month,
+      scheduledTime.day,
+      scheduledTime.hour,
+      scheduledTime.minute,
+      secondsOffset,
+    );
+
     // Final safety check: if time passed during async processing, push 1 minute ahead
     if (scheduledTime.isBefore(DateTime.now())) {
       scheduledTime = DateTime.now().add(const Duration(minutes: 1));
@@ -392,10 +403,15 @@ class AlarmProvider with ChangeNotifier {
     await alarm_pkg.Alarm.set(alarmSettings: alarmSettings);
   }
 
-  /// Cancel an alarm
+  /// Cancel an alarm. Retries once on failure to guard against transient
+  /// platform errors (e.g. AlarmManager not immediately available).
   Future<void> _cancelAlarm(app_alarm.Alarm alarm) async {
     final alarmId = _alarmSystemId(alarm.id);
-    await alarm_pkg.Alarm.stop(alarmId);
+    final cancelled = await alarm_pkg.Alarm.stop(alarmId);
+    if (!cancelled) {
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      await alarm_pkg.Alarm.stop(alarmId);
+    }
   }
 
   /// Stop a ringing alarm
@@ -421,8 +437,7 @@ class AlarmProvider with ChangeNotifier {
           await loadAlarms();
         }
       }
-    } catch (e) {
-    }
+    } catch (_) {}
   }
 
   /// Get all active alarms from the alarm package

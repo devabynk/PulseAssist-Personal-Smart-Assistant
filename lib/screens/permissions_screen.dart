@@ -97,8 +97,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
           _showSettingsDialog(notificationL10n);
         }
       }
-    } catch (e) {
-    }
+    } catch (_) {}
 
     if (mounted) setState(() => _isLoading = false);
   }
@@ -115,8 +114,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
       if (status.isPermanentlyDenied) {
         _showSettingsDialog(schedulerL10n);
       }
-    } catch (e) {
-    }
+    } catch (_) {}
 
     if (mounted) setState(() => _isLoading = false);
   }
@@ -131,8 +129,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
       if (status.isPermanentlyDenied || (Platform.isIOS && status.isDenied)) {
         _showSettingsDialog(microphoneL10n);
       }
-    } catch (e) {
-    }
+    } catch (_) {}
 
     if (mounted) setState(() => _isLoading = false);
   }
@@ -147,8 +144,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
       if (status.isPermanentlyDenied || (Platform.isIOS && status.isDenied)) {
         _showSettingsDialog(cameraL10n);
       }
-    } catch (e) {
-    }
+    } catch (_) {}
 
     if (mounted) setState(() => _isLoading = false);
   }
@@ -163,8 +159,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
       if (status.isPermanentlyDenied || (Platform.isIOS && status.isDenied)) {
         _showSettingsDialog(storageL10n);
       }
-    } catch (e) {
-    }
+    } catch (_) {}
 
     if (mounted) setState(() => _isLoading = false);
   }
@@ -185,8 +180,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
       
       // If any is still not granted, redirect might be too aggressive here, 
       // but let's check if all are denied and show one dialog.
-    } catch (e) {
-    }
+    } catch (_) {}
 
     if (mounted) setState(() => _isLoading = false);
   }
@@ -223,8 +217,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
           const Duration(seconds: 3),
         );
         await prefs.setBool('has_seen_onboarding', true);
-      } catch (e) {
-      }
+      } catch (_) {}
     }
 
     if (mounted) {

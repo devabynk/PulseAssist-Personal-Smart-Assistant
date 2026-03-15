@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 
 /// Type of failure to determine if rotation is needed
 enum FailureType {

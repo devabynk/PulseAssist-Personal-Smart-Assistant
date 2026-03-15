@@ -407,7 +407,7 @@ class ChatProvider with ChangeNotifier {
         // For events: Turkey uses province (state/il); other countries use city_name.
         final eventCity = countryCode == 'TR'
             ? pharmacyCity
-            : (savedCity != null && savedCity.isNotEmpty ? savedCity : pharmacyCity);
+            : (savedCity.isNotEmpty ? savedCity : pharmacyCity);
         final eventDistrict = pharmacyDistrict;
 
 
@@ -439,19 +439,18 @@ class ChatProvider with ChangeNotifier {
                     '✅ Etkinlik hizmeti her ülkede kullanılabilir. Konum: $fullLocation\n'
                     '⚠️ ÖNEMLİ KURAL: Kullanıcı "etkinlik" sorduğunda ve BAŞKA BİR YER BELİRTMEDİYSE:\n'
                     '1. ASLA "hangi şehir?" diye sorma! Dashboard konumunu kullan.\n'
-                    '2. Etkinlikler için şu JSON\'u: {"action": "get_events", "city": "${eventCity ?? ''}", "district": "${eventDistrict ?? ''}"}'
+                    '2. Etkinlikler için şu JSON\'u: {"action": "get_events", "city": "$eventCity", "district": "${eventDistrict ?? ''}"}'
               : '\n📍 CURRENT LOCATION (Dashboard): $fullLocation\n'
                     '⚠️ NOTE: Pharmacy service is only available for Turkey.\n'
                     '✅ Events service is available globally. Location: $fullLocation\n'
                     '⚠️ IMPORTANT RULE: If user asks for "events" and DOES NOT specify a location:\n'
                     '1. NEVER ask "which city?". Use the Dashboard location above.\n'
-                    '2. For Events, return: {"action": "get_events", "city": "${eventCity ?? ''}", "district": "${eventDistrict ?? ''}"}';
+                    '2. For Events, return: {"action": "get_events", "city": "$eventCity", "district": "${eventDistrict ?? ''}"}';
         }
 
         weatherContext = (weatherContext ?? '') + locInfo;
       }
-    } catch (e) {
-    }
+    } catch (_) {}
 
     if (text.trim().isEmpty && finalAttachmentPath == null) return;
 
@@ -993,7 +992,7 @@ class ChatProvider with ChangeNotifier {
         default:
           return null;
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       return null;
     }
   }
@@ -2342,8 +2341,7 @@ class ChatProvider with ChangeNotifier {
             ? "❌ Nöbetçi eczane hizmeti sadece Türkiye için mevcuttur.\n\n💡 Lütfen hava durumu konumunuzu Türkiye'deki bir şehir olarak ayarlayın."
             : '❌ Pharmacy service is only available for Turkey.\n\n💡 Please set your weather location to a city in Turkey.';
       }
-    } catch (e) {
-    }
+    } catch (_) {}
 
     var city = data['city']?.toString();
     var district = data['district']?.toString();
@@ -2366,8 +2364,7 @@ class ChatProvider with ChangeNotifier {
             district = savedDistrict ?? savedCity;
           }
         }
-      } catch (e) {
-      }
+      } catch (_) {}
     }
 
     if (city == null || district == null || city.isEmpty || district.isEmpty) {

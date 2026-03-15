@@ -29,8 +29,9 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Load theme mode
-    final themeModeIndex = prefs.getInt(_themeModeKey) ?? 0;
+    // Load theme mode (clamp to valid range to avoid RangeError on corrupted prefs)
+    final themeModeIndex = (prefs.getInt(_themeModeKey) ?? 0)
+        .clamp(0, ThemeMode.values.length - 1);
     _themeMode = ThemeMode.values[themeModeIndex];
 
     // Load locale

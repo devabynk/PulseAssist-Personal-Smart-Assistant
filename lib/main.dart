@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -38,8 +40,7 @@ void main() async {
   // Initialize AI Manager (multi-provider with fallback)
   try {
     await AiManager.instance.initialize();
-  } catch (e) {
-  }
+  } catch (_) {}
 
   runApp(
     MultiProvider(
@@ -68,6 +69,8 @@ class PulseAssistApp extends StatefulWidget {
 
 class _PulseAssistAppState extends State<PulseAssistApp>
     with WidgetsBindingObserver {
+  StreamSubscription? _alarmSubscription;
+
   @override
   void initState() {
     super.initState();
@@ -77,17 +80,17 @@ class _PulseAssistAppState extends State<PulseAssistApp>
     // Alarm.ringing is a BehaviorSubject that emits on every state change
     // (including when a new alarm is merely scheduled). Track the last shown
     // alarm ID to avoid pushing a duplicate ring screen for the same event.
-    int? _lastShownRingingId;
-    Alarm.ringing.listen((alarmSet) {
+    int? lastShownRingingId;
+    _alarmSubscription = Alarm.ringing.listen((alarmSet) {
       if (alarmSet.alarms.isEmpty) {
-        _lastShownRingingId = null;
+        lastShownRingingId = null;
         return;
       }
       final alarmSettings = alarmSet.alarms.last;
 
       // Skip if we already opened the ring screen for this alarm instance.
-      if (alarmSettings.id == _lastShownRingingId) return;
-      _lastShownRingingId = alarmSettings.id;
+      if (alarmSettings.id == lastShownRingingId) return;
+      lastShownRingingId = alarmSettings.id;
 
       // Both provider update and navigation must be guarded by mounted
       if (!mounted) return;
@@ -105,6 +108,7 @@ class _PulseAssistAppState extends State<PulseAssistApp>
 
   @override
   void dispose() {
+    _alarmSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

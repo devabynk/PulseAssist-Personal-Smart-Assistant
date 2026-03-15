@@ -788,8 +788,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                             // Try processing as tel: or other schemes explicitly if needed
                             await launchUrl(uri);
                           }
-                        } catch (e) {
-                        }
+                        } catch (_) {}
                       }
                     },
                     styleSheet: MarkdownStyleSheet(

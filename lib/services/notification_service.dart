@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -19,7 +18,7 @@ class NotificationService {
     tzdata.initializeTimeZones();
     try {
       final deviceTimeZone = await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(deviceTimeZone));
+      tz.setLocalLocation(tz.getLocation(deviceTimeZone.identifier));
     } catch (e) {
       tz.setLocalLocation(tz.UTC);
     }

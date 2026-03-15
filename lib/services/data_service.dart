@@ -64,8 +64,7 @@ class DataService {
               }
             }
           }
-        } catch (e) {
-        }
+        } catch (_) {}
       }
 
       // Add Prefs file

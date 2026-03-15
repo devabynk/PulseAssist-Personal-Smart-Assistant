@@ -23,10 +23,12 @@ class NoteProvider with ChangeNotifier {
     _notes = notes;
     _isLoading = false;
     notifyListeners();
-    // Update all note widgets
-    await WidgetService.updateWidget(notes);
-    await WidgetService.updateNotesListWidget(notes);
-    await WidgetService.updateSingleNoteWidget(notes);
+    // Widget updates are best-effort: never propagate exceptions into callers.
+    try {
+      await WidgetService.updateWidget(notes);
+      await WidgetService.updateNotesListWidget(notes);
+      await WidgetService.updateSingleNoteWidget(notes);
+    } catch (_) {}
   }
 
   Future<void> addNote(Note note) async {
@@ -53,9 +55,11 @@ class NoteProvider with ChangeNotifier {
     notifyListeners(); // Optimistic update
 
     await _db.updateNoteOrder(_notes);
-    // Update all note widgets
-    await WidgetService.updateWidget(_notes);
-    await WidgetService.updateNotesListWidget(_notes);
-    await WidgetService.updateSingleNoteWidget(_notes);
+    // Widget updates are best-effort: never propagate exceptions into callers.
+    try {
+      await WidgetService.updateWidget(_notes);
+      await WidgetService.updateNotesListWidget(_notes);
+      await WidgetService.updateSingleNoteWidget(_notes);
+    } catch (_) {}
   }
 }

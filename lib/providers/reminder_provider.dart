@@ -28,9 +28,11 @@ class ReminderProvider with ChangeNotifier {
     _reminders = reminders;
     _isLoading = false;
     notifyListeners();
-    // Update all reminder widgets
-    await WidgetService.updateRemindersListWidget(reminders);
-    await WidgetService.updateSingleReminderWidget(reminders);
+    // Widget updates are best-effort: never propagate exceptions into callers.
+    try {
+      await WidgetService.updateRemindersListWidget(reminders);
+      await WidgetService.updateSingleReminderWidget(reminders);
+    } catch (_) {}
   }
 
   Future<void> addReminder(Reminder reminder) async {
@@ -49,14 +51,7 @@ class ReminderProvider with ChangeNotifier {
   }
 
   Future<void> toggleComplete(Reminder reminder) async {
-    final updated = Reminder(
-      id: reminder.id,
-      title: reminder.title,
-      description: reminder.description,
-      dateTime: reminder.dateTime,
-      priority: reminder.priority,
-      isCompleted: !reminder.isCompleted,
-    );
+    final updated = reminder.copyWith(isCompleted: !reminder.isCompleted);
     await updateReminder(updated);
   }
 }

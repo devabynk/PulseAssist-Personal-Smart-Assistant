@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../core/utils/extensions.dart';
 import '../core/utils/responsive.dart';
 import '../providers/settings_provider.dart';
 import '../services/data_service.dart';
-import '../theme/app_theme.dart';
 import 'legal/privacy_policy_screen.dart';
 import 'legal/terms_of_use_screen.dart';
 import 'permissions_screen.dart';
@@ -36,17 +34,17 @@ class SettingsScreen extends StatelessWidget {
             vertical: 16,
           ),
           children: [
-            // About Section
-            _buildSectionHeader(context, l10n.aboutSection),
-            const SizedBox(height: 8),
-            _buildAboutSection(context, isTurkish),
-
-            const SizedBox(height: 24),
-
             // Theme Section
             _buildSectionHeader(context, l10n.appearance),
             const SizedBox(height: 8),
             _buildThemeSelector(context, settings, isTurkish),
+
+            const SizedBox(height: 24),
+
+            // Language Section
+            _buildSectionHeader(context, l10n.language),
+            const SizedBox(height: 8),
+            _buildLanguageSelector(context, settings),
 
             const SizedBox(height: 24),
 
@@ -61,13 +59,6 @@ class SettingsScreen extends StatelessWidget {
             _buildSectionHeader(context, l10n.dataManagement),
             const SizedBox(height: 8),
             _buildDataManagementSection(context, isTurkish),
-
-            const SizedBox(height: 24),
-
-            // Language Section
-            _buildSectionHeader(context, l10n.language),
-            const SizedBox(height: 8),
-            _buildLanguageSelector(context, settings),
 
             const SizedBox(height: 24),
 
@@ -269,176 +260,6 @@ class SettingsScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildAboutSection(BuildContext context, bool isTurkish) {
-    final l10n = context.l10n;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(
-              Theme.of(context).brightness == Brightness.dark ? 50 : 20,
-            ),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Image.asset(
-                  'assets/app_icon.png',
-                  width: 24,
-                  height: 24,
-                  fit: BoxFit.contain,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                // Fixed: Remove const because children use Theme.of(context)
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'PulseAssist',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    Text(
-                      l10n.versionLabel,
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyMedium?.color,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            l10n.aboutDescription,
-            style: TextStyle(
-              color: Theme.of(context).textTheme.bodyMedium?.color,
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Divider(),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              // Developer Info
-              Expanded(
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor.withAlpha(20),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.code,
-                        color: Theme.of(context).primaryColor,
-                        size: 18,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.developer,
-                          style: TextStyle(
-                            color: Theme.of(context).textTheme.bodySmall?.color,
-                          ),
-                        ),
-                        Text(
-                          'abynk',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // Website Info
-              InkWell(
-                onTap: () async {
-                  final url = Uri.parse('https://abynk.com');
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url, mode: LaunchMode.externalApplication);
-                  }
-                },
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 2,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            l10n.website,
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.color,
-                            ),
-                          ),
-                          Text(
-                            'abynk.com',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).primaryColor,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.secondary.withAlpha(20),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          Icons.language,
-                          color: Theme.of(context).colorScheme.secondary,
-                          size: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }

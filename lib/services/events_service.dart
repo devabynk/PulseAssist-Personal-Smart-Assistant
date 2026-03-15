@@ -113,7 +113,7 @@ class EventsService {
           'city': normalizedCity,
           'sort': 'date,asc',
           'size': '20',
-          'locale': lang == 'tr' ? 'tr-tr,en-us' : 'en-us,tr-tr',
+          'locale': '*',
           'startDateTime': startDateTime,
           'endDateTime': endDateTime,
         };
@@ -132,12 +132,19 @@ class EventsService {
           params['keyword'] = normalizedDistrict;
         }
 
-        final results = await _fetchEvents(params);
+        var results = await _fetchEvents(params);
 
         // If district keyword returned nothing, retry city-only
         if (results.isEmpty && useDistrictKeyword) {
           params.remove('keyword');
-          return await _fetchEvents(params);
+          results = await _fetchEvents(params);
+        }
+
+        // If still empty and we had a countryCode, retry without it — some
+        // Ticketmaster markets index events without a strict country tag.
+        if (results.isEmpty && params.containsKey('countryCode')) {
+          params.remove('countryCode');
+          results = await _fetchEvents(params);
         }
 
         return results;

@@ -290,16 +290,18 @@ class _AlarmScreenState extends State<AlarmScreen> {
     final isDark = theme.brightness == Brightness.dark;
 
     // Format repeat text
-    var repeatText = '';
-    if (alarm.repeatDays.isEmpty) {
+    final days = alarm.repeatDays;
+    final String repeatText;
+    if (days.isEmpty) {
       repeatText = context.l10n.oneTime;
-    } else if (alarm.repeatDays.length == 7) {
+    } else if (days.length == 7) {
       repeatText = context.l10n.everyDay;
+    } else if (days.length == 5 && [1, 2, 3, 4, 5].every(days.contains)) {
+      repeatText = context.l10n.weekdays;
+    } else if (days.length == 2 && [6, 7].every(days.contains)) {
+      repeatText = context.l10n.weekends;
     } else {
-      // Simple logic for weekdays/weeks
-      // We need a helper, but for now just show count or "Custom"
       repeatText = context.l10n.custom;
-      // todo: localized days
     }
 
     return Dismissible(

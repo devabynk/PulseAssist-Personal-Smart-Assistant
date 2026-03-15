@@ -179,9 +179,9 @@ class AlarmProvider with ChangeNotifier {
         final deactivated = alarm.copyWith(isActive: false);
         await _db.updateAlarm(deactivated);
         await loadAlarms(); // Refresh the list
-      } else {
-        // Repeating alarms stay active and will reschedule automatically
       }
+      // Repeating alarms: rescheduling is handled in stopRingingAlarm() so
+      // the next occurrence is scheduled immediately when the user dismisses.
     } catch (_) {}
   }
 
@@ -418,10 +418,7 @@ class AlarmProvider with ChangeNotifier {
   Future<void> stopRingingAlarm(int alarmId) async {
     await alarm_pkg.Alarm.stop(alarmId);
 
-    // Explicitly check and deactivate if it's a one-time alarm
-    // This is a safety fallback in case the ring stream listener didn't catch it
     try {
-      // Find the alarm in our list (handle if list is empty or not found)
       if (_alarms.isEmpty) {
         await loadAlarms();
       }
@@ -432,9 +429,14 @@ class AlarmProvider with ChangeNotifier {
       if (alarmIndex != -1) {
         final alarm = _alarms[alarmIndex];
         if (alarm.repeatDays.isEmpty && alarm.isActive) {
+          // One-time alarm: deactivate it after ringing
           final deactivated = alarm.copyWith(isActive: false);
           await _db.updateAlarm(deactivated);
           await loadAlarms();
+        } else if (alarm.repeatDays.isNotEmpty && alarm.isActive) {
+          // Repeating alarm: schedule the next occurrence immediately so it
+          // rings again without requiring an app relaunch.
+          await _scheduleAlarm(alarm);
         }
       }
     } catch (_) {}

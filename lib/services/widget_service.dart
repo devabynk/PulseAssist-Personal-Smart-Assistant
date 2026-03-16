@@ -131,16 +131,14 @@ class WidgetService {
   static Future<void> updateNotesListWidget(List<Note> notes) async {
     final strings = _getLocalizedStrings();
 
-    await HomeWidget.saveWidgetData<String>('widget_type', 'notes_list');
-    await HomeWidget.saveWidgetData<String>('locale', _getCurrentLocale());
     await HomeWidget.saveWidgetData<String>(
-      'title',
+      'notes_list_title',
       strings['notesListTitle']!,
     );
 
     if (notes.isEmpty) {
       await HomeWidget.saveWidgetData<String>(
-        'empty_message',
+        'notes_list_empty',
         strings['noNotes']!,
       );
       await HomeWidget.saveWidgetData<String>('notes_data', '[]');
@@ -178,10 +176,8 @@ class WidgetService {
   static Future<void> updateSingleNoteWidget(List<Note> notes) async {
     final strings = _getLocalizedStrings();
 
-    await HomeWidget.saveWidgetData<String>('widget_type', 'single_note');
-    await HomeWidget.saveWidgetData<String>('locale', _getCurrentLocale());
     await HomeWidget.saveWidgetData<String>(
-      'title',
+      'single_note_title_label',
       strings['singleNoteTitle']!,
     );
 
@@ -223,16 +219,14 @@ class WidgetService {
   static Future<void> updateAlarmsListWidget(List<Alarm> alarms) async {
     final strings = _getLocalizedStrings();
 
-    await HomeWidget.saveWidgetData<String>('widget_type', 'alarms_list');
-    await HomeWidget.saveWidgetData<String>('locale', _getCurrentLocale());
     await HomeWidget.saveWidgetData<String>(
-      'title',
+      'alarms_list_title',
       strings['alarmsListTitle']!,
     );
 
     if (alarms.isEmpty) {
       await HomeWidget.saveWidgetData<String>(
-        'empty_message',
+        'alarms_list_empty',
         strings['noAlarms']!,
       );
       await HomeWidget.saveWidgetData<String>('alarms_data', '[]');
@@ -269,9 +263,10 @@ class WidgetService {
   static Future<void> updateSingleAlarmWidget(List<Alarm> alarms) async {
     final strings = _getLocalizedStrings();
 
-    await HomeWidget.saveWidgetData<String>('widget_type', 'single_alarm');
-    await HomeWidget.saveWidgetData<String>('locale', _getCurrentLocale());
-    await HomeWidget.saveWidgetData<String>('title', strings['nextAlarm']!);
+    await HomeWidget.saveWidgetData<String>(
+      'single_alarm_title_label',
+      strings['nextAlarm']!,
+    );
 
     if (alarms.isEmpty) {
       await HomeWidget.saveWidgetData<String>(
@@ -326,16 +321,14 @@ class WidgetService {
   ) async {
     final strings = _getLocalizedStrings();
 
-    await HomeWidget.saveWidgetData<String>('widget_type', 'reminders_list');
-    await HomeWidget.saveWidgetData<String>('locale', _getCurrentLocale());
     await HomeWidget.saveWidgetData<String>(
-      'title',
+      'reminders_list_title',
       strings['remindersListTitle']!,
     );
 
     if (reminders.isEmpty) {
       await HomeWidget.saveWidgetData<String>(
-        'empty_message',
+        'reminders_list_empty',
         strings['noReminders']!,
       );
       await HomeWidget.saveWidgetData<String>('reminders_data', '[]');
@@ -391,9 +384,10 @@ class WidgetService {
   ) async {
     final strings = _getLocalizedStrings();
 
-    await HomeWidget.saveWidgetData<String>('widget_type', 'single_reminder');
-    await HomeWidget.saveWidgetData<String>('locale', _getCurrentLocale());
-    await HomeWidget.saveWidgetData<String>('title', strings['nextReminder']!);
+    await HomeWidget.saveWidgetData<String>(
+      'single_reminder_title_label',
+      strings['nextReminder']!,
+    );
 
     if (reminders.isEmpty) {
       await HomeWidget.saveWidgetData<String>(

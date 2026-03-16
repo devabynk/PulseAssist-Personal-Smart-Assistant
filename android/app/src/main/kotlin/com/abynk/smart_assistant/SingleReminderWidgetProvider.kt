@@ -11,7 +11,7 @@ class SingleReminderWidgetProvider : HomeWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray, widgetData: SharedPreferences) {
         appWidgetIds.forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.single_reminder_widget).apply {
-                val titleLabel = widgetData.getString("title", "Next Reminder") ?: "Next Reminder"
+                val titleLabel = widgetData.getString("single_reminder_title_label", "Next Reminder") ?: "Next Reminder"
                 val reminderTitle = widgetData.getString("reminder_title", "No reminders") ?: "No reminders"
                 val reminderDescription = widgetData.getString("reminder_description", "") ?: ""
                 val reminderDateTime = widgetData.getString("reminder_datetime", "") ?: ""

@@ -12,9 +12,9 @@ class NotesListWidgetProvider : HomeWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray, widgetData: SharedPreferences) {
         appWidgetIds.forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.notes_list_widget).apply {
-                val title = widgetData.getString("title", "My Notes") ?: "My Notes"
+                val title = widgetData.getString("notes_list_title", "My Notes") ?: "My Notes"
                 val notesDataJson = widgetData.getString("notes_data", "[]") ?: "[]"
-                val emptyMessage = widgetData.getString("empty_message", "No notes yet") ?: "No notes yet"
+                val emptyMessage = widgetData.getString("notes_list_empty", "No notes yet") ?: "No notes yet"
                 
                 setTextViewText(R.id.widget_title, title)
                 

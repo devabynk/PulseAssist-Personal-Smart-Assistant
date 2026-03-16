@@ -11,7 +11,7 @@ class SingleAlarmWidgetProvider : HomeWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray, widgetData: SharedPreferences) {
         appWidgetIds.forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.single_alarm_widget).apply {
-                val titleLabel = widgetData.getString("title", "Next Alarm") ?: "Next Alarm"
+                val titleLabel = widgetData.getString("single_alarm_title_label", "Next Alarm") ?: "Next Alarm"
                 val alarmTitle = widgetData.getString("alarm_title", "No alarms set") ?: "No alarms set"
                 val alarmTime = widgetData.getString("alarm_time", "--:--") ?: "--:--"
                 val alarmStatus = widgetData.getString("alarm_status", "") ?: ""

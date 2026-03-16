@@ -13,9 +13,9 @@ class AlarmsListWidgetProvider : HomeWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray, widgetData: SharedPreferences) {
         appWidgetIds.forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.alarms_list_widget).apply {
-                val title = widgetData.getString("title", "Alarms") ?: "Alarms"
+                val title = widgetData.getString("alarms_list_title", "Alarms") ?: "Alarms"
                 val alarmsDataJson = widgetData.getString("alarms_data", "[]") ?: "[]"
-                val emptyMessage = widgetData.getString("empty_message", "No alarms set") ?: "No alarms set"
+                val emptyMessage = widgetData.getString("alarms_list_empty", "No alarms set") ?: "No alarms set"
                 val isTransparent = widgetData.getBoolean("widget_theme_transparent", false)
                 
                 setTextViewText(R.id.widget_title, title)

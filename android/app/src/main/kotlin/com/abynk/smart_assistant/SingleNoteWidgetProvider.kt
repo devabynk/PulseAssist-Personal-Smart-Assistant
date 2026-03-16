@@ -11,7 +11,7 @@ class SingleNoteWidgetProvider : HomeWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray, widgetData: SharedPreferences) {
         appWidgetIds.forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.single_note_widget).apply {
-                val titleLabel = widgetData.getString("title", "Latest Note") ?: "Latest Note"
+                val titleLabel = widgetData.getString("single_note_title_label", "Latest Note") ?: "Latest Note"
                 val noteTitle = widgetData.getString("note_title", "No notes yet") ?: "No notes yet"
                 val noteContent = widgetData.getString("note_content", "Tap to open") ?: "Tap to open"
                 val noteColor = widgetData.getString("note_color", "#FFB74D") ?: "#FFB74D"

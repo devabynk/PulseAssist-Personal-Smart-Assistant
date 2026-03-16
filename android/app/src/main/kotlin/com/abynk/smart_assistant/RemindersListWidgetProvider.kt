@@ -13,9 +13,9 @@ class RemindersListWidgetProvider : HomeWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray, widgetData: SharedPreferences) {
         appWidgetIds.forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.reminders_list_widget).apply {
-                val title = widgetData.getString("title", "Reminders") ?: "Reminders"
+                val title = widgetData.getString("reminders_list_title", "Reminders") ?: "Reminders"
                 val remindersDataJson = widgetData.getString("reminders_data", "[]") ?: "[]"
-                val emptyMessage = widgetData.getString("empty_message", "No reminders") ?: "No reminders"
+                val emptyMessage = widgetData.getString("reminders_list_empty", "No reminders") ?: "No reminders"
                 
                 setTextViewText(R.id.widget_title, title)
                 

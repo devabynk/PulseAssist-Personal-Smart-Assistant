@@ -16,16 +16,18 @@ class NoteWidgetProvider : HomeWidgetProvider() {
 
                 setTextViewText(R.id.widget_title, title)
                 setTextViewText(R.id.widget_content, content)
-                
+
+                val primaryTextColor = context.getColor(R.color.widget_text_primary)
+                val secondaryTextColor = context.getColor(R.color.widget_text_secondary)
+
                 if (isTransparent) {
                     setInt(R.id.widget_background, "setBackgroundResource", R.drawable.widget_background_transparent)
-                    setTextColor(R.id.widget_title, android.graphics.Color.WHITE)
-                    setTextColor(R.id.widget_content, android.graphics.Color.LTGRAY)
                 } else {
                     setInt(R.id.widget_background, "setBackgroundResource", R.drawable.widget_background_solid)
-                    setTextColor(R.id.widget_title, android.graphics.Color.BLACK)
-                    setTextColor(R.id.widget_content, android.graphics.Color.DKGRAY)
                 }
+
+                setTextColor(R.id.widget_title, primaryTextColor)
+                setTextColor(R.id.widget_content, secondaryTextColor)
             }
             appWidgetManager.updateAppWidget(widgetId, views)
         }

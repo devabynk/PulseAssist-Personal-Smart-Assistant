@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 import '../core/utils/extensions.dart';
 import '../core/utils/responsive.dart';
@@ -29,6 +31,7 @@ class NotesScreen extends StatefulWidget {
 class _NotesScreenState extends State<NotesScreen> {
   bool _isSearching = false;
   bool _isGridView = true;
+  bool _tabletInitialized = false;
   final TextEditingController _searchController = TextEditingController();
   String _selectedFilter = 'all';
 
@@ -57,18 +60,26 @@ class _NotesScreenState extends State<NotesScreen> {
     }
 
     if (query.isEmpty) return filtered;
+    final q = _normalize(query);
     return filtered.where((note) {
-      return note.title.toLowerCase().contains(query.toLowerCase()) ||
-          note.content.toLowerCase().contains(query.toLowerCase()) ||
-          note.tags.any(
-            (tag) => tag.toLowerCase().contains(query.toLowerCase()),
-          );
+      return _normalize(note.title).contains(q) ||
+          _normalize(_extractPlainText(note.content)).contains(q) ||
+          note.tags.any((tag) => _normalize(tag).contains(q));
     }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final isTablet = context.isTablet || context.isDesktop;
+
+    // Auto-enable grid on first tablet render
+    if (isTablet && !_tabletInitialized) {
+      _tabletInitialized = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_isGridView) setState(() => _isGridView = true);
+      });
+    }
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -107,6 +118,7 @@ class _NotesScreenState extends State<NotesScreen> {
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
+        scrolledUnderElevation: 0,
         actions: [
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),
@@ -117,13 +129,14 @@ class _NotesScreenState extends State<NotesScreen> {
               });
             },
           ),
-          IconButton(
-            icon: Icon(
-              _isGridView ? Icons.view_list_rounded : Icons.grid_view_rounded,
+          if (!isTablet)
+            IconButton(
+              icon: Icon(
+                _isGridView ? Icons.grid_view_rounded : Icons.view_list_rounded,
+              ),
+              tooltip: _isGridView ? l10n.gridView : l10n.listView,
+              onPressed: () => setState(() => _isGridView = !_isGridView),
             ),
-            tooltip: _isGridView ? l10n.listView : l10n.gridView,
-            onPressed: () => setState(() => _isGridView = !_isGridView),
-          ),
         ],
       ),
       body: SafeArea(
@@ -264,23 +277,33 @@ class _NotesScreenState extends State<NotesScreen> {
               IconButton(
                 icon: Icon(Icons.mic_none, color: theme.hintColor),
                 onPressed: () async {
-                  await Navigator.push(
+                  final result = await Navigator.push<Map<String, String>>(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const VoiceNoteScreen(),
                     ),
                   );
+                  if (result != null && mounted) {
+                    _saveQuickNote(
+                      voiceNotePath: result['path'],
+                      title: result['title'] ?? '',
+                      description: result['description'] ?? '',
+                    );
+                  }
                 },
               ),
               IconButton(
                 icon: Icon(Icons.draw_outlined, color: theme.hintColor),
                 onPressed: () async {
-                  await Navigator.push(
+                  final result = await Navigator.push<String>(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const DrawingScreen(),
                     ),
                   );
+                  if (result != null && mounted) {
+                    _saveQuickNote(drawingData: result);
+                  }
                 },
               ),
             ],
@@ -329,42 +352,8 @@ class _NotesScreenState extends State<NotesScreen> {
 
     return CustomScrollView(
       slivers: [
-        if (pinnedNotes.isNotEmpty) ...[
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Row(
-                children: [
-                  const Icon(Icons.push_pin, size: 16, color: Colors.amber),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Pinned',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          _buildNotesGrid(pinnedNotes),
-          const SliverToBoxAdapter(child: Divider(height: 32)),
-        ],
-        if (unpinnedNotes.isNotEmpty) ...[
-          if (pinnedNotes.isNotEmpty)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: Text(
-                  'Others',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-          _buildNotesGrid(unpinnedNotes),
-        ],
+        if (pinnedNotes.isNotEmpty) _buildNotesGrid(pinnedNotes),
+        if (unpinnedNotes.isNotEmpty) _buildNotesGrid(unpinnedNotes),
       ],
     );
   }
@@ -380,7 +369,7 @@ class _NotesScreenState extends State<NotesScreen> {
       return SliverPadding(
         padding: padding,
         sliver: SliverMasonryGrid.count(
-          crossAxisCount: Responsive.isMobile(context) ? 2 : 4,
+          crossAxisCount: context.gridColumns,
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
           childCount: notes.length,
@@ -467,125 +456,153 @@ class _NotesScreenState extends State<NotesScreen> {
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (note.isPinned)
-                    const Icon(Icons.push_pin, size: 14, color: Colors.amber),
+                  // attachment icons row - only show if there are attachments (not pin)
+                  if (note.imagePaths.isNotEmpty ||
+                      note.voiceNotePath != null ||
+                      note.drawingData != null) ...[
+                    Row(
+                      children: [
+                        if (note.imagePaths.isNotEmpty)
+                          Icon(
+                            Icons.image,
+                            size: 14,
+                            color: textColor.withAlpha(150),
+                          ),
+                        if (note.voiceNotePath != null) ...[
+                          if (note.imagePaths.isNotEmpty)
+                            const SizedBox(width: 4),
+                          Icon(
+                            Icons.mic,
+                            size: 14,
+                            color: textColor.withAlpha(150),
+                          ),
+                        ],
+                        if (note.drawingData != null) ...[
+                          if (note.imagePaths.isNotEmpty ||
+                              note.voiceNotePath != null)
+                            const SizedBox(width: 4),
+                          Icon(
+                            Icons.draw,
+                            size: 14,
+                            color: textColor.withAlpha(150),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  // add top padding if pinned and no attachments shown (to avoid overlap with pin icon)
+                  if (note.isPinned &&
+                      note.imagePaths.isEmpty &&
+                      note.voiceNotePath == null &&
+                      note.drawingData == null)
+                    const SizedBox(height: 4),
+
+                  if (note.title.isNotEmpty) ...[
+                    Text(
+                      note.title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+
                   if (note.imagePaths.isNotEmpty) ...[
-                    const SizedBox(width: 4),
-                    Icon(
-                      Icons.image,
-                      size: 14,
-                      color: textColor.withAlpha(150),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.file(
+                        File(note.imagePaths.first),
+                        height: 120,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+
+                  if (note.drawingData != null) ...[
+                    DrawingPreview(
+                      drawingData: note.drawingData!,
+                      width: double.infinity,
+                      height: 120,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+
+                  QuillNoteViewer(
+                    content: note.content,
+                    maxLines: 6,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                  // Text(note.content, maxLines: 6),
+                  if (note.tags.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: note.tags
+                          .take(3)
+                          .map(
+                            (tag) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: textColor.withAlpha(30),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                '#$tag',
+                                style: Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(color: textColor.withAlpha(180)),
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   ],
-                  if (note.voiceNotePath != null) ...[
-                    const SizedBox(width: 4),
-                    Icon(Icons.mic, size: 14, color: textColor.withAlpha(150)),
-                  ],
-                  if (note.drawingData != null) ...[
-                    const SizedBox(width: 4),
-                    Icon(Icons.draw, size: 14, color: textColor.withAlpha(150)),
-                  ],
-                  const Spacer(),
+
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Text(
+                      DateFormat(
+                        'dd MMM',
+                        Provider.of<SettingsProvider>(
+                          context,
+                          listen: false,
+                        ).locale.languageCode,
+                      ).format(note.updatedAt),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: textColor.withAlpha(150),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              if (note.isPinned ||
-                  note.imagePaths.isNotEmpty ||
-                  note.voiceNotePath != null ||
-                  note.drawingData != null)
-                const SizedBox(height: 8),
-
-              if (note.title.isNotEmpty) ...[
-                Text(
-                  note.title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-              ],
-
-              if (note.imagePaths.isNotEmpty) ...[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.file(
-                    File(note.imagePaths.first),
-                    height: 120,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
+              // Pin indicator top-right
+              if (note.isPinned)
+                const Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Icon(
+                    Icons.push_pin_rounded,
+                    size: 14,
+                    color: Colors.amber,
                   ),
                 ),
-                const SizedBox(height: 8),
-              ],
-
-              if (note.drawingData != null) ...[
-                DrawingPreview(
-                  drawingData: note.drawingData!,
-                  width: double.infinity,
-                  height: 120,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                const SizedBox(height: 8),
-              ],
-
-              QuillNoteViewer(
-                content: note.content,
-                maxLines: 6,
-                overflow: TextOverflow.ellipsis,
-              ),
-
-              // Text(note.content, maxLines: 6),
-              if (note.tags.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 4,
-                  runSpacing: 4,
-                  children: note.tags
-                      .take(3)
-                      .map(
-                        (tag) => Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: textColor.withAlpha(30),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '#$tag',
-                            style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(color: textColor.withAlpha(180)),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ],
-
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Text(
-                  DateFormat(
-                    'dd MMM',
-                    Provider.of<SettingsProvider>(
-                      context,
-                      listen: false,
-                    ).locale.languageCode,
-                  ).format(note.updatedAt),
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: textColor.withAlpha(150),
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -674,6 +691,39 @@ class _NotesScreenState extends State<NotesScreen> {
     );
   }
 
+  void _saveQuickNote({
+    String? voiceNotePath,
+    String? drawingData,
+    String title = '',
+    String description = '',
+  }) {
+    final now = DateTime.now();
+    final contentOps = description.isNotEmpty
+        ? [
+            {'insert': description},
+            {'insert': '\n'},
+          ]
+        : [
+            {'insert': '\n'},
+          ];
+    final note = Note(
+      id: const Uuid().v4(),
+      title: title,
+      content: jsonEncode(contentOps),
+      createdAt: now,
+      updatedAt: now,
+      color: '',
+      orderIndex: 0,
+      isPinned: false,
+      isFullWidth: false,
+      imagePaths: [],
+      drawingData: drawingData,
+      voiceNotePath: voiceNotePath,
+      tags: [],
+    );
+    Provider.of<NoteProvider>(context, listen: false).addNote(note);
+  }
+
   Future<void> _showNoteSheet(
     BuildContext context, {
     Note? note,
@@ -695,6 +745,35 @@ class _NotesScreenState extends State<NotesScreen> {
         ),
       ),
     );
+  }
+
+  /// TR/EN locale-aware lowercase normalization (handles İ→i, I→ı mapping)
+  String _normalize(String s) {
+    return s
+        .replaceAll('İ', 'i')
+        .replaceAll('I', 'ı')
+        .replaceAll('Ğ', 'ğ')
+        .replaceAll('Ş', 'ş')
+        .replaceAll('Ç', 'ç')
+        .replaceAll('Ö', 'ö')
+        .replaceAll('Ü', 'ü')
+        .toLowerCase();
+  }
+
+  /// Extract plain text from Quill delta JSON for searching
+  String _extractPlainText(String contentJson) {
+    try {
+      final ops = jsonDecode(contentJson) as List<dynamic>;
+      final buffer = StringBuffer();
+      for (final op in ops) {
+        if (op is Map && op['insert'] is String) {
+          buffer.write(op['insert']);
+        }
+      }
+      return buffer.toString();
+    } catch (_) {
+      return contentJson;
+    }
   }
 
   @override

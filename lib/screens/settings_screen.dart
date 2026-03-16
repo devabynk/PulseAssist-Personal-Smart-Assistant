@@ -18,6 +18,7 @@ class SettingsScreen extends StatelessWidget {
     final l10n = context.l10n;
 
     final isTurkish = settings.locale.languageCode == 'tr';
+    final isTablet = context.isTablet || context.isDesktop;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -28,46 +29,97 @@ class SettingsScreen extends StatelessWidget {
       ),
       body: SafeArea(
         bottom: true,
-        child: ListView(
-          padding: EdgeInsets.symmetric(
-            horizontal: context.horizontalPadding,
-            vertical: 16,
+        child: isTablet
+            ? _buildTabletLayout(context, settings, l10n, isTurkish)
+            : _buildMobileLayout(context, settings, l10n, isTurkish),
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout(
+    BuildContext context,
+    SettingsProvider settings,
+    dynamic l10n,
+    bool isTurkish,
+  ) {
+    return ListView(
+      padding: EdgeInsets.symmetric(
+        horizontal: context.horizontalPadding,
+        vertical: 16,
+      ),
+      children: [
+        _buildSectionHeader(context, l10n.appearance),
+        const SizedBox(height: 8),
+        _buildThemeSelector(context, settings, isTurkish),
+        const SizedBox(height: 24),
+        _buildSectionHeader(context, l10n.language),
+        const SizedBox(height: 8),
+        _buildLanguageSelector(context, settings),
+        const SizedBox(height: 24),
+        _buildSectionHeader(context, l10n.permissionsTitle),
+        const SizedBox(height: 8),
+        _buildPermissionsSection(context, isTurkish, settings),
+        const SizedBox(height: 24),
+        _buildSectionHeader(context, l10n.dataManagement),
+        const SizedBox(height: 8),
+        _buildDataManagementSection(context, isTurkish),
+        const SizedBox(height: 24),
+        _buildSectionHeader(context, l10n.legal),
+        const SizedBox(height: 8),
+        _buildLegalSection(context, isTurkish),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildTabletLayout(
+    BuildContext context,
+    SettingsProvider settings,
+    dynamic l10n,
+    bool isTurkish,
+  ) {
+    final hPad = context.horizontalPadding;
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Left column: Appearance + Language
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSectionHeader(context, l10n.appearance),
+                const SizedBox(height: 8),
+                _buildThemeSelector(context, settings, isTurkish),
+                const SizedBox(height: 24),
+                _buildSectionHeader(context, l10n.language),
+                const SizedBox(height: 8),
+                _buildLanguageSelector(context, settings),
+              ],
+            ),
           ),
-          children: [
-            // Theme Section
-            _buildSectionHeader(context, l10n.appearance),
-            const SizedBox(height: 8),
-            _buildThemeSelector(context, settings, isTurkish),
-
-            const SizedBox(height: 24),
-
-            // Language Section
-            _buildSectionHeader(context, l10n.language),
-            const SizedBox(height: 8),
-            _buildLanguageSelector(context, settings),
-
-            const SizedBox(height: 24),
-
-            // Permissions Section
-            _buildSectionHeader(context, l10n.permissionsTitle),
-            const SizedBox(height: 8),
-            _buildPermissionsSection(context, isTurkish, settings),
-
-            const SizedBox(height: 24),
-
-            // Data Management Section
-            _buildSectionHeader(context, l10n.dataManagement),
-            const SizedBox(height: 8),
-            _buildDataManagementSection(context, isTurkish),
-
-            const SizedBox(height: 24),
-
-            // Legal Section
-            _buildSectionHeader(context, l10n.legal),
-            const SizedBox(height: 8),
-            _buildLegalSection(context, isTurkish),
-          ],
-        ),
+          const SizedBox(width: 24),
+          // Right column: Permissions + Data + Legal
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSectionHeader(context, l10n.permissionsTitle),
+                const SizedBox(height: 8),
+                _buildPermissionsSection(context, isTurkish, settings),
+                const SizedBox(height: 24),
+                _buildSectionHeader(context, l10n.dataManagement),
+                const SizedBox(height: 8),
+                _buildDataManagementSection(context, isTurkish),
+                const SizedBox(height: 24),
+                _buildSectionHeader(context, l10n.legal),
+                const SizedBox(height: 8),
+                _buildLegalSection(context, isTurkish),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -102,28 +154,33 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildThemeButton(
-            context,
-            settings,
-            ThemeMode.system,
-            Icons.brightness_auto,
-            isTurkish,
+          Expanded(
+            child: _buildThemeButton(
+              context,
+              settings,
+              ThemeMode.system,
+              Icons.brightness_auto,
+              isTurkish,
+            ),
           ),
-          _buildThemeButton(
-            context,
-            settings,
-            ThemeMode.light,
-            Icons.light_mode,
-            isTurkish,
+          Expanded(
+            child: _buildThemeButton(
+              context,
+              settings,
+              ThemeMode.light,
+              Icons.light_mode,
+              isTurkish,
+            ),
           ),
-          _buildThemeButton(
-            context,
-            settings,
-            ThemeMode.dark,
-            Icons.dark_mode,
-            isTurkish,
+          Expanded(
+            child: _buildThemeButton(
+              context,
+              settings,
+              ThemeMode.dark,
+              Icons.dark_mode,
+              isTurkish,
+            ),
           ),
         ],
       ),
@@ -144,7 +201,8 @@ class SettingsScreen extends StatelessWidget {
       onTap: () => settings.setThemeMode(mode),
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected ? primaryColor.withAlpha(40) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
@@ -154,6 +212,7 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
               icon,
@@ -199,21 +258,24 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildLanguageButton(
-            context,
-            settings,
-            const Locale('tr', ''),
-            '🇹🇷',
-            'Türkçe',
+          Expanded(
+            child: _buildLanguageButton(
+              context,
+              settings,
+              const Locale('tr', ''),
+              '🇹🇷',
+              'Türkçe',
+            ),
           ),
-          _buildLanguageButton(
-            context,
-            settings,
-            const Locale('en', ''),
-            '🇬🇧',
-            'English',
+          Expanded(
+            child: _buildLanguageButton(
+              context,
+              settings,
+              const Locale('en', ''),
+              '🇬🇧',
+              'English',
+            ),
           ),
         ],
       ),
@@ -234,7 +296,8 @@ class SettingsScreen extends StatelessWidget {
       onTap: () => settings.setLocale(locale),
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected ? primaryColor.withAlpha(40) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
@@ -244,6 +307,7 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(flag, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(width: 8),

@@ -231,47 +231,68 @@ class _DrawingScreenState extends State<DrawingScreen> {
 
           // Drawing canvas
           Expanded(
-            child: Container(
-              color: Colors.white,
-              child: GestureDetector(
-                onPanStart: (details) {
-                  setState(() {
-                    _points.add(
-                      DrawingPoint(
-                        offset: details.localPosition,
-                        paint: Paint()
-                          ..color = _selectedColor
-                          ..strokeWidth = _strokeWidth
-                          ..strokeCap = StrokeCap.round
-                          ..isAntiAlias = true,
+            child: ClipRect(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final canvasWidth = constraints.maxWidth;
+                  final canvasHeight = constraints.maxHeight;
+
+                  bool inBounds(Offset pos) =>
+                      pos.dx >= 0 &&
+                      pos.dy >= 0 &&
+                      pos.dx <= canvasWidth &&
+                      pos.dy <= canvasHeight;
+
+                  return Container(
+                    color: Colors.white,
+                    child: GestureDetector(
+                      onPanStart: (details) {
+                        final pos = details.localPosition;
+                        if (!inBounds(pos)) return;
+                        setState(() {
+                          _points.add(
+                            DrawingPoint(
+                              offset: pos,
+                              paint: Paint()
+                                ..color = _selectedColor
+                                ..strokeWidth = _strokeWidth
+                                ..strokeCap = StrokeCap.round
+                                ..isAntiAlias = true,
+                            ),
+                          );
+                        });
+                      },
+                      onPanUpdate: (details) {
+                        final pos = details.localPosition;
+                        if (!inBounds(pos)) return;
+                        setState(() {
+                          _points.add(
+                            DrawingPoint(
+                              offset: pos,
+                              paint: Paint()
+                                ..color = _selectedColor
+                                ..strokeWidth = _strokeWidth
+                                ..strokeCap = StrokeCap.round
+                                ..isAntiAlias = true,
+                            ),
+                          );
+                        });
+                      },
+                      onPanEnd: (details) {
+                        setState(() {
+                          _strokes.add(List.from(_points));
+                          _points.add(
+                            DrawingPoint(offset: null, paint: Paint()),
+                          );
+                        });
+                      },
+                      child: CustomPaint(
+                        painter: DrawingPainter(points: _points),
+                        size: Size.infinite,
                       ),
-                    );
-                  });
+                    ),
+                  );
                 },
-                onPanUpdate: (details) {
-                  setState(() {
-                    _points.add(
-                      DrawingPoint(
-                        offset: details.localPosition,
-                        paint: Paint()
-                          ..color = _selectedColor
-                          ..strokeWidth = _strokeWidth
-                          ..strokeCap = StrokeCap.round
-                          ..isAntiAlias = true,
-                      ),
-                    );
-                  });
-                },
-                onPanEnd: (details) {
-                  setState(() {
-                    _strokes.add(List.from(_points));
-                    _points.add(DrawingPoint(offset: null, paint: Paint()));
-                  });
-                },
-                child: CustomPaint(
-                  painter: DrawingPainter(points: _points),
-                  size: Size.infinite,
-                ),
               ),
             ),
           ),

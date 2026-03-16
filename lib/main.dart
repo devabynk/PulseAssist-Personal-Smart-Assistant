@@ -4,6 +4,7 @@ import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:provider/provider.dart';
 
 import 'l10n/app_localizations.dart';
@@ -23,6 +24,9 @@ import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Configure home_widget App Group for iOS widget data sharing
+  await HomeWidget.setAppGroupId('group.com.abynk.smartAssistant');
 
   // Initialize Database Service (Hive) - CRITICAL: Must succeed
   await DatabaseService.instance.init();
@@ -46,11 +50,17 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
-        ChangeNotifierProvider(create: (_) => ChatProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProxyProvider<NotificationProvider, ChatProvider>(
+          create: (_) => ChatProvider(),
+          update: (_, notifProvider, chatProvider) {
+            chatProvider!.setNotificationProvider(notifProvider);
+            return chatProvider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => AlarmProvider()),
         ChangeNotifierProvider(create: (_) => NoteProvider()),
         ChangeNotifierProvider(create: (_) => ReminderProvider()),
-        ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => WeatherProvider()..initialize()),
       ],
       child: const PulseAssistApp(),

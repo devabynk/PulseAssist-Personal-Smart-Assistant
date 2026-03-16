@@ -19,6 +19,7 @@ import '../models/note.dart';
 import '../models/reminder.dart';
 import '../providers/alarm_provider.dart';
 import '../providers/note_provider.dart';
+import '../providers/notification_provider.dart';
 import '../providers/reminder_provider.dart';
 import '../providers/weather_provider.dart'; // NEW: Weather dependency
 import '../services/action_service.dart';
@@ -73,6 +74,18 @@ class ChatProvider with ChangeNotifier {
   // Partial Action State (Slot Filling)
   IntentType? _partialIntent;
   Map<String, dynamic> _partialEntities = {};
+
+  // Notification integration
+  NotificationProvider? _notificationProvider;
+  bool _isChatActive = false;
+
+  void setNotificationProvider(NotificationProvider provider) {
+    _notificationProvider = provider;
+  }
+
+  void setChatActive(bool active) {
+    _isChatActive = active;
+  }
 
   List<Message> get messages => _messages;
   List<Conversation> get conversations => _conversations;
@@ -956,6 +969,16 @@ class ChatProvider with ChangeNotifier {
             l10n,
             reminderProvider,
           );
+        case 'pin_note':
+          return await _executeAiPinNote(actionData, isTurkish, noteProvider);
+        case 'pin_reminder':
+          return await _executeAiPinReminder(actionData, isTurkish, reminderProvider);
+        case 'add_subtask':
+          return await _executeAiAddSubtask(actionData, isTurkish, reminderProvider);
+        case 'toggle_subtask':
+          return await _executeAiToggleSubtask(actionData, isTurkish, reminderProvider);
+        case 'delete_subtask':
+          return await _executeAiDeleteSubtask(actionData, isTurkish, reminderProvider);
         case 'list_reminders':
           return await _listRemindersForAi(isTurkish);
 
@@ -1159,8 +1182,9 @@ class ChatProvider with ChangeNotifier {
     if (provider == null) return 'Error';
 
     final timeStr = data['time']?.toString();
+    final labelSearch = (data['label'] ?? data['search'])?.toString();
 
-    if (timeStr == null) {
+    if (timeStr == null && labelSearch == null) {
       // Fallback: Delete latest or ask? System prompt guarantees time or "latest".
       // Let's implement generous "delete latest" if no time provided or "latest" keyword
       if (provider.alarms.isEmpty) {
@@ -1189,29 +1213,54 @@ class ChatProvider with ChangeNotifier {
       }
     }
 
-    try {
-      final parts = timeStr.split(':');
-      final h = int.parse(parts[0]);
-      final m = int.parse(parts[1]);
-
+    // If only label search provided (no time)
+    if (timeStr == null && labelSearch != null) {
       final alarmToDelete = provider.alarms.firstWhereOrNull(
-        (a) => a.time.hour == h && a.time.minute == m,
+        (a) => a.title.toLowerCase().contains(labelSearch.toLowerCase()),
       );
-
       if (alarmToDelete != null) {
-        // Create pending delete action
+        final displayName = '${alarmToDelete.time.hour.toString().padLeft(2, '0')}:${alarmToDelete.time.minute.toString().padLeft(2, '0')} - ${alarmToDelete.title}';
         _pendingDeleteAction = PendingDeleteAction(
           type: 'alarm',
           target: alarmToDelete,
-          displayName: timeStr,
+          displayName: displayName,
           timestamp: DateTime.now(),
         );
+        return _getConfirmationMessage(_pendingDeleteAction!, isTurkish);
+      } else {
+        return isTurkish ? '⚠️ "$labelSearch" alarmı bulunamadı.' : '⚠️ Alarm "$labelSearch" not found.';
+      }
+    }
 
+    try {
+      final parts = timeStr!.split(':');
+      final h = int.parse(parts[0]);
+      final m = int.parse(parts[1]);
+
+      var alarmToDelete = provider.alarms.firstWhereOrNull(
+        (a) => a.time.hour == h && a.time.minute == m,
+      );
+
+      // Fallback: search by label if not found by time
+      if (alarmToDelete == null && labelSearch != null && labelSearch.isNotEmpty) {
+        alarmToDelete = provider.alarms.firstWhereOrNull(
+          (a) => a.title.toLowerCase().contains(labelSearch.toLowerCase()),
+        );
+      }
+
+      if (alarmToDelete != null) {
+        final displayName = '${alarmToDelete.time.hour.toString().padLeft(2, '0')}:${alarmToDelete.time.minute.toString().padLeft(2, '0')} - ${alarmToDelete.title}';
+        _pendingDeleteAction = PendingDeleteAction(
+          type: 'alarm',
+          target: alarmToDelete,
+          displayName: displayName,
+          timestamp: DateTime.now(),
+        );
         return _getConfirmationMessage(_pendingDeleteAction!, isTurkish);
       } else {
         return isTurkish
-            ? '⚠️ $timeStr saatinde alarm bulunamadı.'
-            : '⚠️ No alarm found for $timeStr.';
+            ? '⚠️ Alarm bulunamadı.'
+            : '⚠️ No alarm found.';
       }
     } catch (e) {
       return isTurkish ? 'Hata oluştu.' : 'Error occurred.';
@@ -1268,14 +1317,76 @@ class ChatProvider with ChangeNotifier {
     }
 
     final searchTimeStr = data['search_time']?.toString();
+    final searchLabel = (data['search_label'] ?? data['label'])?.toString();
 
-    if (searchTimeStr == null || searchTimeStr.isEmpty) {
+    if ((searchTimeStr == null || searchTimeStr.isEmpty) && (searchLabel == null || searchLabel.isEmpty)) {
       return isTurkish
           ? '❌ Hangi alarmı güncelleyeyim? Saatini belirtir misin?'
           : '❌ Which alarm should I update? Please specify the time.';
     }
 
     try {
+      // If only label search provided (no time)
+      if (searchTimeStr == null || searchTimeStr.isEmpty) {
+        final alarmToUpdate = provider.alarms.firstWhereOrNull(
+          (a) => a.title.toLowerCase().contains(searchLabel!.toLowerCase()),
+        );
+
+        if (alarmToUpdate == null) {
+          return isTurkish
+              ? '⚠️ "$searchLabel" alarmı bulunamadı.'
+              : '⚠️ Alarm "$searchLabel" not found.';
+        }
+
+        // Parse new values
+        var newTime = alarmToUpdate.time;
+        var newLabel = alarmToUpdate.title;
+        var newRepeatDays = List<int>.from(alarmToUpdate.repeatDays);
+
+        final newTimeStr = data['new_time']?.toString();
+        if (newTimeStr != null && newTimeStr.isNotEmpty) {
+          final newParts = newTimeStr.split(':');
+          final newHour = int.parse(newParts[0]);
+          final newMinute = newParts.length > 1 ? int.parse(newParts[1]) : 0;
+          final now = DateTime.now();
+          newTime = DateTime(now.year, now.month, now.day, newHour, newMinute);
+          if (newRepeatDays.isEmpty && newTime.isBefore(now)) {
+            newTime = newTime.add(const Duration(days: 1));
+          }
+        }
+
+        if (data['new_label'] != null) {
+          newLabel = data['new_label'].toString();
+        }
+
+        final newRepeatDaysRaw = data['new_repeatDays'];
+        if (newRepeatDaysRaw != null && newRepeatDaysRaw is List) {
+          newRepeatDays = newRepeatDaysRaw
+              .map((e) => int.tryParse(e.toString()) ?? 0)
+              .where((e) => e >= 1 && e <= 7)
+              .toList();
+        }
+
+        final updatedAlarm = Alarm(
+          id: alarmToUpdate.id,
+          title: newLabel,
+          time: newTime,
+          isActive: alarmToUpdate.isActive,
+          repeatDays: newRepeatDays,
+          soundPath: alarmToUpdate.soundPath,
+          skippedDates: alarmToUpdate.skippedDates,
+        );
+
+        await provider.updateAlarm(updatedAlarm);
+
+        final newTimeFormatted =
+            '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+
+        return isTurkish
+            ? '✅ Alarm güncellendi: "$searchLabel" → $newTimeFormatted "$newLabel"'
+            : '✅ Alarm updated: "$searchLabel" → $newTimeFormatted "$newLabel"';
+      }
+
       // Parse search time
       final searchParts = searchTimeStr.split(':');
       final searchHour = int.parse(searchParts[0]);
@@ -1284,9 +1395,16 @@ class ChatProvider with ChangeNotifier {
           : 0;
 
       // Find alarm by time
-      final alarmToUpdate = provider.alarms.firstWhereOrNull(
+      var alarmToUpdate = provider.alarms.firstWhereOrNull(
         (a) => a.time.hour == searchHour && a.time.minute == searchMinute,
       );
+
+      // Fallback: search by label
+      if (alarmToUpdate == null && searchLabel != null) {
+        alarmToUpdate = provider.alarms.firstWhereOrNull(
+          (a) => a.title.toLowerCase().contains(searchLabel.toLowerCase()),
+        );
+      }
 
       if (alarmToUpdate == null) {
         return isTurkish
@@ -1829,12 +1947,12 @@ class ChatProvider with ChangeNotifier {
     }
 
     // Update fields
-    final newTitle = data['title']?.toString() ?? targetReminder.title;
+    final newTitle = data['new_title']?.toString() ?? data['title']?.toString() ?? targetReminder.title;
     var newDateTime = targetReminder.dateTime;
-    final newPriority = data['priority']?.toString() ?? targetReminder.priority;
+    final newPriority = data['new_priority']?.toString() ?? data['priority']?.toString() ?? targetReminder.priority;
 
-    if (data['time'] != null) {
-      final timeParts = data['time'].toString().split(':');
+    if (data['new_time'] != null || data['time'] != null) {
+      final timeParts = (data['new_time'] ?? data['time']).toString().split(':');
       final hour = int.tryParse(timeParts[0]) ?? targetReminder.dateTime.hour;
       final minute = timeParts.length > 1
           ? (int.tryParse(timeParts[1]) ?? 0)
@@ -1848,8 +1966,8 @@ class ChatProvider with ChangeNotifier {
       );
     }
 
-    if (data['date'] != null) {
-      final dateStr = data['date'].toString();
+    if (data['new_date'] != null || data['date'] != null) {
+      final dateStr = (data['new_date'] ?? data['date']).toString();
       if (dateStr == 'tomorrow') {
         final tomorrow = DateTime.now().add(const Duration(days: 1));
         newDateTime = DateTime(
@@ -1874,8 +1992,8 @@ class ChatProvider with ChangeNotifier {
     }
 
     var newDescription = targetReminder.description;
-    if (data['description'] != null) {
-      var desc = data['description'].toString();
+    if (data['new_description'] != null || data['description'] != null) {
+      var desc = (data['new_description'] ?? data['description']).toString();
       if (desc.isNotEmpty) {
         desc = desc.replaceAll('\\n', '\n');
         newDescription = jsonEncode([
@@ -1893,6 +2011,10 @@ class ChatProvider with ChangeNotifier {
       dateTime: newDateTime,
       priority: newPriority,
       isCompleted: targetReminder.isCompleted,
+      isPinned: targetReminder.isPinned,
+      subtasks: targetReminder.subtasks,
+      voiceNotePath: targetReminder.voiceNotePath,
+      orderIndex: targetReminder.orderIndex,
     );
 
     if (provider != null) {
@@ -1977,6 +2099,9 @@ class ChatProvider with ChangeNotifier {
       isCompleted: completed,
       priority: targetReminder.priority,
       orderIndex: targetReminder.orderIndex,
+      isPinned: targetReminder.isPinned,
+      subtasks: targetReminder.subtasks,
+      voiceNotePath: targetReminder.voiceNotePath,
     );
 
     if (provider != null) {
@@ -1992,6 +2117,303 @@ class ChatProvider with ChangeNotifier {
     return isTurkish
         ? '🔔 Hatırlatıcı $statusText: "${targetReminder.title}"'
         : '🔔 Reminder $statusText: "${targetReminder.title}"';
+  }
+
+  // ============================================================
+  // PIN OPERATIONS
+  // ============================================================
+
+  Future<String> _executeAiPinNote(
+    Map<String, dynamic> data,
+    bool isTurkish,
+    NoteProvider? provider,
+  ) async {
+    final search = data['search']?.toString() ?? '';
+    final pin = data['pin'] != false; // default true (pin), false = unpin
+
+    final notes = await _db.getNotes();
+    Note? targetNote;
+    for (final note in notes) {
+      if (note.title.toLowerCase().contains(search.toLowerCase()) ||
+          note.content.toLowerCase().contains(search.toLowerCase())) {
+        targetNote = note;
+        break;
+      }
+    }
+
+    if (targetNote == null) {
+      return isTurkish
+          ? '❌ "$search" ile eşleşen not bulunamadı.'
+          : '❌ No note found matching "$search".';
+    }
+
+    final updatedNote = Note(
+      id: targetNote.id,
+      title: targetNote.title,
+      content: targetNote.content,
+      createdAt: targetNote.createdAt,
+      updatedAt: DateTime.now(),
+      color: targetNote.color,
+      orderIndex: targetNote.orderIndex,
+      imagePaths: targetNote.imagePaths,
+      voiceNotePath: targetNote.voiceNotePath,
+      isPinned: pin,
+      isFullWidth: targetNote.isFullWidth,
+      drawingData: targetNote.drawingData,
+      tags: targetNote.tags,
+    );
+
+    if (provider != null) {
+      await provider.updateNote(updatedNote);
+    } else {
+      await _db.updateNote(updatedNote);
+    }
+
+    final action = pin
+        ? (isTurkish ? 'sabitlendi 📌' : 'pinned 📌')
+        : (isTurkish ? 'sabit kaldırıldı' : 'unpinned');
+    return isTurkish
+        ? '✅ Not $action: "${targetNote.title}"'
+        : '✅ Note $action: "${targetNote.title}"';
+  }
+
+  Future<String> _executeAiPinReminder(
+    Map<String, dynamic> data,
+    bool isTurkish,
+    ReminderProvider? provider,
+  ) async {
+    final search = data['search']?.toString() ?? '';
+    final pin = data['pin'] != false; // default true (pin), false = unpin
+
+    final reminders = await _db.getReminders();
+    Reminder? targetReminder;
+    for (final r in reminders) {
+      if (r.title.toLowerCase().contains(search.toLowerCase())) {
+        targetReminder = r;
+        break;
+      }
+    }
+
+    if (targetReminder == null) {
+      return isTurkish
+          ? '❌ "$search" ile eşleşen hatırlatıcı bulunamadı.'
+          : '❌ No reminder found matching "$search".';
+    }
+
+    final updatedReminder = Reminder(
+      id: targetReminder.id,
+      title: targetReminder.title,
+      description: targetReminder.description,
+      dateTime: targetReminder.dateTime,
+      priority: targetReminder.priority,
+      isCompleted: targetReminder.isCompleted,
+      isPinned: pin,
+      subtasks: targetReminder.subtasks,
+      voiceNotePath: targetReminder.voiceNotePath,
+      orderIndex: targetReminder.orderIndex,
+    );
+
+    if (provider != null) {
+      await provider.updateReminder(updatedReminder);
+    } else {
+      await _db.updateReminder(updatedReminder);
+    }
+
+    final action = pin
+        ? (isTurkish ? 'sabitlendi 📌' : 'pinned 📌')
+        : (isTurkish ? 'sabit kaldırıldı' : 'unpinned');
+    return isTurkish
+        ? '✅ Hatırlatıcı $action: "${targetReminder.title}"'
+        : '✅ Reminder $action: "${targetReminder.title}"';
+  }
+
+  // ============================================================
+  // SUBTASK OPERATIONS
+  // ============================================================
+
+  Future<String> _executeAiAddSubtask(
+    Map<String, dynamic> data,
+    bool isTurkish,
+    ReminderProvider? provider,
+  ) async {
+    final search = data['search']?.toString() ?? '';
+    final subtaskTitle = data['subtask']?.toString() ?? data['title']?.toString() ?? '';
+
+    if (subtaskTitle.isEmpty) {
+      return isTurkish
+          ? '❌ Alt görev başlığı belirtilmedi.'
+          : '❌ Subtask title not specified.';
+    }
+
+    final reminders = await _db.getReminders();
+    Reminder? targetReminder;
+    for (final r in reminders) {
+      if (r.title.toLowerCase().contains(search.toLowerCase())) {
+        targetReminder = r;
+        break;
+      }
+    }
+
+    if (targetReminder == null) {
+      return isTurkish
+          ? '❌ "$search" ile eşleşen hatırlatıcı bulunamadı.'
+          : '❌ No reminder found matching "$search".';
+    }
+
+    final newSubtask = Subtask(
+      id: _uuid.v4(),
+      title: subtaskTitle,
+      isCompleted: false,
+    );
+
+    final updatedReminder = Reminder(
+      id: targetReminder.id,
+      title: targetReminder.title,
+      description: targetReminder.description,
+      dateTime: targetReminder.dateTime,
+      priority: targetReminder.priority,
+      isCompleted: targetReminder.isCompleted,
+      isPinned: targetReminder.isPinned,
+      subtasks: [...targetReminder.subtasks, newSubtask],
+      voiceNotePath: targetReminder.voiceNotePath,
+      orderIndex: targetReminder.orderIndex,
+    );
+
+    if (provider != null) {
+      await provider.updateReminder(updatedReminder);
+    } else {
+      await _db.updateReminder(updatedReminder);
+    }
+
+    return isTurkish
+        ? '✅ Alt görev eklendi: "$subtaskTitle" → "${targetReminder.title}"'
+        : '✅ Subtask added: "$subtaskTitle" → "${targetReminder.title}"';
+  }
+
+  Future<String> _executeAiToggleSubtask(
+    Map<String, dynamic> data,
+    bool isTurkish,
+    ReminderProvider? provider,
+  ) async {
+    final search = data['search']?.toString() ?? '';
+    final subtaskSearch = data['subtask']?.toString() ?? '';
+    final completed = data['completed'] == true || data['completed'] == 'true';
+
+    final reminders = await _db.getReminders();
+    Reminder? targetReminder;
+    for (final r in reminders) {
+      if (r.title.toLowerCase().contains(search.toLowerCase())) {
+        targetReminder = r;
+        break;
+      }
+    }
+
+    if (targetReminder == null) {
+      return isTurkish
+          ? '❌ Hatırlatıcı bulunamadı: "$search"'
+          : '❌ Reminder not found: "$search"';
+    }
+
+    final subtaskIndex = targetReminder.subtasks.indexWhere(
+      (s) => s.title.toLowerCase().contains(subtaskSearch.toLowerCase()),
+    );
+
+    if (subtaskIndex == -1) {
+      return isTurkish
+          ? '❌ Alt görev bulunamadı: "$subtaskSearch"'
+          : '❌ Subtask not found: "$subtaskSearch"';
+    }
+
+    final updatedSubtasks = List<Subtask>.from(targetReminder.subtasks);
+    updatedSubtasks[subtaskIndex] = Subtask(
+      id: updatedSubtasks[subtaskIndex].id,
+      title: updatedSubtasks[subtaskIndex].title,
+      isCompleted: completed,
+    );
+
+    final updatedReminder = Reminder(
+      id: targetReminder.id,
+      title: targetReminder.title,
+      description: targetReminder.description,
+      dateTime: targetReminder.dateTime,
+      priority: targetReminder.priority,
+      isCompleted: targetReminder.isCompleted,
+      isPinned: targetReminder.isPinned,
+      subtasks: updatedSubtasks,
+      voiceNotePath: targetReminder.voiceNotePath,
+      orderIndex: targetReminder.orderIndex,
+    );
+
+    if (provider != null) {
+      await provider.updateReminder(updatedReminder);
+    } else {
+      await _db.updateReminder(updatedReminder);
+    }
+
+    final statusText = completed
+        ? (isTurkish ? 'tamamlandı ✅' : 'completed ✅')
+        : (isTurkish ? 'geri açıldı 🔄' : 'reopened 🔄');
+
+    return isTurkish
+        ? '✅ Alt görev $statusText: "${updatedSubtasks[subtaskIndex].title}"'
+        : '✅ Subtask $statusText: "${updatedSubtasks[subtaskIndex].title}"';
+  }
+
+  Future<String> _executeAiDeleteSubtask(
+    Map<String, dynamic> data,
+    bool isTurkish,
+    ReminderProvider? provider,
+  ) async {
+    final search = data['search']?.toString() ?? '';
+    final subtaskSearch = data['subtask']?.toString() ?? '';
+
+    final reminders = await _db.getReminders();
+    Reminder? targetReminder;
+    for (final r in reminders) {
+      if (r.title.toLowerCase().contains(search.toLowerCase())) {
+        targetReminder = r;
+        break;
+      }
+    }
+
+    if (targetReminder == null) {
+      return isTurkish
+          ? '❌ Hatırlatıcı bulunamadı: "$search"'
+          : '❌ Reminder not found: "$search"';
+    }
+
+    final updatedSubtasks = targetReminder.subtasks
+        .where((s) => !s.title.toLowerCase().contains(subtaskSearch.toLowerCase()))
+        .toList();
+
+    if (updatedSubtasks.length == targetReminder.subtasks.length) {
+      return isTurkish
+          ? '❌ Alt görev bulunamadı: "$subtaskSearch"'
+          : '❌ Subtask not found: "$subtaskSearch"';
+    }
+
+    final updatedReminder = Reminder(
+      id: targetReminder.id,
+      title: targetReminder.title,
+      description: targetReminder.description,
+      dateTime: targetReminder.dateTime,
+      priority: targetReminder.priority,
+      isCompleted: targetReminder.isCompleted,
+      isPinned: targetReminder.isPinned,
+      subtasks: updatedSubtasks,
+      voiceNotePath: targetReminder.voiceNotePath,
+      orderIndex: targetReminder.orderIndex,
+    );
+
+    if (provider != null) {
+      await provider.updateReminder(updatedReminder);
+    } else {
+      await _db.updateReminder(updatedReminder);
+    }
+
+    return isTurkish
+        ? '✅ Alt görev silindi: "$subtaskSearch"'
+        : '✅ Subtask deleted: "$subtaskSearch"';
   }
 
   // ============================================================
@@ -2209,6 +2631,16 @@ class ChatProvider with ChangeNotifier {
     _messages.add(msg);
     notifyListeners();
     await _db.insertMessage(msg);
+
+    // Log as notification only when user is not actively in chat
+    if (!_isChatActive && _notificationProvider != null) {
+      final preview = text.length > 120 ? '${text.substring(0, 120)}…' : text;
+      await _notificationProvider!.addNotification(
+        title: 'PulseAssist',
+        body: preview,
+        type: 'chat',
+      );
+    }
   }
 
   Future<void> clearAllHistory() async {

@@ -102,12 +102,6 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
     if (widget.template == 'shopping') {
       _titleController.text = l10n.templateShopping;
       deltaOps = [
-        {'insert': l10n.templateShoppingDesc},
-        {
-          'insert': '\n',
-          'attributes': {'header': 2},
-        },
-        {'insert': '\n'},
         {'insert': l10n.shoppingItem1},
         {
           'insert': '\n',
@@ -132,12 +126,6 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
     } else if (widget.template == 'todo') {
       _titleController.text = l10n.templateTodo;
       deltaOps = [
-        {'insert': l10n.templateTodoDesc},
-        {
-          'insert': '\n',
-          'attributes': {'header': 2},
-        },
-        {'insert': '\n'},
         {'insert': l10n.todoItem1},
         {
           'insert': '\n',
@@ -294,6 +282,11 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                         decoration: InputDecoration(
                           hintText: l10n.noteTitle,
                           border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          filled: false,
+                          contentPadding: EdgeInsets.zero,
+                          isDense: true,
                           hintStyle: Theme.of(
                             context,
                           ).textTheme.titleLarge?.copyWith(
@@ -319,6 +312,8 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                         config: quill.QuillEditorConfig(
                           placeholder: l10n.noteContent,
                           padding: const EdgeInsets.symmetric(vertical: 8),
+                          checkBoxReadOnly: false,
+                          enableInteractiveSelection: true,
                         ),
                       ),
 
@@ -679,13 +674,13 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
   }
 
   Future<void> _recordVoice() async {
-    final result = await Navigator.push(
+    final result = await Navigator.push<Map<String, String>>(
       context,
       MaterialPageRoute(
         builder: (context) => VoiceNoteScreen(existingPath: _voiceNotePath),
       ),
     );
-    if (result != null) setState(() => _voiceNotePath = result);
+    if (result != null) setState(() => _voiceNotePath = result['path']);
   }
 
   void _showColorPicker() {

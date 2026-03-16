@@ -19,6 +19,7 @@ import '../providers/weather_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/location_selector_dialog.dart';
 import '../widgets/quill_note_viewer.dart';
+import 'settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final VoidCallback? onNavigateToChatbot;
@@ -65,31 +66,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  String _getGreeting(AppLocalizations l10n) {
+  String _getGreeting(bool isTurkish) {
     final hour = DateTime.now().hour;
-    if (hour >= 5 && hour < 12) {
-      return l10n.goodMorning;
-    } else if (hour >= 12 && hour < 17) {
-      return l10n.goodAfternoon;
-    } else if (hour >= 17 && hour < 21) {
-      return l10n.goodEvening;
+    if (isTurkish) {
+      if (hour >= 5 && hour < 9) return 'Günaydın! ☀️';
+      if (hour >= 9 && hour < 12) return 'Hayırlı sabahlar';
+      if (hour >= 12 && hour < 14) return 'İyi öğleler 🌤️';
+      if (hour >= 14 && hour < 17) return 'Günün nasıl geçiyor?';
+      if (hour >= 17 && hour < 20) return 'İyi akşamlar 🌙';
+      if (hour >= 20 && hour < 23) return 'İyi geceler 🌙';
+      return 'Gece geç saatler 🌑';
     } else {
-      return l10n.goodNight;
+      if (hour >= 5 && hour < 9) return 'Good morning! ☀️';
+      if (hour >= 9 && hour < 12) return 'Hope your morning is great';
+      if (hour >= 12 && hour < 14) return 'Good noon! 🌤️';
+      if (hour >= 14 && hour < 17) return 'Good afternoon';
+      if (hour >= 17 && hour < 20) return 'Good evening 🌙';
+      if (hour >= 20 && hour < 23) return 'Good night 🌙';
+      return 'Burning the midnight oil 🌑';
     }
   }
 
-  IconData _getGreetingIcon() {
-    final hour = DateTime.now().hour;
-    if (hour >= 5 && hour < 12) {
-      return Icons.wb_sunny;
-    } else if (hour >= 12 && hour < 17) {
-      return Icons.wb_sunny_outlined;
-    } else if (hour >= 17 && hour < 21) {
-      return Icons.nights_stay_outlined;
-    } else {
-      return Icons.nights_stay;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,10 +121,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         // Header with greeting
         _buildHeader(isTurkish, userName, isDark, l10n),
-        const SizedBox(height: 24),
-
-        // Quick Actions
-        _buildQuickActions(l10n),
         const SizedBox(height: 20),
 
         // Weather Card
@@ -175,8 +168,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               flex: 4,
               child: Column(
                 children: [
-                  _buildQuickActions(l10n),
-                  const SizedBox(height: 24),
                   _buildAlarmTasksRow(isTurkish, isDark, l10n),
                   const SizedBox(height: 24),
                   _buildRecentNotes(isTurkish, isDark, l10n),
@@ -197,15 +188,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(_getGreetingIcon(), color: Colors.amber, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  _getGreeting(l10n),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
+            Text(
+              _getGreeting(isTurkish),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 4),
             Text(
@@ -269,77 +254,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               },
             ),
+            const SizedBox(width: 10),
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SettingsScreen(),
+                ),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.settings_outlined,
+                  color: Theme.of(context).iconTheme.color,
+                ),
+              ),
+            ),
           ],
         ),
       ],
-    );
-  }
-
-  Widget _buildQuickActions(AppLocalizations l10n) {
-    return Row(
-      children: [
-        _buildQuickActionButton(
-          icon: Icons.smart_toy,
-          label: l10n.chatbot,
-          color: AppColors.primary,
-          onTap: widget.onNavigateToChatbot,
-        ),
-        const SizedBox(width: 12),
-        _buildQuickActionButton(
-          icon: Icons.note_alt,
-          label: l10n.note,
-          color: Colors.amber,
-          onTap: widget.onNavigateToNotes,
-        ),
-        const SizedBox(width: 12),
-        _buildQuickActionButton(
-          icon: Icons.alarm,
-          label: l10n.alarm,
-          color: Colors.purple,
-          onTap: widget.onNavigateToAlarm,
-        ),
-        const SizedBox(width: 12),
-        _buildQuickActionButton(
-          icon: Icons.notifications,
-          label: l10n.remind,
-          color: Colors.teal,
-          onTap: widget.onNavigateToReminders,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQuickActionButton({
-    required IconData icon,
-    required String label,
-    required Color color,
-    VoidCallback? onTap,
-  }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            color: color.withAlpha(30),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withAlpha(50)),
-          ),
-          child: Column(
-            children: [
-              Icon(icon, color: color, size: 24),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: color,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -390,7 +327,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            l10n.aiChat,
+                            isTurkish ? 'Akıllı Asistan' : 'Smart Assistant',
                             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -867,88 +804,177 @@ class _DashboardScreenState extends State<DashboardScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.7,
+          initialChildSize: 0.75,
           minChildSize: 0.5,
           maxChildSize: 0.95,
           expand: false,
           builder: (context, scrollController) {
-            return Consumer<NotificationProvider>(
-              builder: (context, provider, child) {
-                // Sort by timestamp descending
-                final notifications = List.from(provider.notifications)
-                  ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(28),
+                ),
+              ),
+              child: Consumer2<NotificationProvider, ReminderProvider>(
+                builder: (context, notifProvider, reminderProvider, _) {
+                  final notifications = List.from(notifProvider.notifications)
+                    ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
-                return Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            context.l10n.notifications,
-                            style: Theme.of(context).textTheme.titleLarge,
+                  final now = DateTime.now();
+                  final upcomingReminders = reminderProvider.pendingReminders
+                      .where((r) => r.dateTime.isAfter(now))
+                      .toList()
+                    ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
+                  final nextReminders = upcomingReminders.take(3).toList();
+
+                  final hasAny =
+                      notifications.isNotEmpty || nextReminders.isNotEmpty;
+
+                  return Column(
+                    children: [
+                      // Handle bar
+                      const SizedBox(height: 12),
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).dividerColor.withAlpha(120),
+                            borderRadius: BorderRadius.circular(2),
                           ),
-                          if (notifications.isNotEmpty)
-                            TextButton(
-                              onPressed: () {
-                                provider.clearAll();
-                                Navigator.pop(context);
-                              },
-                              child: Text(
-                                context.l10n.clearAll,
-                                style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Header
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              isTurkish ? 'Bildirimler' : 'Notifications',
+                              style: Theme.of(
+                                context,
+                              ).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                        ],
-                      ),
-                    ),
-                    const Divider(height: 1),
-                    if (notifications.isEmpty)
-                      Expanded(
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.notifications_off_outlined,
-                                size: 64,
-                                color: Theme.of(context).hintColor,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                context.l10n.noNotifications,
-                                style: TextStyle(
-                                  color: Theme.of(context).hintColor,
+                            if (notifications.isNotEmpty)
+                              GestureDetector(
+                                onTap: () => notifProvider.clearAll(),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.withAlpha(20),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.delete_sweep_rounded,
+                                        color: Colors.red,
+                                        size: 15,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        isTurkish ? 'Tümünü Sil' : 'Clear all',
+                                        style: const TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      )
-                    else
-                      Expanded(
-                        child: ListView.builder(
-                          controller: scrollController,
-                          itemCount: notifications.length,
-                          itemBuilder: (context, index) {
-                            final notification = notifications[index];
-                            return _buildNotificationItem(
-                              notification,
-                              isTurkish,
-                            );
-                          },
+                          ],
                         ),
                       ),
-                  ],
-                );
-              },
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: hasAny
+                            ? ListView(
+                                controller: scrollController,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                children: [
+                                  // Upcoming reminders section
+                                  if (nextReminders.isNotEmpty) ...[
+                                    _sectionLabel(
+                                      isTurkish
+                                          ? 'Yaklaşan Hatırlatıcılar'
+                                          : 'Upcoming Reminders',
+                                      Icons.event_rounded,
+                                      Colors.teal,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ...nextReminders.map(
+                                      (r) => _buildReminderItem(
+                                        r,
+                                        isTurkish,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                  ],
+                                  // Notifications
+                                  if (notifications.isNotEmpty) ...[
+                                    _sectionLabel(
+                                      isTurkish
+                                          ? 'Bildirimler'
+                                          : 'Notifications',
+                                      Icons.notifications_rounded,
+                                      Colors.orange,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ...notifications.map(
+                                      (n) => _buildNotificationItem(
+                                        n,
+                                        isTurkish,
+                                      ),
+                                    ),
+                                  ],
+                                  const SizedBox(height: 24),
+                                ],
+                              )
+                            : Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.notifications_off_outlined,
+                                      size: 56,
+                                      color: Theme.of(context).hintColor,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      isTurkish
+                                          ? 'Bildirim yok'
+                                          : 'No notifications',
+                                      style: TextStyle(
+                                        color: Theme.of(context).hintColor,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             );
           },
         );
@@ -958,97 +984,222 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  Widget _buildNotificationItem(NotificationLog notification, bool isTurkish) {
-    final dateFormat = DateFormat('dd MMM HH:mm', isTurkish ? 'tr' : 'en');
-
-    return Dismissible(
-      key: Key(notification.id),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        color: Colors.red,
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
-      onDismissed: (direction) {
-        Provider.of<NotificationProvider>(
-          context,
-          listen: false,
-        ).deleteNotification(notification.id);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: notification.isRead
-              ? Colors.transparent
-              : Theme.of(context).primaryColor.withAlpha(10),
-          border: Border(
-            bottom: BorderSide(
-              color: Theme.of(context).dividerColor.withAlpha(50),
-              width: 0.5,
-            ),
+  Widget _sectionLabel(String title, IconData icon, Color color) {
+    return Row(
+      children: [
+        Icon(icon, size: 15, color: color),
+        const SizedBox(width: 6),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: color,
+            letterSpacing: 0.4,
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildReminderItem(dynamic reminder, bool isTurkish) {
+    final dateFormat = DateFormat('d MMM · HH:mm', isTurkish ? 'tr' : 'en');
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(14),
+        border: const Border(
+          left: BorderSide(color: Colors.teal, width: 3),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                shape: BoxShape.circle,
-                border: Border.all(color: Theme.of(context).dividerColor),
-              ),
-              child: Icon(
-                _getNotificationIcon(notification.type),
-                size: 20,
-                color: AppColors.primary,
-              ),
+            const Icon(
+              Icons.alarm_rounded,
+              size: 18,
+              color: Colors.teal,
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          notification.title,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: notification.isRead
-                                ? FontWeight.normal
-                                : FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text(
-                        dateFormat.format(notification.timestamp),
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(context).hintColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
                   Text(
-                    notification.body,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).textTheme.bodySmall?.color,
+                    reminder.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
                     ),
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if ((reminder.description as String).isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      reminder.description,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).hintColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              dateFormat.format(reminder.dateTime),
+              style: const TextStyle(
+                fontSize: 11,
+                color: Colors.teal,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildNotificationItem(NotificationLog notification, bool isTurkish) {
+    final dateFormat = DateFormat('d MMM · HH:mm', isTurkish ? 'tr' : 'en');
+    final accent = _getNotificationColor(notification.type);
+
+    return Dismissible(
+      key: Key(notification.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(Icons.delete_rounded, color: Colors.white),
+      ),
+      onDismissed: (_) {
+        Provider.of<NotificationProvider>(
+          context,
+          listen: false,
+        ).deleteNotification(notification.id);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border(left: BorderSide(color: accent, width: 3)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                _getNotificationIcon(notification.type),
+                size: 18,
+                color: accent,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            notification.title,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: notification.isRead
+                                  ? FontWeight.w500
+                                  : FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          dateFormat.format(notification.timestamp),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context).hintColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      notification.body,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context).hintColor,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (!notification.isRead)
+                    Container(
+                      width: 7,
+                      height: 7,
+                      margin: const EdgeInsets.only(bottom: 6),
+                      decoration: BoxDecoration(
+                        color: accent,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  GestureDetector(
+                    onTap: () {
+                      Provider.of<NotificationProvider>(
+                        context,
+                        listen: false,
+                      ).deleteNotification(notification.id);
+                    },
+                    child: Icon(
+                      Icons.close_rounded,
+                      size: 16,
+                      color: Theme.of(context).hintColor.withAlpha(180),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _getNotificationColor(String? type) {
+    switch (type) {
+      case 'alarm':
+        return Colors.purple;
+      case 'reminder':
+        return Colors.teal;
+      case 'chat':
+        return AppColors.primary;
+      case 'system':
+        return Colors.blueGrey;
+      case 'update':
+        return Colors.orange;
+      default:
+        return AppColors.primary;
+    }
   }
 
   IconData _getNotificationIcon(String? type) {
@@ -1067,375 +1218,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildWeatherCard(bool isTurkish, bool isDark) {
-    return Consumer<WeatherProvider>(
-      builder: (context, weatherProvider, child) {
-        final weather = weatherProvider.currentWeather;
-        final forecast = weatherProvider.forecast;
-        final isExpanded = weatherProvider.isExpanded;
-        final l10n = context.l10n;
-
-        return Container(
-          width: double.infinity, // Full width
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: weather != null
-                  ? _getWeatherGradient(weather.description, isDark)
-                  : (isDark
-                        ? [const Color(0xFF1E3A8A), const Color(0xFF3B82F6)]
-                        : [const Color(0xFF3B82F6), const Color(0xFF60A5FA)]),
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: isDark
-                ? null
-                : [
-                    BoxShadow(
-                      color: Colors.blue.withAlpha(50),
-                      blurRadius: 15,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-          ),
-          child: weatherProvider.isLoading
-              ? const Padding(
-                  padding: EdgeInsets.all(40),
-                  child: Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  ),
-                )
-              : weather == null
-              ? GestureDetector(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const LocationSelectorDialog(),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.wb_sunny_outlined,
-                          size: 48,
-                          color: Colors.white.withAlpha(200),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          l10n.selectLocation,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          isTurkish
-                              ? 'Hava durumu görmek için dokunun'
-                              : 'Tap to see weather',
-                          style: TextStyle(
-                            color: Colors.white.withAlpha(180),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : Column(
-                  children: [
-                    // Header with location and action buttons
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 12, 8),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.location_on,
-                            color: Colors.white.withAlpha(200),
-                            size: 18,
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              weather.cityName,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          // Refresh button
-                          IconButton(
-                            icon: Icon(
-                              Icons.refresh,
-                              color: Colors.white.withAlpha(200),
-                              size: 22,
-                            ),
-                            onPressed: () {
-                              if (weatherProvider.selectedLocation != null) {
-                                final locale = Localizations.localeOf(
-                                  context,
-                                ).languageCode;
-                                weatherProvider.fetchWeather(
-                                  weatherProvider.selectedLocation!,
-                                  language: locale,
-                                  displayLabel: weatherProvider
-                                      .selectedLocation, // Preserve full location name
-                                  state: weatherProvider.selectedState,
-                                  district: weatherProvider.selectedDistrict,
-                                  countryCode: weatherProvider.selectedCountry,
-                                );
-                              }
-                            },
-                            padding: const EdgeInsets.all(8),
-                            constraints: const BoxConstraints(),
-                          ),
-                          // Change location button
-                          IconButton(
-                            icon: Icon(
-                              Icons.edit_location,
-                              color: Colors.white.withAlpha(200),
-                              size: 22,
-                            ),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) =>
-                                    const LocationSelectorDialog(),
-                              );
-                            },
-                            padding: const EdgeInsets.all(8),
-                            constraints: const BoxConstraints(),
-                          ),
-                          // Expand/Collapse button
-                          IconButton(
-                            icon: Icon(
-                              isExpanded
-                                  ? Icons.expand_less
-                                  : Icons.expand_more,
-                              color: Colors.white.withAlpha(200),
-                              size: 24,
-                            ),
-                            onPressed: () => weatherProvider.toggleExpand(),
-                            padding: const EdgeInsets.all(8),
-                            constraints: const BoxConstraints(),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Current weather
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      child: Row(
-                        children: [
-                          // Temperature
-                          Text(
-                            '${weather.temperature.round()}°',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              height: 1,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          // Description and details
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _translateWeatherCondition(
-                                    weather.description,
-                                    isTurkish,
-                                  ),
-                                  style: TextStyle(
-                                    color: Colors.white.withAlpha(240),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.thermostat,
-                                      color: Colors.white.withAlpha(200),
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '${weather.feelsLike.round()}°',
-                                      style: TextStyle(
-                                        color: Colors.white.withAlpha(220),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Icon(
-                                      Icons.water_drop,
-                                      color: Colors.white.withAlpha(200),
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '${weather.humidity}%',
-                                      style: TextStyle(
-                                        color: Colors.white.withAlpha(220),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Icon(
-                                      Icons.air,
-                                      color: Colors.white.withAlpha(200),
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '${weather.windSpeed.round()} km/h',
-                                      style: TextStyle(
-                                        color: Colors.white.withAlpha(220),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Hourly Forecast (Next 24h)
-                    if (isExpanded &&
-                        weatherProvider.hourlyForecast != null &&
-                        weatherProvider.hourlyForecast!.isNotEmpty)
-                      Container(
-                        height: 100,
-                        margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: weatherProvider.hourlyForecast!.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(width: 8),
-                          itemBuilder: (context, index) {
-                            final hour = weatherProvider.hourlyForecast![index];
-                            final time = hour['time'];
-                            final temp = hour['temp'];
-                            final condition = hour['condition'];
-                            final icon = hour['icon'];
-
-                            // Dynamic color for each hour
-                            final hourGradient = _getWeatherGradient(
-                              condition,
-                              isDark,
-                            );
-
-                            return Container(
-                              width: 70,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: hourGradient
-                                      .map((c) => c.withAlpha(204))
-                                      .toList(),
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withAlpha(20),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    time,
-                                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  CachedNetworkImage(
-                                    imageUrl: icon,
-                                    width: 32,
-                                    height: 32,
-                                    placeholder: (context, url) =>
-                                        const SizedBox(width: 32, height: 32),
-                                    errorWidget: (context, url, error) =>
-                                        const Icon(
-                                          Icons.error,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                  ),
-                                  Text(
-                                    '${temp.round()}°',
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-
-                    // 3-day forecast (shown when expanded)
-                    if (isExpanded && forecast != null && forecast.isNotEmpty)
-                      Container(
-                        margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withAlpha(25),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: forecast.map((day) {
-                            final date = DateTime.parse(day['date']);
-                            final dayName = _getDayName(date, isTurkish, context.l10n);
-                            return Column(
-                              children: [
-                                Text(
-                                  dayName,
-                                  style: TextStyle(
-                                    color: Colors.white.withAlpha(200),
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${day['maxTemp'].round()}°',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  '${day['minTemp'].round()}°',
-                                  style: TextStyle(
-                                    color: Colors.white.withAlpha(180),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                  ],
-                ),
-        );
-      },
+    return _WeatherCard(
+      isTurkish: isTurkish,
+      isDark: isDark,
+      translateCondition: _translateWeatherCondition,
+      getGradient: _getWeatherGradient,
+      getDayName: _getDayName,
     );
   }
 
@@ -1601,5 +1389,577 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return isDark
         ? [const Color(0xFF141E30), const Color(0xFF243B55)]
         : [const Color(0xFF2193b0), const Color(0xFF6dd5fa)];
+  }
+}
+
+// ─── Animated Weather Card ───────────────────────────────────────────────────
+
+class _WeatherCard extends StatefulWidget {
+  final bool isTurkish;
+  final bool isDark;
+  final String Function(String, bool) translateCondition;
+  final List<Color> Function(String, bool) getGradient;
+  final String Function(DateTime, bool, AppLocalizations) getDayName;
+
+  const _WeatherCard({
+    required this.isTurkish,
+    required this.isDark,
+    required this.translateCondition,
+    required this.getGradient,
+    required this.getDayName,
+  });
+
+  @override
+  State<_WeatherCard> createState() => _WeatherCardState();
+}
+
+class _WeatherCardState extends State<_WeatherCard>
+    with TickerProviderStateMixin {
+  late final AnimationController _rotateCtrl;
+  late final AnimationController _floatCtrl;
+  late final AnimationController _flashCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _rotateCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 10),
+    )..repeat();
+    _floatCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
+    _flashCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _rotateCtrl.dispose();
+    _floatCtrl.dispose();
+    _flashCtrl.dispose();
+    super.dispose();
+  }
+
+  Widget _animatedWeatherIcon(String condition, double size) {
+    final c = condition.toLowerCase();
+    if (c.contains('sun') ||
+        c.contains('clear') ||
+        c.contains('açık') ||
+        c.contains('güneş')) {
+      return RotationTransition(
+        turns: _rotateCtrl,
+        child: Icon(
+          Icons.wb_sunny_rounded,
+          size: size,
+          color: const Color(0xFFFFD54F),
+        ),
+      );
+    } else if (c.contains('thunder') ||
+        c.contains('gök gürültü') ||
+        c.contains('fırtına')) {
+      return FadeTransition(
+        opacity: Tween<double>(
+          begin: 0.3,
+          end: 1.0,
+        ).animate(_flashCtrl),
+        child: Icon(
+          Icons.bolt_rounded,
+          size: size,
+          color: const Color(0xFFFFEE58),
+        ),
+      );
+    } else if (c.contains('snow') ||
+        c.contains('blizzard') ||
+        c.contains('kar') ||
+        c.contains('tipi')) {
+      return RotationTransition(
+        turns: _rotateCtrl,
+        child: Icon(
+          Icons.ac_unit_rounded,
+          size: size,
+          color: const Color(0xFFB3E5FC),
+        ),
+      );
+    } else if (c.contains('rain') ||
+        c.contains('drizzle') ||
+        c.contains('shower') ||
+        c.contains('yağmur') ||
+        c.contains('çisenti') ||
+        c.contains('sağanak')) {
+      return AnimatedBuilder(
+        animation: _floatCtrl,
+        builder: (context, child) => Transform.translate(
+          offset: Offset(0, (_floatCtrl.value - 0.5) * 8),
+          child: child,
+        ),
+        child: Icon(
+          Icons.water_drop_rounded,
+          size: size,
+          color: const Color(0xFF81D4FA),
+        ),
+      );
+    } else if (c.contains('fog') ||
+        c.contains('mist') ||
+        c.contains('sis') ||
+        c.contains('pus')) {
+      return FadeTransition(
+        opacity: Tween<double>(
+          begin: 0.4,
+          end: 0.9,
+        ).animate(_floatCtrl),
+        child: Icon(Icons.blur_on_rounded, size: size, color: Colors.white70),
+      );
+    } else if (c.contains('cloud') ||
+        c.contains('overcast') ||
+        c.contains('bulut') ||
+        c.contains('kapalı')) {
+      return AnimatedBuilder(
+        animation: _floatCtrl,
+        builder: (context, child) => Transform.translate(
+          offset: Offset((_floatCtrl.value - 0.5) * 8, 0),
+          child: child,
+        ),
+        child: Icon(Icons.cloud_rounded, size: size, color: Colors.white),
+      );
+    }
+    return AnimatedBuilder(
+      animation: _floatCtrl,
+      builder: (context, child) => Transform.translate(
+        offset: Offset(0, (_floatCtrl.value - 0.5) * 4),
+        child: child,
+      ),
+      child: Icon(Icons.wb_cloudy_rounded, size: size, color: Colors.white70),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<WeatherProvider>(
+      builder: (context, wp, _) {
+        final weather = wp.currentWeather;
+        final forecast = wp.forecast;
+        final isExpanded = wp.isExpanded;
+        final l10n = context.l10n;
+        final isTurkish = widget.isTurkish;
+        final isDark = widget.isDark;
+
+        final gradientColors = weather != null
+            ? widget.getGradient(weather.description, isDark)
+            : (isDark
+                  ? [const Color(0xFF141E30), const Color(0xFF243B55)]
+                  : [const Color(0xFF2193b0), const Color(0xFF6dd5fa)]);
+
+        return Container(
+          width: double.infinity,
+          clipBehavior: Clip.hardEdge,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: gradientColors,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: gradientColors.first.withAlpha(90),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Decorative circles for depth
+              Positioned(
+                top: -30,
+                right: -20,
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withAlpha(18),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -20,
+                left: 20,
+                child: Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withAlpha(10),
+                  ),
+                ),
+              ),
+              // Content
+              if (wp.isLoading)
+                const Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  ),
+                )
+              else if (weather == null)
+                GestureDetector(
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (_) => const LocationSelectorDialog(),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 28,
+                      horizontal: 20,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.wb_sunny_outlined,
+                          size: 42,
+                          color: Colors.white.withAlpha(200),
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.selectLocation,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              isTurkish
+                                  ? 'Hava durumu için konumu seçin'
+                                  : 'Tap to set your location',
+                              style: TextStyle(
+                                color: Colors.white.withAlpha(180),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header: city + action buttons
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 10, 8, 0),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_rounded,
+                            color: Colors.white.withAlpha(200),
+                            size: 15,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              weather.cityName,
+                              style: TextStyle(
+                                color: Colors.white.withAlpha(230),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.refresh_rounded,
+                              color: Colors.white.withAlpha(200),
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              if (wp.selectedLocation != null) {
+                                final locale = Localizations.localeOf(
+                                  context,
+                                ).languageCode;
+                                wp.fetchWeather(
+                                  wp.selectedLocation!,
+                                  language: locale,
+                                  displayLabel: wp.selectedLocation,
+                                  state: wp.selectedState,
+                                  district: wp.selectedDistrict,
+                                  countryCode: wp.selectedCountry,
+                                );
+                              }
+                            },
+                            padding: const EdgeInsets.all(6),
+                            constraints: const BoxConstraints(),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.edit_location_rounded,
+                              color: Colors.white.withAlpha(200),
+                              size: 20,
+                            ),
+                            onPressed: () => showDialog(
+                              context: context,
+                              builder: (_) => const LocationSelectorDialog(),
+                            ),
+                            padding: const EdgeInsets.all(6),
+                            constraints: const BoxConstraints(),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              isExpanded
+                                  ? Icons.expand_less_rounded
+                                  : Icons.expand_more_rounded,
+                              color: Colors.white.withAlpha(200),
+                              size: 22,
+                            ),
+                            onPressed: () => wp.toggleExpand(),
+                            padding: const EdgeInsets.all(6),
+                            constraints: const BoxConstraints(),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Details: temp/condition + feels like + humidity + wind
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 6, 16, 14),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(30),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: Colors.white.withAlpha(45),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            // Weather icon + temp + condition
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _animatedWeatherIcon(weather.description, 26),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${weather.temperature.round()}°',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  widget.translateCondition(
+                                    weather.description,
+                                    isTurkish,
+                                  ),
+                                  style: TextStyle(
+                                    color: Colors.white.withAlpha(180),
+                                    fontSize: 10,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                            Container(
+                              width: 1,
+                              height: 36,
+                              color: Colors.white.withAlpha(50),
+                            ),
+                            _detailItem(
+                              Icons.thermostat_rounded,
+                              '${weather.feelsLike.round()}°',
+                              isTurkish ? 'Hissedilen' : 'Feels like',
+                            ),
+                            Container(
+                              width: 1,
+                              height: 36,
+                              color: Colors.white.withAlpha(50),
+                            ),
+                            _detailItem(
+                              Icons.water_drop_rounded,
+                              '${weather.humidity}%',
+                              isTurkish ? 'Nem' : 'Humidity',
+                            ),
+                            Container(
+                              width: 1,
+                              height: 36,
+                              color: Colors.white.withAlpha(50),
+                            ),
+                            _detailItem(
+                              Icons.air_rounded,
+                              '${weather.windSpeed.round()} km/h',
+                              isTurkish ? 'Rüzgar' : 'Wind',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Hourly forecast
+                    if (isExpanded &&
+                        wp.hourlyForecast != null &&
+                        wp.hourlyForecast!.isNotEmpty)
+                      SizedBox(
+                        height: 96,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                          itemCount: wp.hourlyForecast!.length,
+                          separatorBuilder: (context, _) =>
+                              const SizedBox(width: 8),
+                          itemBuilder: (context, index) {
+                            final hour = wp.hourlyForecast![index];
+                            return Container(
+                              width: 64,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withAlpha(30),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.white.withAlpha(45),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    hour['time'],
+                                    style: TextStyle(
+                                      color: Colors.white.withAlpha(200),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  CachedNetworkImage(
+                                    imageUrl: hour['icon'],
+                                    width: 28,
+                                    height: 28,
+                                    placeholder: (context, _) =>
+                                        const SizedBox(width: 28, height: 28),
+                                    errorWidget: (context, url, _) => const Icon(
+                                      Icons.wb_cloudy,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '${hour['temp'].round()}°',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+
+                    // 3-day forecast
+                    if (isExpanded && forecast != null && forecast.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withAlpha(25),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: Colors.white.withAlpha(45),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: forecast.map((day) {
+                              final date = DateTime.parse(day['date']);
+                              final dayName =
+                                  widget.getDayName(date, isTurkish, l10n);
+                              return Column(
+                                children: [
+                                  Text(
+                                    dayName,
+                                    style: TextStyle(
+                                      color: Colors.white.withAlpha(200),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${day['maxTemp'].round()}°',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${day['minTemp'].round()}°',
+                                    style: TextStyle(
+                                      color: Colors.white.withAlpha(170),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _detailItem(IconData icon, String value, String label) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: Colors.white.withAlpha(210), size: 16),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(color: Colors.white.withAlpha(180), fontSize: 10),
+        ),
+      ],
+    );
   }
 }

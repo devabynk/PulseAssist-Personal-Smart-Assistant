@@ -34,8 +34,10 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   @override
   void initState() {
     super.initState();
-    // Messages are loaded in Provider constructor or we can trigger it
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkFirstRun());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkFirstRun();
+      Provider.of<ChatProvider>(context, listen: false).setChatActive(true);
+    });
   }
 
   Future<void> _checkFirstRun() async {
@@ -211,7 +213,129 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           ),
         ],
       ),
-      body: Consumer<ChatProvider>(
+      body: context.isTablet || context.isDesktop
+          ? _buildTabletBody(l10n)
+          : _buildChatBody(l10n),
+    );
+  }
+
+  Widget _buildTabletBody(AppLocalizations l10n) {
+    return Row(
+      children: [
+        // Conversation history sidebar
+        Container(
+          width: 260,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            border: Border(
+              right: BorderSide(
+                color: Theme.of(context).dividerColor.withAlpha(60),
+              ),
+            ),
+          ),
+          child: Consumer<ChatProvider>(
+            builder: (context, chatProvider, _) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          l10n.conversationHistory,
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add_comment_outlined, size: 20),
+                          tooltip: l10n.newChat,
+                          constraints: const BoxConstraints(),
+                          padding: const EdgeInsets.all(4),
+                          onPressed: () {
+                            final settings = Provider.of<SettingsProvider>(
+                              context, listen: false);
+                            Provider.of<ChatProvider>(
+                              context, listen: false).startNewConversation(
+                              isTurkish: settings.locale.languageCode == 'tr',
+                              title: l10n.newChat,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: chatProvider.conversations.isEmpty
+                        ? Center(
+                            child: Text(
+                              l10n.noHistory,
+                              style: TextStyle(
+                                color: Theme.of(context).hintColor,
+                                fontSize: 13,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                            itemCount: chatProvider.conversations.length,
+                            itemBuilder: (context, index) {
+                              final conv = chatProvider.conversations[index];
+                              final isSelected =
+                                  conv.id == chatProvider.activeConversation?.id;
+                              return ListTile(
+                                dense: true,
+                                selected: isSelected,
+                                selectedTileColor:
+                                    Theme.of(context).primaryColor.withAlpha(25),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                leading: Icon(
+                                  Icons.chat_bubble_outline,
+                                  size: 18,
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : Theme.of(context).hintColor,
+                                ),
+                                title: Text(
+                                  conv.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  conv.lastMessageAt
+                                      .toString()
+                                      .substring(0, 16),
+                                  style: const TextStyle(fontSize: 11),
+                                ),
+                                onTap: () =>
+                                    chatProvider.selectConversation(conv.id),
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        // Chat area
+        Expanded(child: _buildChatBody(l10n)),
+      ],
+    );
+  }
+
+  Widget _buildChatBody(AppLocalizations l10n) {
+    return Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
           final messages = chatProvider.messages;
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -243,10 +367,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 child: ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.all(16),
-                  // Add 1 to itemCount when typing to show indicator
                   itemCount: messages.length + (chatProvider.isTyping ? 1 : 0),
                   itemBuilder: (context, index) {
-                    // Show typing indicator at the end
                     if (chatProvider.isTyping && index == messages.length) {
                       return _buildTypingIndicator();
                     }
@@ -259,8 +381,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
             ],
           );
         },
-      ),
-    );
+      );
   }
 
   Widget _buildQuickReplies(AppLocalizations l10n) {
@@ -858,6 +979,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 
   @override
   void dispose() {
+    Provider.of<ChatProvider>(context, listen: false).setChatActive(false);
     _controller.dispose();
     _scrollController.dispose();
     super.dispose();

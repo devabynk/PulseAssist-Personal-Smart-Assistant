@@ -236,6 +236,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
           ],
         ),
         child: FloatingActionButton.extended(
+          heroTag: 'alarm_fab',
           onPressed: () => _showAddEditSheet(),
           backgroundColor: Colors.transparent,
           elevation: 0,

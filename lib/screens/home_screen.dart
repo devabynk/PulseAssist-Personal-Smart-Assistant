@@ -31,13 +31,13 @@ class _HomeScreenState extends State<HomeScreen> {
     DashboardScreen(
       onNavigateToChatbot: () => _navigateToTab(1),
       onNavigateToAlarm: () => _navigateToTab(2),
-      onNavigateToNotes: () => _navigateToTab(3),
-      onNavigateToReminders: () => _navigateToTab(4),
+      onNavigateToNotes: () => _navigateToTab(4),
+      onNavigateToReminders: () => _navigateToTab(3),
     ),
     const ChatbotScreen(),
     const AlarmScreen(),
-    const NotesScreen(),
     const ReminderScreen(),
+    const NotesScreen(),
   ];
 
   @override
@@ -168,17 +168,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 8),
                       _buildSideNavItem(
                         3,
-                        Icons.note_alt_outlined,
-                        Icons.note_alt,
-                        l10n.notes,
+                        Icons.notifications_outlined,
+                        Icons.notifications,
+                        l10n.reminder,
                         showLabels,
                       ),
                       const SizedBox(height: 8),
                       _buildSideNavItem(
                         4,
-                        Icons.notifications_outlined,
-                        Icons.notifications,
-                        l10n.reminders,
+                        Icons.note_alt_outlined,
+                        Icons.note_alt,
+                        l10n.notes,
                         showLabels,
                       ),
                     ],
@@ -227,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -241,17 +241,16 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildNavItem(2, Icons.alarm_outlined, Icons.alarm, l10n.alarm),
               _buildNavItem(
                 3,
+                Icons.notifications_outlined,
+                Icons.notifications,
+                l10n.reminder,
+              ),
+              _buildNavItem(
+                4,
                 Icons.note_alt_outlined,
                 Icons.note_alt,
                 l10n.notes,
               ),
-              _buildNavItem(
-                4,
-                Icons.notifications_outlined,
-                Icons.notifications,
-                l10n.reminders,
-              ),
-              _buildSettingsButton(),
             ],
           ),
         ),
@@ -266,57 +265,37 @@ class _HomeScreenState extends State<HomeScreen> {
     String label,
   ) {
     final isSelected = _currentIndex == index;
+    final primaryColor = Theme.of(context).primaryColor;
+    final inactiveColor = Theme.of(context).iconTheme.color?.withAlpha(140);
+
     return GestureDetector(
       onTap: () => setState(() => _currentIndex = index),
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(
-          horizontal: isSelected ? 14 : 10,
-          vertical: 10,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).primaryColor.withAlpha(38)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(30),
+          color: isSelected ? primaryColor.withAlpha(30) : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: Row(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               isSelected ? activeIcon : icon,
-              color: isSelected
-                  ? Theme.of(context).primaryColor
-                  : Theme.of(context).iconTheme.color?.withAlpha(138),
-              size: 24,
+              color: isSelected ? primaryColor : inactiveColor,
+              size: 22,
             ),
-            if (isSelected) ...[
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.w600,
-                ),
+            const SizedBox(height: 3),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                color: isSelected ? primaryColor : inactiveColor,
               ),
-            ],
+            ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingsButton() {
-    return GestureDetector(
-      onTap: _openSettings,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        child: Icon(
-          Icons.settings_outlined,
-          color: Theme.of(context).iconTheme.color?.withAlpha(138),
-          size: 24,
         ),
       ),
     );

@@ -4,7 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:record/record.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/utils/extensions.dart';
@@ -13,13 +15,12 @@ import '../l10n/app_localizations.dart';
 import '../models/reminder.dart';
 import '../providers/reminder_provider.dart';
 import '../providers/settings_provider.dart';
-import '../screens/voice_note_screen.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common/confirmation_dialog.dart';
 import '../widgets/common/sheet_handle.dart';
-import '../widgets/common/sheet_header.dart'; // Import shared widget
+import '../widgets/common/sheet_header.dart';
 import '../widgets/quill_note_viewer.dart';
 import '../widgets/voice_player.dart';
 
@@ -82,13 +83,40 @@ class _ReminderScreenState extends State<ReminderScreen> {
     if (_searchQuery.isEmpty) {
       return filtered;
     }
+    final q = _normalize(_searchQuery);
     return filtered
         .where(
           (r) =>
-              r.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              r.description.toLowerCase().contains(_searchQuery.toLowerCase()),
+              _normalize(r.title).contains(q) ||
+              _normalize(_extractPlainText(r.description)).contains(q),
         )
         .toList();
+  }
+
+  String _normalize(String s) {
+    return s
+        .replaceAll('İ', 'i')
+        .replaceAll('I', 'ı')
+        .replaceAll('Ğ', 'ğ')
+        .replaceAll('Ü', 'ü')
+        .replaceAll('Ş', 'ş')
+        .replaceAll('Ö', 'ö')
+        .replaceAll('Ç', 'ç')
+        .toLowerCase();
+  }
+
+  String _extractPlainText(String content) {
+    try {
+      final delta = jsonDecode(content) as List<dynamic>;
+      final buffer = StringBuffer();
+      for (final op in delta) {
+        final insert = (op as Map<String, dynamic>)['insert'];
+        if (insert is String) buffer.write(insert);
+      }
+      return buffer.toString();
+    } catch (_) {
+      return content;
+    }
   }
 
   Future<void> _addReminder() async {
@@ -253,6 +281,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
+        scrolledUnderElevation: 0,
         actions: [
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),
@@ -316,6 +345,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
           ],
         ),
         child: FloatingActionButton.extended(
+          heroTag: 'reminder_fab',
           onPressed: _addReminder,
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -894,8 +924,13 @@ class _ReminderSheetState extends State<_ReminderSheet> {
   late DateTime _selectedDate;
   late String _priority;
   String? _voiceNotePath;
-  bool _isToolbarExpanded = false; // Toolbar collapsed by default
   bool _isPinned = false;
+
+  final FocusNode _descFocus = FocusNode();
+  final AudioRecorder _recorder = AudioRecorder();
+  bool _isRecording = false;
+  bool _isRecordingPaused = false;
+  Duration _recordingDuration = Duration.zero;
 
   @override
   void initState() {
@@ -928,14 +963,14 @@ class _ReminderSheetState extends State<_ReminderSheet> {
     _priority = widget.reminder?.priority ?? 'medium';
     _voiceNotePath = widget.reminder?.voiceNotePath;
     _isPinned = widget.reminder?.isPinned ?? false;
+    _descFocus.addListener(() => setState(() {}));
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height:
-          MediaQuery.of(context).size.height *
-          0.80, // Slightly increased from 0.70 to give more breathing room
+          MediaQuery.of(context).size.height * 0.72,
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor, // Use scaffold background for cleaner look
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -977,6 +1012,9 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                       decoration: InputDecoration(
                         hintText: widget.l10n.reminderTitle,
                         border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        filled: false,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                         hintStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -999,8 +1037,11 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                          ),
                          child: quill.QuillEditor.basic(
                           controller: _quillController,
+                          focusNode: _descFocus,
                           config: quill.QuillEditorConfig(
                             placeholder: widget.l10n.description,
+                            checkBoxReadOnly: false,
+                            enableInteractiveSelection: true,
                           ),
                         ),
                       ),
@@ -1075,15 +1116,79 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  if (_voiceNotePath != null)
+                  if (_voiceNotePath != null && !_isRecording)
                     VoicePlayer(
                       path: _voiceNotePath!,
                       isDark: Theme.of(context).brightness == Brightness.dark,
                       onDelete: () => setState(() => _voiceNotePath = null),
                     )
+                  else if (_isRecording)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withAlpha(15),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.red.withAlpha(60)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.fiber_manual_record,
+                            color: Colors.red,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _formatRecordingDuration(_recordingDuration),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.red,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
+                            ),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            constraints: const BoxConstraints(),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            icon: Icon(
+                              _isRecordingPaused
+                                  ? Icons.play_arrow_rounded
+                                  : Icons.pause_rounded,
+                              color: Colors.red,
+                              size: 24,
+                            ),
+                            onPressed: _togglePauseRecording,
+                          ),
+                          const SizedBox(width: 4),
+                          GestureDetector(
+                            onTap: _stopRecording,
+                            child: Container(
+                              width: 28,
+                              height: 28,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Icon(
+                                Icons.stop_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   else
                     InkWell(
-                      onTap: _recordVoice,
+                      onTap: _startRecording,
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -1101,7 +1206,11 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.mic_rounded, color: Colors.blue, size: 20),
+                            const Icon(
+                              Icons.mic_rounded,
+                              color: Colors.blue,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               Provider.of<SettingsProvider>(
@@ -1111,7 +1220,9 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                                       'tr'
                                   ? 'Ses Kaydet'
                                   : 'Record Voice',
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              style: Theme.of(
+                                context,
+                              ).textTheme.titleSmall?.copyWith(
                                 color: Colors.blue,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1128,81 +1239,30 @@ class _ReminderSheetState extends State<_ReminderSheet> {
             ),
           ),
 
-          // Quill Toolbar (at bottom like notes)
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
+          // Quill Toolbar — shown only when description has focus
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              border: Border(top: BorderSide(color: Colors.grey.withAlpha(50))),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                InkWell(
-                  onTap: () =>
-                      setState(() => _isToolbarExpanded = !_isToolbarExpanded),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+            child: _descFocus.hasFocus
+                ? Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      border: Border(
+                        top: BorderSide(color: Colors.grey.withAlpha(50)),
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          _isToolbarExpanded
-                              ? Icons.keyboard_arrow_down
-                              : Icons.keyboard_arrow_up,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _isToolbarExpanded
-                              ? widget.l10n.hideTools
-                              : widget.l10n.formattingTools,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const Spacer(),
-                        if (!_isToolbarExpanded) ...[
-                          const Icon(
-                            Icons.format_bold,
-                            size: 16,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.format_italic,
-                            size: 16,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.format_list_bulleted,
-                            size: 16,
-                            color: Colors.grey,
-                          ),
-                        ],
-                      ],
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 8,
+                      ),
+                      child: quill.QuillSimpleToolbar(
+                        controller: _quillController,
+                      ),
                     ),
-                  ),
-                ),
-                if (_isToolbarExpanded) ...[
-                  const Divider(height: 1),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 8,
-                    ),
-                    child: quill.QuillSimpleToolbar(
-                      controller: _quillController,
-                    ),
-                  ),
-                ],
-              ],
-            ),
+                  )
+                : const SizedBox.shrink(),
           ),
         ],
       ),
@@ -1251,28 +1311,40 @@ class _ReminderSheetState extends State<_ReminderSheet> {
   }
 
   Widget _buildPrioritySelector() {
-    return SizedBox(
-      height: 40,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          _priorityChip('low', widget.l10n.priorityLow, AppColors.priorityLow),
-          const SizedBox(width: 8),
-          _priorityChip(
+    return Row(
+      children: [
+        Expanded(
+          child: _priorityChip(
+            'low',
+            widget.l10n.priorityLow,
+            AppColors.priorityLow,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _priorityChip(
             'medium',
             widget.l10n.priorityMedium,
             AppColors.priorityMedium,
           ),
-          const SizedBox(width: 8),
-          _priorityChip(
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _priorityChip(
             'high',
             widget.l10n.priorityHigh,
             AppColors.priorityHigh,
           ),
-          const SizedBox(width: 8),
-          _priorityChip('urgent', widget.l10n.priorityUrgent, Colors.red),
-        ],
-      ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _priorityChip(
+            'urgent',
+            widget.l10n.priorityUrgent,
+            Colors.red,
+          ),
+        ),
+      ],
     );
   }
 
@@ -1280,23 +1352,30 @@ class _ReminderSheetState extends State<_ReminderSheet> {
     final isSelected = _priority == value;
     return FilterChip(
       selected: isSelected,
-      label: Text(
-        label,
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          color: isSelected
-              ? Colors.white
-              : Theme.of(context).textTheme.bodyMedium?.color,
+      label: Center(
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            color: isSelected
+                ? Colors.white
+                : Theme.of(context).textTheme.bodyMedium?.color,
+          ),
         ),
       ),
+      labelPadding: EdgeInsets.zero,
       backgroundColor: Theme.of(context).cardColor,
       selectedColor: color,
       showCheckmark: false,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-            color: isSelected ? Colors.transparent : Theme.of(context).dividerColor.withAlpha(30),
+          color: isSelected
+              ? Colors.transparent
+              : Theme.of(context).dividerColor.withAlpha(30),
         ),
       ),
       onSelected: (selected) {
@@ -1500,23 +1579,93 @@ class _ReminderSheetState extends State<_ReminderSheet> {
     }
   }
 
-  Future<void> _recordVoice() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => VoiceNoteScreen(existingPath: _voiceNotePath),
-      ),
-    );
+  Future<void> _startRecording() async {
+    try {
+      if (!await _recorder.hasPermission()) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ses kaydı için mikrofon izni gereklidir.'),
+          ),
+        );
+        return;
+      }
 
-    if (result != null) {
-      setState(() => _voiceNotePath = result);
+      final dir = await getApplicationDocumentsDirectory();
+      final path =
+          '${dir.path}/reminder_voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
+      await _recorder.start(
+        const RecordConfig(encoder: AudioEncoder.aacLc),
+        path: path,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _isRecording = true;
+        _isRecordingPaused = false;
+        _voiceNotePath = path;
+        _recordingDuration = Duration.zero;
+      });
+      _startRecordingTimer();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('$e')));
+      }
     }
+  }
+
+  Future<void> _stopRecording() async {
+    try {
+      await _recorder.stop();
+      if (mounted) {
+        setState(() {
+          _isRecording = false;
+          _isRecordingPaused = false;
+        });
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _togglePauseRecording() async {
+    try {
+      if (_isRecordingPaused) {
+        await _recorder.resume();
+      } else {
+        await _recorder.pause();
+      }
+      setState(() => _isRecordingPaused = !_isRecordingPaused);
+    } catch (_) {}
+  }
+
+  void _startRecordingTimer() {
+    Future.doWhile(() async {
+      if (!_isRecording) return false;
+      if (!_isRecordingPaused) {
+        await Future.delayed(const Duration(seconds: 1));
+        if (mounted && _isRecording) {
+          setState(() => _recordingDuration += const Duration(seconds: 1));
+        }
+      } else {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      return _isRecording;
+    });
+  }
+
+  String _formatRecordingDuration(Duration d) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    return '${twoDigits(d.inMinutes.remainder(60))}:${twoDigits(d.inSeconds.remainder(60))}';
   }
 
   @override
   void dispose() {
     _titleController.dispose();
     _quillController.dispose();
+    _descFocus.dispose();
+    _recorder.dispose();
     super.dispose();
   }
 }

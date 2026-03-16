@@ -129,7 +129,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newReminder => 'New Reminder';
 
   @override
-  String get reminderTitle => 'Reminder Title';
+  String get reminderTitle => 'Title';
 
   @override
   String get description => 'Description (optional)';

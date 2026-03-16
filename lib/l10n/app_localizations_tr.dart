@@ -30,7 +30,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get notes => 'Notlar';
 
   @override
-  String get reminders => 'Hatırlatıcı';
+  String get reminders => 'Hatırlatıcılar';
 
   @override
   String get settings => 'Ayarlar';
@@ -129,7 +129,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get newReminder => 'Yeni Hatırlatıcı';
 
   @override
-  String get reminderTitle => 'Hatırlatıcı Başlığı';
+  String get reminderTitle => 'Başlık';
 
   @override
   String get description => 'Açıklama (opsiyonel)';

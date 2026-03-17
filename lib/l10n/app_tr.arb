@@ -361,5 +361,94 @@
   "resetConfirmMessage": "Bu işlem tüm notlarınızı, hatırlatıcılarınızı ve alarmlarınızı kalıcı olarak silecektir. Bu işlem geri alınamaz.",
   "restore": "Geri Yükle",
   "restoreConfirmTitle": "Yedeği Geri Yükle",
-  "restoreConfirmMessage": "Bu işlem mevcut tüm verilerinizi yedekle değiştirecektir. Bu işlem geri alınamaz."
+  "restoreConfirmMessage": "Bu işlem mevcut tüm verilerinizi yedekle değiştirecektir. Bu işlem geri alınamaz.",
+
+  "pomodoro": "Pomodoro",
+  "pomodoroTimer": "Pomodoro Zamanlayıcı",
+  "workSession": "Çalışma",
+  "shortBreak": "Kısa Mola",
+  "longBreak": "Uzun Mola",
+  "pomodoroComplete": "Pomodoro tamamlandı! 🎉",
+  "breakComplete": "Mola bitti! Çalışmaya devam et 💪",
+  "startPomodoro": "Başla",
+  "pausePomodoro": "Duraklat",
+  "resumePomodoro": "Devam Et",
+  "resetPomodoro": "Sıfırla",
+  "skipPhase": "Atla",
+  "sessionsCompleted": "{count} pomodoro tamamlandı",
+  "@sessionsCompleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "pomodoroSettings": "Zamanlayıcı Ayarları",
+  "workDuration": "Çalışma Süresi",
+  "shortBreakDuration": "Kısa Mola",
+  "longBreakDuration": "Uzun Mola",
+  "longBreakAfter": "Uzun mola aralığı",
+  "minutes": "dakika",
+  "focusTime": "Odak Zamanı",
+  "focusTimeDesc": "Pomodoro tekniğiyle verimli çalış",
+
+  "statistics": "İstatistikler",
+  "statisticsTitle": "İstatistikler",
+  "overview": "Genel Bakış",
+  "weeklyActivity": "Haftalık Aktivite",
+  "noData": "Veri yok",
+  "notes_count": "Not",
+  "alarms_count": "Alarm",
+  "reminders_count": "Hatırlatıcı",
+  "activeAlarms": "Aktif Alarm",
+  "inactiveAlarms": "Pasif Alarm",
+  "completedReminders": "Tamamlanan",
+  "pendingReminders": "Bekleyen",
+  "pinnedNotes": "Sabitlenmiş Not",
+  "taggedNotes": "Etiketli Not",
+  "notesWithImages": "Resimli Not",
+  "voiceNotesCount": "Sesli Not",
+  "statsDesc": "Tüm verilerine genel bakış",
+
+  "flashcardMode": "Flashcard Modu",
+  "flashcard": "Flashcard",
+  "tapToReveal": "Tam içeriği görmek için dokun",
+  "noFlashcardsHint": "Bu not flashcard oluşturmak için yeterli içerik içermiyor.",
+  "cardOf": "{current} / {total}",
+  "@cardOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "swipeToNavigate": "Kaydır veya ok tuşlarını kullan",
+
+  "aiAutoTag": "AI ile Etiketle",
+  "aiTagging": "Etiketler oluşturuluyor...",
+  "aiTagsAdded": "{count} etiket eklendi",
+  "@aiTagsAdded": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "noTagsGenerated": "Etiket oluşturulamadı",
+  "noInternetForAi": "AI özellikleri için internet bağlantısı gerekli",
+
+  "shareNote": "Notu Paylaş",
+  "exportNote": "Notu Dışa Aktar",
+
+  "weeklySummary": "Haftalık Özet",
+  "weeklyDigest": "Haftalık Rapor",
+  "weeklyDigestDesc": "AI destekli haftalık aktivite özeti",
+  "generateSummary": "Özet Oluştur",
+  "generatingSummary": "Özet hazırlanıyor...",
+  "lastGenerated": "Son oluşturulma: {date}",
+  "@lastGenerated": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "regenerate": "Yenile",
+  "noSummaryYet": "Henüz haftalık özet oluşturulmadı.",
+  "noSummaryHint": "Aktivitelerinizin AI destekli özetini görmek için butona basın.",
+  "summaryError": "Özet oluşturulamadı. İnternet bağlantınızı kontrol edin.",
+  "thisWeek": "Bu Hafta"
 }

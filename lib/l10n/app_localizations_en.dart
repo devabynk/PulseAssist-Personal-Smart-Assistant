@@ -129,7 +129,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newReminder => 'New Reminder';
 
   @override
-  String get reminderTitle => 'Title';
+  String get reminderTitle => 'Reminder Title';
 
   @override
   String get description => 'Description (optional)';
@@ -924,4 +924,198 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreConfirmMessage => 'This will replace all current data with the backup. This action cannot be undone.';
+
+  @override
+  String get pomodoro => 'Pomodoro';
+
+  @override
+  String get pomodoroTimer => 'Pomodoro Timer';
+
+  @override
+  String get workSession => 'Focus';
+
+  @override
+  String get shortBreak => 'Short Break';
+
+  @override
+  String get longBreak => 'Long Break';
+
+  @override
+  String get pomodoroComplete => 'Pomodoro complete! 🎉';
+
+  @override
+  String get breakComplete => 'Break over! Back to work 💪';
+
+  @override
+  String get startPomodoro => 'Start';
+
+  @override
+  String get pausePomodoro => 'Pause';
+
+  @override
+  String get resumePomodoro => 'Resume';
+
+  @override
+  String get resetPomodoro => 'Reset';
+
+  @override
+  String get skipPhase => 'Skip';
+
+  @override
+  String sessionsCompleted(int count) {
+    return '$count pomodoros completed';
+  }
+
+  @override
+  String get pomodoroSettings => 'Timer Settings';
+
+  @override
+  String get workDuration => 'Focus Duration';
+
+  @override
+  String get shortBreakDuration => 'Short Break';
+
+  @override
+  String get longBreakDuration => 'Long Break';
+
+  @override
+  String get longBreakAfter => 'Long break interval';
+
+  @override
+  String get minutes => 'minutes';
+
+  @override
+  String get focusTime => 'Focus Time';
+
+  @override
+  String get focusTimeDesc => 'Stay productive with the Pomodoro technique';
+
+  @override
+  String get statistics => 'Statistics';
+
+  @override
+  String get statisticsTitle => 'Statistics';
+
+  @override
+  String get overview => 'Overview';
+
+  @override
+  String get weeklyActivity => 'Weekly Activity';
+
+  @override
+  String get noData => 'No data';
+
+  @override
+  String get notes_count => 'Notes';
+
+  @override
+  String get alarms_count => 'Alarms';
+
+  @override
+  String get reminders_count => 'Reminders';
+
+  @override
+  String get activeAlarms => 'Active Alarms';
+
+  @override
+  String get inactiveAlarms => 'Inactive Alarms';
+
+  @override
+  String get completedReminders => 'Completed';
+
+  @override
+  String get pendingReminders => 'Pending';
+
+  @override
+  String get pinnedNotes => 'Pinned Notes';
+
+  @override
+  String get taggedNotes => 'Tagged Notes';
+
+  @override
+  String get notesWithImages => 'Notes with Images';
+
+  @override
+  String get voiceNotesCount => 'Voice Notes';
+
+  @override
+  String get statsDesc => 'An overview of all your data';
+
+  @override
+  String get flashcardMode => 'Flashcard Mode';
+
+  @override
+  String get flashcard => 'Flashcard';
+
+  @override
+  String get tapToReveal => 'Tap to reveal full content';
+
+  @override
+  String get noFlashcardsHint => 'This note doesn\'t have enough content to create flashcards.';
+
+  @override
+  String cardOf(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get swipeToNavigate => 'Swipe or use arrow buttons';
+
+  @override
+  String get aiAutoTag => 'Auto-tag with AI';
+
+  @override
+  String get aiTagging => 'Generating tags...';
+
+  @override
+  String aiTagsAdded(int count) {
+    return '$count tags added';
+  }
+
+  @override
+  String get noTagsGenerated => 'No tags could be generated';
+
+  @override
+  String get noInternetForAi => 'Internet connection required for AI features';
+
+  @override
+  String get shareNote => 'Share Note';
+
+  @override
+  String get exportNote => 'Export Note';
+
+  @override
+  String get weeklySummary => 'Weekly Summary';
+
+  @override
+  String get weeklyDigest => 'Weekly Digest';
+
+  @override
+  String get weeklyDigestDesc => 'AI-powered weekly activity summary';
+
+  @override
+  String get generateSummary => 'Generate Summary';
+
+  @override
+  String get generatingSummary => 'Preparing your summary...';
+
+  @override
+  String lastGenerated(String date) {
+    return 'Last generated: $date';
+  }
+
+  @override
+  String get regenerate => 'Regenerate';
+
+  @override
+  String get noSummaryYet => 'No weekly summary generated yet.';
+
+  @override
+  String get noSummaryHint => 'Tap the button to get an AI-powered summary of your activity.';
+
+  @override
+  String get summaryError => 'Could not generate summary. Check your internet connection.';
+
+  @override
+  String get thisWeek => 'This Week';
 }

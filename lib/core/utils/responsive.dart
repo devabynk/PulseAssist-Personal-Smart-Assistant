@@ -17,9 +17,13 @@ class Responsive {
   static double screenHeight(BuildContext context) =>
       MediaQuery.of(context).size.height;
 
+  static bool isPortraitTablet(BuildContext context) =>
+      isTablet(context) &&
+      MediaQuery.of(context).orientation == Orientation.portrait;
+
   static int gridCrossAxisCount(BuildContext context) {
     if (isDesktop(context)) return 4;
-    if (isTablet(context)) return 3;
+    if (isTablet(context)) return isPortraitTablet(context) ? 2 : 3;
     return 2;
   }
 
@@ -32,7 +36,7 @@ class Responsive {
   static double chatBubbleMaxWidth(BuildContext context) {
     final width = screenWidth(context);
     if (isDesktop(context)) return width * 0.4;
-    if (isTablet(context)) return width * 0.6;
+    if (isTablet(context)) return width * (isPortraitTablet(context) ? 0.68 : 0.6);
     return width * 0.75;
   }
 

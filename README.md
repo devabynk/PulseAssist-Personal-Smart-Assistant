@@ -7,7 +7,7 @@
 [![AI](https://img.shields.io/badge/AI-GPT--OSS%20120B%20%7C%20Llama%204%20Scout-orange)](https://groq.com)
 [![License](https://img.shields.io/badge/License-GPLv3-blue)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-lightgrey)](#-multi-platform-support)
-[![Version](https://img.shields.io/badge/Version-1.3.5-brightgreen)](#)
+[![Version](https://img.shields.io/badge/Version-1.3.5%2B49-brightgreen)](#)
 
 **PulseAssist** is a state-of-the-art, AI-powered personal assistant built with Flutter. It combines the power of multiple LLMs via **Groq** (GPT-OSS 120B, Llama 4 Scout, Whisper V3) with a custom local NLP engine to provide a seamless, intuitive, and high-performance user experience across all major platforms.
 
@@ -53,6 +53,8 @@
 
 ### 📱 Home Screen Widgets
 - **Android Home Widget**: Quick-glance widget for your dashboard data directly on your home screen, powered by `home_widget` integration.
+  - Weather, alarms, reminders, and notes widgets available
+  - iOS widget support is planned for a future release
 
 ### 🔒 Privacy & Security
 - **Local-First Data**: All notes, alarms, and reminders are stored locally using **Hive CE** (NoSQL) + **SQLite**, providing blazing fast performance without cloud dependencies.
@@ -60,6 +62,16 @@
 - **Secret Management**: API keys are managed via a local-only configuration file (`.gitignore`'d) to ensure security.
 - **Multiple API Key Failover**: Supports multiple Groq API keys with automatic rotation when hitting rate limits (30 RPM / 14400 RPD per key).
 - **Legal Compliance**: Built-in Privacy Policy and Terms of Use screens.
+- **Notification History**: Built-in notification log to review past alarm and reminder alerts
+
+### 📐 Responsive Design & Tablet Support
+- **Adaptive Layouts**: Fully responsive UI for phones, tablets, and desktop
+  - **Mobile**: Bottom navigation bar with 5 tabs
+  - **Tablet/Desktop**: Sidebar navigation with labels, adaptive grid layouts
+  - **Portrait/Landscape**: Layout adapts to device orientation
+- **Smart Grid System**: Notes and alarms switch between 2-column (portrait tablet) and 3-column (landscape tablet) grids
+- **Adaptive Typography**: Text sizes and padding scale with screen size (16→32→48dp horizontal padding)
+- **Tablet Dashboard**: Two-column dashboard layout on landscape tablets for better use of screen space
 
 ---
 
@@ -238,7 +250,7 @@ lib/
 │   ├── notification_service.dart
 │   ├── widget_service.dart
 │   ├── system_ringtone_service.dart
-│   └── learning_service.dart
+│   └── learning_service.dart    # Adaptive user habit & preference tracking
 ├── widgets/                # Reusable widgets
 │   ├── common/            # Buttons, TextFields, Dialogs
 │   ├── note_sheet.dart
@@ -257,6 +269,7 @@ lib/
 - **Logging** — Environment-aware logging with Logger
 - **Key Management** — Automatic API key rotation/failover for rate limits
 - **Testing** — Comprehensive test infrastructure with unit, widget, and integration tests
+- **Adaptive Learning** — Background learning service tracks user habits and preferences for smarter suggestions
 
 
 ### 🤖 Specialized AI Models
@@ -304,6 +317,7 @@ For detailed architecture documentation, see [docs/ARCHITECTURE.md](docs/ARCHITE
 | **Document Parsing** | [read_pdf_text](https://pub.dev/packages/read_pdf_text), [archive](https://pub.dev/packages/archive) (DOCX), [justkawal_excel_updated](https://pub.dev/packages/justkawal_excel_updated) (XLSX) |
 | **Content Rendering** | [flutter_markdown_plus](https://pub.dev/packages/flutter_markdown_plus), [flutter_linkify](https://pub.dev/packages/flutter_linkify), [url_launcher](https://pub.dev/packages/url_launcher) |
 | **Home Widgets** | [home_widget](https://pub.dev/packages/home_widget) |
+| **Charts** | [fl_chart](https://pub.dev/packages/fl_chart) |
 | **Testing** | Flutter Test, Mockito, Mocktail, Integration Test |
 | **AI Models** | GPT-OSS 120B, Llama 4 Scout 17B, Whisper V3 |
 
@@ -315,14 +329,17 @@ For detailed architecture documentation, see [docs/ARCHITECTURE.md](docs/ARCHITE
 - [Flutter SDK](https://docs.flutter.dev/get-started/install) (3.x or later, SDK ≥ 3.10.4)
 - Java 17 (for Android build)
 - Android SDK 36 (API Level 36)
+- Xcode 15+ (for iOS build, macOS only)
+- iOS Deployment Target: 14.0+
+- CocoaPods (for iOS dependencies)
 - Git
 
 ### Quick Start
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/PulseAssist-Personal-Smart-Assistant.git
-   cd PulseAssist-Personal-Smart-Assistant
+   git clone https://github.com/your-username/pulseassist.git
+   cd pulseassist
    ```
 
 2. **Setup the project** (automated):
@@ -402,6 +419,14 @@ make build-bundle
 # or
 flutter build appbundle --release
 ```
+
+**iOS (for App Store):**
+```bash
+make build-ios
+# or
+flutter build ios --release
+```
+**iOS Build output:** `build/ios/iphoneos/Runner.app`
 
 **Build outputs:**
 - APK: `build/app/outputs/flutter-apk/app-release.apk`

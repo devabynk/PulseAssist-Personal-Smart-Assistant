@@ -19,7 +19,10 @@ import '../providers/weather_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/location_selector_dialog.dart';
 import '../widgets/quill_note_viewer.dart';
+import 'pomodoro_screen.dart';
 import 'settings_screen.dart';
+import 'statistics_screen.dart';
+import 'weekly_summary_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final VoidCallback? onNavigateToChatbot;
@@ -96,7 +99,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final userName = settings.userName ?? '';
     final l10n = context.l10n;
 
-    final isTablet = context.isTablet || context.isDesktop;
+    final useTabletLayout = context.isDesktop ||
+        (context.isTablet && !Responsive.isPortraitTablet(context));
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -107,7 +111,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             horizontal: context.horizontalPadding,
             vertical: 16,
           ),
-          child: isTablet
+          child: useTabletLayout
               ? _buildTabletView(isTurkish, userName, isDark, l10n)
               : _buildMobileView(isTurkish, userName, isDark, l10n),
         ),
@@ -137,6 +141,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         // Recent Notes
         _buildRecentNotes(isTurkish, isDark, l10n),
+        const SizedBox(height: 16),
+
+        // Tools row: Pomodoro + Statistics
+        _buildToolsRow(isDark, l10n),
+        const SizedBox(height: 16),
+
+        // Weekly Digest card
+        _buildWeeklyDigestCard(isDark, l10n),
         const SizedBox(height: 80), // Space for bottom nav
       ],
     );
@@ -171,6 +183,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _buildAlarmTasksRow(isTurkish, isDark, l10n),
                   const SizedBox(height: 24),
                   _buildRecentNotes(isTurkish, isDark, l10n),
+                  const SizedBox(height: 24),
+                  _buildToolsRow(isDark, l10n),
+                  const SizedBox(height: 24),
+                  _buildWeeklyDigestCard(isDark, l10n),
                 ],
               ),
             ),
@@ -178,6 +194,114 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         const SizedBox(height: 32),
       ],
+    );
+  }
+
+  Widget _buildToolsRow(bool isDark, AppLocalizations l10n) {
+    return Row(
+      children: [
+        Expanded(
+          child: _ToolCard(
+            icon: Icons.timer_rounded,
+            label: l10n.focusTime,
+            subtitle: l10n.focusTimeDesc,
+            color: AppColors.primary,
+            isDark: isDark,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const PomodoroScreen()),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _ToolCard(
+            icon: Icons.bar_chart_rounded,
+            label: l10n.statistics,
+            subtitle: l10n.statsDesc,
+            color: const Color(0xFF4ECDC4),
+            isDark: isDark,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const StatisticsScreen()),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWeeklyDigestCard(bool isDark, AppLocalizations l10n) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const WeeklySummaryScreen()),
+      ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFFFF6B6B).withAlpha(isDark ? 50 : 30),
+              const Color(0xFFFF8E53).withAlpha(isDark ? 30 : 15),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFFFF6B6B).withAlpha(60),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFF6B6B).withAlpha(40),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.auto_awesome_rounded,
+                color: Color(0xFFFF6B6B),
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.weeklyDigest,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: isDark ? Colors.white : const Color(0xFF333333),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.weeklyDigestDesc,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark
+                          ? Colors.white.withAlpha(150)
+                          : Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 14,
+              color: isDark ? Colors.white54 : Colors.black38,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1960,6 +2084,66 @@ class _WeatherCardState extends State<_WeatherCard>
           style: TextStyle(color: Colors.white.withAlpha(180), fontSize: 10),
         ),
       ],
+    );
+  }
+}
+
+class _ToolCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final Color color;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _ToolCard({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.color,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withAlpha(isDark ? 35 : 20),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withAlpha(60)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 10),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: isDark ? Colors.white : const Color(0xFF333333),
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 11,
+                color: isDark
+                    ? Colors.white.withAlpha(130)
+                    : Colors.black45,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

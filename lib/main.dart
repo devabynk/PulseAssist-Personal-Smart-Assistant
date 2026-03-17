@@ -12,6 +12,7 @@ import 'providers/alarm_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/note_provider.dart';
 import 'providers/notification_provider.dart';
+import 'providers/pomodoro_provider.dart';
 import 'providers/reminder_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/weather_provider.dart';
@@ -62,6 +63,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => NoteProvider()),
         ChangeNotifierProvider(create: (_) => ReminderProvider()),
         ChangeNotifierProvider(create: (_) => WeatherProvider()..initialize()),
+        ChangeNotifierProvider(create: (_) => PomodoroProvider()),
       ],
       child: const PulseAssistApp(),
     ),

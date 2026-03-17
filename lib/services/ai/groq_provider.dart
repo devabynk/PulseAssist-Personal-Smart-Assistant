@@ -892,4 +892,84 @@ User: "How are you?" → "I'm great! How can I help you today? 😊"
   void clearSession() {
     // No session state to clear for REST API
   }
+
+  /// Generate suggested tags for a note using AI.
+  Future<List<String>> generateTags({
+    required String title,
+    required String content,
+    required bool isTurkish,
+  }) async {
+    if (!isAvailable) {
+      await initialize();
+      if (!isAvailable) return [];
+    }
+    try {
+      final prompt = isTurkish
+          ? 'Not başlığı: "$title"\n\nİçerik:\n${content.length > 500 ? content.substring(0, 500) : content}\n\nBu not için 3-5 kısa etiket öner. Sadece JSON array döndür. Örnek: ["etiket1","etiket2"]'
+          : 'Note title: "$title"\n\nContent:\n${content.length > 500 ? content.substring(0, 500) : content}\n\nSuggest 3-5 short tags. Return only a JSON array. Example: ["tag1","tag2"]';
+
+      final result = await _keyManager.executeWithRetry<String?>((apiKey) async {
+        if (_currentApiKey != apiKey) await setApiKey(apiKey);
+        final response = await _client!.chat.completions
+            .create(openai.ChatCompletionCreateRequest(
+              model: _currentModel,
+              messages: [
+                openai.ChatMessage.system(isTurkish
+                    ? 'Kısa, tek kelimelik veya iki kelimelik etiket önerileri üret. Sadece JSON array formatında döndür.'
+                    : 'Generate short tag suggestions. Return only JSON array format.'),
+                openai.ChatMessage.user(prompt),
+              ],
+              maxCompletionTokens: 80,
+              temperature: 0.3,
+            ))
+            .timeout(const Duration(seconds: 15));
+        return response.choices.firstOrNull?.message.content;
+      });
+
+      if (result == null) return [];
+      final clean = result.trim().replaceAll(RegExp(r'```json|```|\n'), '').trim();
+      final match = RegExp(r'\[.*\]').firstMatch(clean);
+      if (match == null) return [];
+      final decoded = jsonDecode(match.group(0)!) as List<dynamic>;
+      return decoded.cast<String>().take(5).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Generate an AI-powered weekly activity summary.
+  Future<String?> generateWeeklySummary({
+    required Map<String, dynamic> data,
+    required bool isTurkish,
+  }) async {
+    if (!isAvailable) {
+      await initialize();
+      if (!isAvailable) return null;
+    }
+    try {
+      final prompt = isTurkish
+          ? 'Son 7 günün verisi:\n${jsonEncode(data)}\n\nBu verilere dayanarak kısa, samimi ve motive edici bir haftalık özet yaz. 3-5 cümle.'
+          : 'Last 7 days data:\n${jsonEncode(data)}\n\nWrite a short, friendly and motivating weekly summary based on this data. 3-5 sentences.';
+
+      return await _keyManager.executeWithRetry<String?>((apiKey) async {
+        if (_currentApiKey != apiKey) await setApiKey(apiKey);
+        final response = await _client!.chat.completions
+            .create(openai.ChatCompletionCreateRequest(
+              model: _currentModel,
+              messages: [
+                openai.ChatMessage.system(isTurkish
+                    ? 'Kullanıcının haftalık aktivitesini özetle. Samimi, motive edici ve kısa ol.'
+                    : 'Summarize the user\'s weekly activity. Be friendly, motivating and concise.'),
+                openai.ChatMessage.user(prompt),
+              ],
+              maxCompletionTokens: 300,
+              temperature: 0.7,
+            ))
+            .timeout(const Duration(seconds: 30));
+        return response.choices.firstOrNull?.message.content;
+      });
+    } catch (_) {
+      return null;
+    }
+  }
 }

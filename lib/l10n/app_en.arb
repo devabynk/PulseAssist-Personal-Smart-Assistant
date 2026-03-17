@@ -426,5 +426,94 @@
   "resetConfirmMessage": "This will permanently delete all your notes, reminders and alarms. This action cannot be undone.",
   "restore": "Restore",
   "restoreConfirmTitle": "Restore Backup",
-  "restoreConfirmMessage": "This will replace all current data with the backup. This action cannot be undone."
+  "restoreConfirmMessage": "This will replace all current data with the backup. This action cannot be undone.",
+
+  "pomodoro": "Pomodoro",
+  "pomodoroTimer": "Pomodoro Timer",
+  "workSession": "Focus",
+  "shortBreak": "Short Break",
+  "longBreak": "Long Break",
+  "pomodoroComplete": "Pomodoro complete! 🎉",
+  "breakComplete": "Break over! Back to work 💪",
+  "startPomodoro": "Start",
+  "pausePomodoro": "Pause",
+  "resumePomodoro": "Resume",
+  "resetPomodoro": "Reset",
+  "skipPhase": "Skip",
+  "sessionsCompleted": "{count} pomodoros completed",
+  "@sessionsCompleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "pomodoroSettings": "Timer Settings",
+  "workDuration": "Focus Duration",
+  "shortBreakDuration": "Short Break",
+  "longBreakDuration": "Long Break",
+  "longBreakAfter": "Long break interval",
+  "minutes": "minutes",
+  "focusTime": "Focus Time",
+  "focusTimeDesc": "Stay productive with the Pomodoro technique",
+
+  "statistics": "Statistics",
+  "statisticsTitle": "Statistics",
+  "overview": "Overview",
+  "weeklyActivity": "Weekly Activity",
+  "noData": "No data",
+  "notes_count": "Notes",
+  "alarms_count": "Alarms",
+  "reminders_count": "Reminders",
+  "activeAlarms": "Active Alarms",
+  "inactiveAlarms": "Inactive Alarms",
+  "completedReminders": "Completed",
+  "pendingReminders": "Pending",
+  "pinnedNotes": "Pinned Notes",
+  "taggedNotes": "Tagged Notes",
+  "notesWithImages": "Notes with Images",
+  "voiceNotesCount": "Voice Notes",
+  "statsDesc": "An overview of all your data",
+
+  "flashcardMode": "Flashcard Mode",
+  "flashcard": "Flashcard",
+  "tapToReveal": "Tap to reveal full content",
+  "noFlashcardsHint": "This note doesn't have enough content to create flashcards.",
+  "cardOf": "{current} / {total}",
+  "@cardOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "swipeToNavigate": "Swipe or use arrow buttons",
+
+  "aiAutoTag": "Auto-tag with AI",
+  "aiTagging": "Generating tags...",
+  "aiTagsAdded": "{count} tags added",
+  "@aiTagsAdded": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "noTagsGenerated": "No tags could be generated",
+  "noInternetForAi": "Internet connection required for AI features",
+
+  "shareNote": "Share Note",
+  "exportNote": "Export Note",
+
+  "weeklySummary": "Weekly Summary",
+  "weeklyDigest": "Weekly Digest",
+  "weeklyDigestDesc": "AI-powered weekly activity summary",
+  "generateSummary": "Generate Summary",
+  "generatingSummary": "Preparing your summary...",
+  "lastGenerated": "Last generated: {date}",
+  "@lastGenerated": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "regenerate": "Regenerate",
+  "noSummaryYet": "No weekly summary generated yet.",
+  "noSummaryHint": "Tap the button to get an AI-powered summary of your activity.",
+  "summaryError": "Could not generate summary. Check your internet connection.",
+  "thisWeek": "This Week"
 }

@@ -126,6 +126,9 @@ class AiManager {
     _groq.clearSession();
   }
 
+  /// Expose GroqProvider for direct feature calls (tag generation, weekly summary)
+  GroqProvider get groqProvider => _groq;
+
   /// Get status of all providers
   Map<String, dynamic> getProvidersStatus() {
     return {'Groq': _groq.isAvailable, 'Internet': _hasInternet};

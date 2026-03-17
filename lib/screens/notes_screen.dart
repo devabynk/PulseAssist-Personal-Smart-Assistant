@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/utils/extensions.dart';
@@ -14,8 +15,10 @@ import '../models/note.dart';
 import '../providers/note_provider.dart';
 import '../providers/settings_provider.dart';
 import '../screens/drawing_screen.dart';
+import '../screens/flashcard_screen.dart';
 import '../screens/note_edit_screen.dart';
 import '../screens/voice_note_screen.dart';
+import '../services/ai/ai_manager.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common/confirmation_dialog.dart';
 import '../widgets/drawing_preview.dart';
@@ -668,10 +671,32 @@ class _NotesScreenState extends State<NotesScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.share),
-              title: Text(l10n.share),
+              leading: const Icon(Icons.share_rounded),
+              title: Text(l10n.shareNote),
               onTap: () {
                 Navigator.pop(context);
+                _shareNote(note);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.style_rounded),
+              title: Text(l10n.flashcardMode),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => FlashcardScreen(note: note),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.auto_awesome_rounded),
+              title: Text(l10n.aiAutoTag),
+              onTap: () {
+                Navigator.pop(context);
+                _autoTagNote(note);
               },
             ),
             ListTile(
@@ -689,6 +714,81 @@ class _NotesScreenState extends State<NotesScreen> {
         ),
       ),
     );
+  }
+
+  void _shareNote(Note note) {
+    final plain = _extractPlainText(note.content);
+    final text = note.title.isNotEmpty
+        ? '${note.title}\n\n$plain'
+        : plain;
+    SharePlus.instance.share(ShareParams(text: text));
+  }
+
+  Future<void> _autoTagNote(Note note) async {
+    final l10n = context.l10n;
+    final isTurkish =
+        Provider.of<SettingsProvider>(context, listen: false)
+                .locale
+                .languageCode ==
+            'tr';
+
+    final groqProvider = AiManager.instance.groqProvider;
+    if (!groqProvider.isAvailable) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.noInternetForAi),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+
+    // Show loading
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.aiTagging),
+          duration: const Duration(seconds: 10),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+
+    final plain = _extractPlainText(note.content);
+    final newTags = await groqProvider.generateTags(
+      title: note.title,
+      content: plain,
+      isTurkish: isTurkish,
+    );
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    if (newTags.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.noTagsGenerated),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    // Merge with existing tags (avoid duplicates)
+    final merged = {...note.tags, ...newTags}.toList();
+    await Provider.of<NoteProvider>(context, listen: false)
+        .updateNote(note.copyWith(tags: merged));
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.aiTagsAdded(newTags.length)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   void _saveQuickNote({

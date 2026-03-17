@@ -30,7 +30,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get notes => 'Notlar';
 
   @override
-  String get reminders => 'Hatırlatıcılar';
+  String get reminders => 'Hatırlatıcı';
 
   @override
   String get settings => 'Ayarlar';
@@ -129,7 +129,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get newReminder => 'Yeni Hatırlatıcı';
 
   @override
-  String get reminderTitle => 'Başlık';
+  String get reminderTitle => 'Hatırlatıcı Başlığı';
 
   @override
   String get description => 'Açıklama (opsiyonel)';
@@ -924,4 +924,198 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get restoreConfirmMessage => 'Bu işlem mevcut tüm verilerinizi yedekle değiştirecektir. Bu işlem geri alınamaz.';
+
+  @override
+  String get pomodoro => 'Pomodoro';
+
+  @override
+  String get pomodoroTimer => 'Pomodoro Zamanlayıcı';
+
+  @override
+  String get workSession => 'Çalışma';
+
+  @override
+  String get shortBreak => 'Kısa Mola';
+
+  @override
+  String get longBreak => 'Uzun Mola';
+
+  @override
+  String get pomodoroComplete => 'Pomodoro tamamlandı! 🎉';
+
+  @override
+  String get breakComplete => 'Mola bitti! Çalışmaya devam et 💪';
+
+  @override
+  String get startPomodoro => 'Başla';
+
+  @override
+  String get pausePomodoro => 'Duraklat';
+
+  @override
+  String get resumePomodoro => 'Devam Et';
+
+  @override
+  String get resetPomodoro => 'Sıfırla';
+
+  @override
+  String get skipPhase => 'Atla';
+
+  @override
+  String sessionsCompleted(int count) {
+    return '$count pomodoro tamamlandı';
+  }
+
+  @override
+  String get pomodoroSettings => 'Zamanlayıcı Ayarları';
+
+  @override
+  String get workDuration => 'Çalışma Süresi';
+
+  @override
+  String get shortBreakDuration => 'Kısa Mola';
+
+  @override
+  String get longBreakDuration => 'Uzun Mola';
+
+  @override
+  String get longBreakAfter => 'Uzun mola aralığı';
+
+  @override
+  String get minutes => 'dakika';
+
+  @override
+  String get focusTime => 'Odak Zamanı';
+
+  @override
+  String get focusTimeDesc => 'Pomodoro tekniğiyle verimli çalış';
+
+  @override
+  String get statistics => 'İstatistikler';
+
+  @override
+  String get statisticsTitle => 'İstatistikler';
+
+  @override
+  String get overview => 'Genel Bakış';
+
+  @override
+  String get weeklyActivity => 'Haftalık Aktivite';
+
+  @override
+  String get noData => 'Veri yok';
+
+  @override
+  String get notes_count => 'Not';
+
+  @override
+  String get alarms_count => 'Alarm';
+
+  @override
+  String get reminders_count => 'Hatırlatıcı';
+
+  @override
+  String get activeAlarms => 'Aktif Alarm';
+
+  @override
+  String get inactiveAlarms => 'Pasif Alarm';
+
+  @override
+  String get completedReminders => 'Tamamlanan';
+
+  @override
+  String get pendingReminders => 'Bekleyen';
+
+  @override
+  String get pinnedNotes => 'Sabitlenmiş Not';
+
+  @override
+  String get taggedNotes => 'Etiketli Not';
+
+  @override
+  String get notesWithImages => 'Resimli Not';
+
+  @override
+  String get voiceNotesCount => 'Sesli Not';
+
+  @override
+  String get statsDesc => 'Tüm verilerine genel bakış';
+
+  @override
+  String get flashcardMode => 'Flashcard Modu';
+
+  @override
+  String get flashcard => 'Flashcard';
+
+  @override
+  String get tapToReveal => 'Tam içeriği görmek için dokun';
+
+  @override
+  String get noFlashcardsHint => 'Bu not flashcard oluşturmak için yeterli içerik içermiyor.';
+
+  @override
+  String cardOf(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get swipeToNavigate => 'Kaydır veya ok tuşlarını kullan';
+
+  @override
+  String get aiAutoTag => 'AI ile Etiketle';
+
+  @override
+  String get aiTagging => 'Etiketler oluşturuluyor...';
+
+  @override
+  String aiTagsAdded(int count) {
+    return '$count etiket eklendi';
+  }
+
+  @override
+  String get noTagsGenerated => 'Etiket oluşturulamadı';
+
+  @override
+  String get noInternetForAi => 'AI özellikleri için internet bağlantısı gerekli';
+
+  @override
+  String get shareNote => 'Notu Paylaş';
+
+  @override
+  String get exportNote => 'Notu Dışa Aktar';
+
+  @override
+  String get weeklySummary => 'Haftalık Özet';
+
+  @override
+  String get weeklyDigest => 'Haftalık Rapor';
+
+  @override
+  String get weeklyDigestDesc => 'AI destekli haftalık aktivite özeti';
+
+  @override
+  String get generateSummary => 'Özet Oluştur';
+
+  @override
+  String get generatingSummary => 'Özet hazırlanıyor...';
+
+  @override
+  String lastGenerated(String date) {
+    return 'Son oluşturulma: $date';
+  }
+
+  @override
+  String get regenerate => 'Yenile';
+
+  @override
+  String get noSummaryYet => 'Henüz haftalık özet oluşturulmadı.';
+
+  @override
+  String get noSummaryHint => 'Aktivitelerinizin AI destekli özetini görmek için butona basın.';
+
+  @override
+  String get summaryError => 'Özet oluşturulamadı. İnternet bağlantınızı kontrol edin.';
+
+  @override
+  String get thisWeek => 'Bu Hafta';
 }

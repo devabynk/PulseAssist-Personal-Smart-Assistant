@@ -1876,6 +1876,378 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This will replace all current data with the backup. This action cannot be undone.'**
   String get restoreConfirmMessage;
+
+  /// No description provided for @pomodoro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pomodoro'**
+  String get pomodoro;
+
+  /// No description provided for @pomodoroTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Pomodoro Timer'**
+  String get pomodoroTimer;
+
+  /// No description provided for @workSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus'**
+  String get workSession;
+
+  /// No description provided for @shortBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Short Break'**
+  String get shortBreak;
+
+  /// No description provided for @longBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Long Break'**
+  String get longBreak;
+
+  /// No description provided for @pomodoroComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Pomodoro complete! 🎉'**
+  String get pomodoroComplete;
+
+  /// No description provided for @breakComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Break over! Back to work 💪'**
+  String get breakComplete;
+
+  /// No description provided for @startPomodoro.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get startPomodoro;
+
+  /// No description provided for @pausePomodoro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get pausePomodoro;
+
+  /// No description provided for @resumePomodoro.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get resumePomodoro;
+
+  /// No description provided for @resetPomodoro.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get resetPomodoro;
+
+  /// No description provided for @skipPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skipPhase;
+
+  /// No description provided for @sessionsCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pomodoros completed'**
+  String sessionsCompleted(int count);
+
+  /// No description provided for @pomodoroSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer Settings'**
+  String get pomodoroSettings;
+
+  /// No description provided for @workDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus Duration'**
+  String get workDuration;
+
+  /// No description provided for @shortBreakDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Short Break'**
+  String get shortBreakDuration;
+
+  /// No description provided for @longBreakDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Long Break'**
+  String get longBreakDuration;
+
+  /// No description provided for @longBreakAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Long break interval'**
+  String get longBreakAfter;
+
+  /// No description provided for @minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'minutes'**
+  String get minutes;
+
+  /// No description provided for @focusTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus Time'**
+  String get focusTime;
+
+  /// No description provided for @focusTimeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay productive with the Pomodoro technique'**
+  String get focusTimeDesc;
+
+  /// No description provided for @statistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get statistics;
+
+  /// No description provided for @statisticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get statisticsTitle;
+
+  /// No description provided for @overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get overview;
+
+  /// No description provided for @weeklyActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Activity'**
+  String get weeklyActivity;
+
+  /// No description provided for @noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get noData;
+
+  /// No description provided for @notes_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notes_count;
+
+  /// No description provided for @alarms_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarms'**
+  String get alarms_count;
+
+  /// No description provided for @reminders_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get reminders_count;
+
+  /// No description provided for @activeAlarms.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Alarms'**
+  String get activeAlarms;
+
+  /// No description provided for @inactiveAlarms.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive Alarms'**
+  String get inactiveAlarms;
+
+  /// No description provided for @completedReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completedReminders;
+
+  /// No description provided for @pendingReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pendingReminders;
+
+  /// No description provided for @pinnedNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned Notes'**
+  String get pinnedNotes;
+
+  /// No description provided for @taggedNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Tagged Notes'**
+  String get taggedNotes;
+
+  /// No description provided for @notesWithImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes with Images'**
+  String get notesWithImages;
+
+  /// No description provided for @voiceNotesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice Notes'**
+  String get voiceNotesCount;
+
+  /// No description provided for @statsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'An overview of all your data'**
+  String get statsDesc;
+
+  /// No description provided for @flashcardMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashcard Mode'**
+  String get flashcardMode;
+
+  /// No description provided for @flashcard.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashcard'**
+  String get flashcard;
+
+  /// No description provided for @tapToReveal.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to reveal full content'**
+  String get tapToReveal;
+
+  /// No description provided for @noFlashcardsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This note doesn\'t have enough content to create flashcards.'**
+  String get noFlashcardsHint;
+
+  /// No description provided for @cardOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} / {total}'**
+  String cardOf(int current, int total);
+
+  /// No description provided for @swipeToNavigate.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe or use arrow buttons'**
+  String get swipeToNavigate;
+
+  /// No description provided for @aiAutoTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-tag with AI'**
+  String get aiAutoTag;
+
+  /// No description provided for @aiTagging.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating tags...'**
+  String get aiTagging;
+
+  /// No description provided for @aiTagsAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} tags added'**
+  String aiTagsAdded(int count);
+
+  /// No description provided for @noTagsGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'No tags could be generated'**
+  String get noTagsGenerated;
+
+  /// No description provided for @noInternetForAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Internet connection required for AI features'**
+  String get noInternetForAi;
+
+  /// No description provided for @shareNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Note'**
+  String get shareNote;
+
+  /// No description provided for @exportNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Note'**
+  String get exportNote;
+
+  /// No description provided for @weeklySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Summary'**
+  String get weeklySummary;
+
+  /// No description provided for @weeklyDigest.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Digest'**
+  String get weeklyDigest;
+
+  /// No description provided for @weeklyDigestDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-powered weekly activity summary'**
+  String get weeklyDigestDesc;
+
+  /// No description provided for @generateSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Summary'**
+  String get generateSummary;
+
+  /// No description provided for @generatingSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing your summary...'**
+  String get generatingSummary;
+
+  /// No description provided for @lastGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last generated: {date}'**
+  String lastGenerated(String date);
+
+  /// No description provided for @regenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Regenerate'**
+  String get regenerate;
+
+  /// No description provided for @noSummaryYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No weekly summary generated yet.'**
+  String get noSummaryYet;
+
+  /// No description provided for @noSummaryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the button to get an AI-powered summary of your activity.'**
+  String get noSummaryHint;
+
+  /// No description provided for @summaryError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not generate summary. Check your internet connection.'**
+  String get summaryError;
+
+  /// No description provided for @thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get thisWeek;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

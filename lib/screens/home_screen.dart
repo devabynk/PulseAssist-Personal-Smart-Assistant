@@ -75,140 +75,168 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTabletLayout(AppLocalizations l10n) {
-    final showLabels = MediaQuery.of(context).size.width > 900;
+    final mq = MediaQuery.of(context);
+    final screenWidth = mq.size.width;
+    final screenHeight = mq.size.height;
+    // True only for phones in landscape — detected by height, not width.
+    // Phones in landscape have height < 500dp; tablets (even in landscape) are ≥ 600dp.
     final isLandscapePhone =
-        MediaQuery.of(context).orientation == Orientation.landscape &&
-        !context.isTablet;
+        mq.orientation == Orientation.landscape && screenHeight < 500;
+    // Show sidebar labels on all tablets/desktops except narrow landscape phones.
+    final showLabels = !isLandscapePhone && screenWidth >= 750;
 
     return Scaffold(
-      body: Row(
-        children: [
-          // Side navigation for tablet
-          // Side navigation for tablet (Custom built to match mobile style)
-          Container(
-            width: showLabels ? 220 : 80,
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(20),
-                  blurRadius: 10,
-                  offset: const Offset(2, 0),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                // Only show logo and title if NOT in landscape phone mode
-                if (!isLandscapePhone) ...[
-                  const SizedBox(height: 32),
-                  // App Logo / Header
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withAlpha(80),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
+      body: SafeArea(
+        child: Row(
+          children: [
+            // Side navigation for tablet/desktop
+            Container(
+              width: showLabels ? 240 : 72,
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(20),
+                    blurRadius: 10,
+                    offset: const Offset(2, 0),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Logo header — hidden in landscape-phone mode only
+                  if (!isLandscapePhone) ...[
+                    const SizedBox(height: 28),
+                    if (showLabels)
+                      // Wide sidebar: icon + text in a row
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                gradient: AppColors.primaryGradient,
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.primary.withAlpha(80),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Image.asset(
+                                'assets/app_icon.png',
+                                width: 26,
+                                height: 26,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'PulseAssist',
+                              style: Theme.of(
+                                context,
+                              ).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: Image.asset(
-                      'assets/app_icon.png',
-                      width: 28,
-                      height: 28,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  if (showLabels) ...[
+                      )
+                    else
+                      // Narrow sidebar: only icon, centred
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            gradient: AppColors.primaryGradient,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withAlpha(80),
+                                blurRadius: 10,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Image.asset(
+                            'assets/app_icon.png',
+                            width: 26,
+                            height: 26,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 32),
+                  ] else
                     const SizedBox(height: 16),
-                    Text(
-                      'PulseAssist',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
+
+                  // Navigation items
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildSideNavItem(
+                            0,
+                            Icons.home_outlined,
+                            Icons.home,
+                            l10n.home,
+                            showLabels,
+                          ),
+                          const SizedBox(height: 6),
+                          _buildSideNavItem(
+                            1,
+                            Icons.smart_toy_outlined,
+                            Icons.smart_toy,
+                            l10n.chatbot,
+                            showLabels,
+                          ),
+                          const SizedBox(height: 6),
+                          _buildSideNavItem(
+                            2,
+                            Icons.alarm_outlined,
+                            Icons.alarm,
+                            l10n.alarm,
+                            showLabels,
+                          ),
+                          const SizedBox(height: 6),
+                          _buildSideNavItem(
+                            3,
+                            Icons.notifications_outlined,
+                            Icons.notifications,
+                            l10n.reminder,
+                            showLabels,
+                          ),
+                          const SizedBox(height: 6),
+                          _buildSideNavItem(
+                            4,
+                            Icons.note_alt_outlined,
+                            Icons.note_alt,
+                            l10n.notes,
+                            showLabels,
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                  const SizedBox(height: 48),
-                ] else
+                  ),
+
                   const SizedBox(height: 16),
-
-                // Navigation Items
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: [
-                      _buildSideNavItem(
-                        0,
-                        Icons.home_outlined,
-                        Icons.home,
-                        l10n.home,
-                        showLabels,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildSideNavItem(
-                        1,
-                        Icons.smart_toy_outlined,
-                        Icons.smart_toy,
-                        l10n.chatbot,
-                        showLabels,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildSideNavItem(
-                        2,
-                        Icons.alarm_outlined,
-                        Icons.alarm,
-                        l10n.alarm,
-                        showLabels,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildSideNavItem(
-                        3,
-                        Icons.notifications_outlined,
-                        Icons.notifications,
-                        l10n.reminder,
-                        showLabels,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildSideNavItem(
-                        4,
-                        Icons.note_alt_outlined,
-                        Icons.note_alt,
-                        l10n.notes,
-                        showLabels,
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Settings at bottom
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 24,
-                  ),
-                  child: _buildSideNavItem(
-                    -1,
-                    Icons.settings_outlined,
-                    Icons.settings,
-                    l10n.settingsTitle,
-                    showLabels,
-                    isSettings: true,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const VerticalDivider(width: 1),
-          // Main content
-          Expanded(
-            child: IndexedStack(index: _currentIndex, children: _screens),
-          ),
-        ],
+            const VerticalDivider(width: 1),
+            // Main content
+            Expanded(
+              child: IndexedStack(index: _currentIndex, children: _screens),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -311,52 +339,60 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     final isSelected = _currentIndex == index;
     final primaryColor = Theme.of(context).primaryColor;
+    final inactiveColor = Theme.of(context).iconTheme.color?.withAlpha(150);
 
-    return InkWell(
-      onTap: () {
-        if (isSettings) {
-          _openSettings();
-        } else {
-          setState(() => _currentIndex = index);
-        }
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        decoration: BoxDecoration(
-          color: isSelected ? primaryColor.withAlpha(38) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisAlignment: showLabels
-              ? MainAxisAlignment.start
-              : MainAxisAlignment.center,
-          children: [
-            Icon(
-              isSelected ? activeIcon : icon,
-              color: isSelected
-                  ? primaryColor
-                  : Theme.of(context).iconTheme.color?.withAlpha(150),
-              size: 24,
-            ),
-            if (showLabels) ...[
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: isSelected
-                        ? primaryColor
-                        : Theme.of(context).textTheme.bodyMedium?.color,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+    final tile = AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      padding: EdgeInsets.symmetric(
+        vertical: 10,
+        horizontal: showLabels ? 14 : 0,
+      ),
+      decoration: BoxDecoration(
+        color: isSelected ? primaryColor.withAlpha(38) : Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisAlignment: showLabels
+            ? MainAxisAlignment.start
+            : MainAxisAlignment.center,
+        children: [
+          Icon(
+            isSelected ? activeIcon : icon,
+            color: isSelected ? primaryColor : inactiveColor,
+            size: 22,
+          ),
+          if (showLabels) ...[
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: isSelected
+                      ? primaryColor
+                      : Theme.of(context).textTheme.bodyMedium?.color,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
-            ],
+            ),
           ],
-        ),
+        ],
+      ),
+    );
+
+    return Tooltip(
+      message: showLabels ? '' : label,
+      preferBelow: false,
+      child: InkWell(
+        onTap: () {
+          if (isSettings) {
+            _openSettings();
+          } else {
+            setState(() => _currentIndex = index);
+          }
+        },
+        borderRadius: BorderRadius.circular(14),
+        child: tile,
       ),
     );
   }

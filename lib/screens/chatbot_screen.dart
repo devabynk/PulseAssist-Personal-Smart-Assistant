@@ -28,6 +28,7 @@ class ChatbotScreen extends StatefulWidget {
 class _ChatbotScreenState extends State<ChatbotScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  late ChatProvider _chatProvider;
 
   // Note: Local _messages list is removed in favor of Consumer
 
@@ -35,9 +36,17 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _chatProvider = Provider.of<ChatProvider>(context, listen: false);
       _checkFirstRun();
-      Provider.of<ChatProvider>(context, listen: false).setChatActive(true);
+      _chatProvider.setChatActive(true);
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _chatProvider = Provider.of<ChatProvider>(context, listen: false);
   }
 
   Future<void> _checkFirstRun() async {
@@ -102,11 +111,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         chatProvider.activeConversation?.id,
       );
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   Future<void> _sendMessage() async {
@@ -979,7 +983,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 
   @override
   void dispose() {
-    Provider.of<ChatProvider>(context, listen: false).setChatActive(false);
+    _chatProvider.setChatActive(false);
     _controller.dispose();
     _scrollController.dispose();
     super.dispose();

@@ -436,14 +436,21 @@ class ChatProvider with ChangeNotifier {
                     '1. ASLA "hangi şehir?" veya "konumunuz neresi?" diye sorma! Dashboard konumunu kullan.\n'
                     '2. Eczane için şu JSON\'u: {"action": "get_pharmacy", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}\n'
                     '3. Etkinlikler için şu JSON\'u: {"action": "get_events", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}\n'
-                    '4. Not: Eğer ilçe (district) boşsa, eczane için district değerini boş bırak veya tahmin etme.'
+                    '4. Not: Eğer ilçe (district) boşsa, eczane için district değerini boş bırak veya tahmin etme.\n'
+                    '5. 🇹🇷 ETKİNLİK KONUM KURALI: Türkiye\'de etkinlik ararken "city" değeri MUTLAKA İL (province) olmalıdır, ilçe (district) değil!\n'
+                    '   Örnek: Kullanıcı "Nilüfer Bursa" dese → city="Bursa" (il), district="Nilüfer" (ilçe)\n'
+                    '   Örnek: Kullanıcı "Kadıköy İstanbul" dese → city="İstanbul" (il), district="Kadıköy" (ilçe)\n'
+                    '   Ticketmaster API yalnızca il bazında (Bursa, İstanbul, Ankara vb.) arama yapar, ilçeleri tanımaz.'
               : '\n📍 CURRENT LOCATION (Dashboard): $fullLocation\n'
                     '- City/Province: $pharmacyCity\n'
                     '- District: ${pharmacyDistrict ?? "Unknown"}\n'
                     '⚠️ IMPORTANT RULE: If user asks for "pharmacy" or "events" and DOES NOT specify a location:\n'
                     '1. NEVER ask "which city?". Use the Dashboard location above.\n'
                     '2. For Pharmacy, return: {"action": "get_pharmacy", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}\n'
-                    '3. For Events, return: {"action": "get_events", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}';
+                    '3. For Events, return: {"action": "get_events", "city": "$pharmacyCity", "district": "${pharmacyDistrict ?? ''}"}\n'
+                    '4. 🇹🇷 TURKEY EVENTS RULE: For Turkey, "city" MUST be the province (il/state), NOT the district (ilçe)!\n'
+                    '   Example: "Nilüfer Bursa" → city="Bursa" (province), district="Nilüfer"\n'
+                    '   Ticketmaster only recognises provinces (Bursa, Istanbul, Ankara etc.), not districts.';
         } else {
           // Non-Turkey - pharmacy is Turkey-only, events work globally
           locInfo = isTurkish

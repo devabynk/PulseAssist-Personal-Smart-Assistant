@@ -147,6 +147,27 @@ class EventsService {
           results = await _fetchEvents(params);
         }
 
+        // TR safety net: if still empty and the city might be a district
+        // (ilçe) instead of a province (il), retry with the DB-saved province.
+        if (results.isEmpty && resolvedCountryCode == 'TR') {
+          try {
+            final locData = await _db.getUserLocation();
+            final dbProvince =
+                (locData?['state']?.toString() ?? '').trim();
+            if (dbProvince.isNotEmpty &&
+                _normalize(dbProvince).toLowerCase() !=
+                    normalizedCity.toLowerCase()) {
+              params['city'] = _normalize(dbProvince);
+              params['countryCode'] = 'TR';
+              results = await _fetchEvents(params);
+              if (results.isNotEmpty) {
+                // Update resolvedCity so the caller knows the correct province
+                resolvedCity = dbProvince;
+              }
+            }
+          } catch (_) {}
+        }
+
         return results;
       });
 

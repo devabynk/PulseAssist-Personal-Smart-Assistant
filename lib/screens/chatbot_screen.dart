@@ -368,16 +368,20 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           return Column(
             children: [
               Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(16),
-                  itemCount: messages.length + (chatProvider.isTyping ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (chatProvider.isTyping && index == messages.length) {
-                      return _buildTypingIndicator();
-                    }
-                    return _buildMessageBubble(messages[index]);
-                  },
+                child: GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  behavior: HitTestBehavior.translucent,
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: messages.length + (chatProvider.isTyping ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (chatProvider.isTyping && index == messages.length) {
+                        return _buildTypingIndicator();
+                      }
+                      return _buildMessageBubble(messages[index]);
+                    },
+                  ),
                 ),
               ),
               _buildQuickReplies(l10n),

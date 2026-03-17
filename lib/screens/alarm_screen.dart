@@ -447,7 +447,10 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
     final theme = Theme.of(context);
     final l10n = widget.l10n;
 
-    return Container(
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.translucent,
+      child: Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
@@ -516,6 +519,7 @@ class _AddEditAlarmSheetState extends State<_AddEditAlarmSheet> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

@@ -968,7 +968,10 @@ class _ReminderSheetState extends State<_ReminderSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.translucent,
+      child: Container(
       height:
           MediaQuery.of(context).size.height * 0.72,
       decoration: BoxDecoration(
@@ -1265,6 +1268,7 @@ class _ReminderSheetState extends State<_ReminderSheet> {
                 : const SizedBox.shrink(),
           ),
         ],
+      ),
       ),
     );
   }

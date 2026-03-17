@@ -58,7 +58,10 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
             ),
         ],
       ),
-      body: SafeArea(
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
@@ -285,6 +288,7 @@ class _VoiceNoteScreenState extends State<VoiceNoteScreen> {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

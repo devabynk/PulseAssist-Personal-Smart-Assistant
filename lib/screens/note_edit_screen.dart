@@ -256,9 +256,17 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
               icon: Icon(Icons.palette_outlined, color: fgColor),
               onPressed: () => _showColorPicker(),
             ),
+            IconButton(
+              icon: Icon(Icons.check_rounded, color: fgColor),
+              tooltip: l10n.save,
+              onPressed: _saveAndPop,
+            ),
           ],
         ),
-        body: SafeArea(
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.translucent,
+          child: SafeArea(
           child: Column(
             children: [
               Expanded(
@@ -404,6 +412,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),

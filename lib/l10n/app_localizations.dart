@@ -2248,6 +2248,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This Week'**
   String get thisWeek;
+
+  /// No description provided for @pomodoroStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Pomodoro Statistics'**
+  String get pomodoroStats;
+
+  /// No description provided for @totalSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Sessions'**
+  String get totalSessions;
+
+  /// No description provided for @dailyGoalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Goal'**
+  String get dailyGoalLabel;
+
+  /// No description provided for @weeklyGoalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Goal'**
+  String get weeklyGoalLabel;
+
+  /// No description provided for @minuteShort.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get minuteShort;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

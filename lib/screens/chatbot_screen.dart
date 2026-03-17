@@ -12,6 +12,7 @@ import '../models/message.dart';
 import '../providers/alarm_provider.dart';
 import '../providers/chat_provider.dart';
 import '../providers/note_provider.dart';
+import '../providers/pomodoro_provider.dart';
 import '../providers/reminder_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/weather_provider.dart';
@@ -134,6 +135,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       noteProvider: Provider.of<NoteProvider>(context, listen: false),
       reminderProvider: Provider.of<ReminderProvider>(context, listen: false),
       weatherProvider: Provider.of<WeatherProvider>(context, listen: false),
+      pomodoroProvider: Provider.of<PomodoroProvider>(context, listen: false),
     );
 
     // Scroll handled by consumer update usually, or force it here

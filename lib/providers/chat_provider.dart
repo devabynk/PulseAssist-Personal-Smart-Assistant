@@ -20,6 +20,7 @@ import '../models/reminder.dart';
 import '../providers/alarm_provider.dart';
 import '../providers/note_provider.dart';
 import '../providers/notification_provider.dart';
+import '../providers/pomodoro_provider.dart';
 import '../providers/reminder_provider.dart';
 import '../providers/weather_provider.dart'; // NEW: Weather dependency
 import '../services/action_service.dart';
@@ -346,6 +347,7 @@ class ChatProvider with ChangeNotifier {
     NoteProvider? noteProvider,
     ReminderProvider? reminderProvider,
     WeatherProvider? weatherProvider, // NEW: Weather dependency
+    PomodoroProvider? pomodoroProvider,
     String? attachmentPath,
     String? attachmentType,
   }) async {
@@ -663,6 +665,7 @@ class ChatProvider with ChangeNotifier {
           alarmProvider,
           noteProvider,
           reminderProvider,
+          pomodoroProvider: pomodoroProvider,
           showOfflineNote: false, // Seamless fallback, no error message
         );
       }
@@ -676,6 +679,7 @@ class ChatProvider with ChangeNotifier {
         alarmProvider,
         noteProvider,
         reminderProvider,
+        pomodoroProvider: pomodoroProvider,
         showOfflineNote: true, // Show offline note when truly offline
       );
     }
@@ -690,6 +694,7 @@ class ChatProvider with ChangeNotifier {
     AlarmProvider? alarmProvider,
     NoteProvider? noteProvider,
     ReminderProvider? reminderProvider, {
+    PomodoroProvider? pomodoroProvider,
     bool showOfflineNote = true, // Show offline note by default
   }) async {
     // 1. Check for Cancellation if we have a pending partial intent
@@ -761,6 +766,16 @@ class ChatProvider with ChangeNotifier {
       if (result != null) {
         await addSystemMessage(result, _activeConversation?.id);
       }
+      _partialIntent = null;
+    } else if (_isPomodoroIntent(response.intent.type)) {
+      final result = _actionService.executeAction(
+        response,
+        l10n: l10n,
+        pomodoroProvider: pomodoroProvider,
+        rawInput: text,
+        isTurkish: isTurkish,
+      );
+      await addSystemMessage(await result ?? '', _activeConversation?.id);
       _partialIntent = null;
     } else if (_isActionIntent(response.intent.type)) {
       // For action intents, execute directly with local NLP entities
@@ -854,6 +869,12 @@ class ChatProvider with ChangeNotifier {
     return type == IntentType.listAlarms ||
         type == IntentType.listNotes ||
         type == IntentType.listReminders;
+  }
+
+  bool _isPomodoroIntent(IntentType type) {
+    return type == IntentType.startPomodoro ||
+        type == IntentType.pomodoroStatus ||
+        type == IntentType.setPomodoroSettings;
   }
 
   /// Determines if a query needs AI fallback

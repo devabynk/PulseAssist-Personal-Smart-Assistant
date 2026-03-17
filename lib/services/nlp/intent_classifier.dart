@@ -33,6 +33,9 @@ enum IntentType {
   affirmative,
   negative,
   setName,
+  startPomodoro,
+  pomodoroStatus,
+  setPomodoroSettings,
   unclear,
 }
 
@@ -406,6 +409,52 @@ class IntentClassifier {
       "don't": 0.8, 'dont': 0.8, 'cancel': 0.9, 'stop': 0.8,
       'wrong': 0.7, 'incorrect': 0.7, "i don't want": 0.9,
       'forget it': 0.8, 'nevermind': 0.8, 'no thanks': 0.9,
+    },
+    IntentType.startPomodoro: {
+      // Turkish
+      'pomodoro başlat': 1.0, 'odak başlat': 0.9, 'odak zamanlayıcı': 0.9,
+      'odak zamanlayici': 0.9, 'pomodoro çalıştır': 1.0, 'pomodoro calistir': 1.0,
+      'çalışma başlat': 0.8, 'calisma baslat': 0.8, 'pomodoro': 0.6,
+      'odak modu': 0.8, 'çalışma modu': 0.7, 'calisma modu': 0.7,
+      'zamanlayıcı başlat': 0.8, 'zamanlayici baslat': 0.8,
+      'pomodoro tekniği': 0.7, 'pomodoro teknigi': 0.7,
+      // English
+      'start pomodoro': 1.0, 'pomodoro timer': 0.9, 'focus timer': 0.9,
+      'start focus': 0.9, 'work timer': 0.8, 'start timer': 0.7,
+      'focus session': 0.8, 'focus mode': 0.8, 'pomodoro session': 1.0,
+    },
+    IntentType.setPomodoroSettings: {
+      // Turkish
+      'odak süresini': 1.0, 'odak suresini': 1.0, 'odak dakikasını': 0.9,
+      'odak dakikasini': 0.9, 'çalışma süresini': 1.0, 'calisma suresini': 1.0,
+      'pomodoro süresini': 1.0, 'pomodoro suresini': 1.0,
+      'kısa molayı': 0.9, 'kisa molayi': 0.9, 'kısa mola süresini': 1.0,
+      'kisa mola suresini': 1.0, 'uzun molayı': 0.9, 'uzun molayi': 0.9,
+      'uzun mola süresini': 1.0, 'uzun mola suresini': 1.0,
+      'pomodoro ayarla': 1.0, 'pomodoro ayarları': 0.9, 'pomodoro ayarlari': 0.9,
+      'mola süresini': 0.9, 'mola suresini': 0.9, 'dakika yap': 0.8,
+      'dakikaya ayarla': 0.9, 'dakika olsun': 0.8,
+      // English
+      'set work time': 1.0, 'set focus time': 1.0, 'change work time': 1.0,
+      'set pomodoro': 0.9, 'pomodoro settings': 1.0, 'set break': 0.9,
+      'change break': 0.9, 'set short break': 1.0, 'set long break': 1.0,
+      'work minutes': 0.9, 'break minutes': 0.9, 'minute work': 0.8,
+      'minute break': 0.8, 'focus minutes': 0.9,
+    },
+    IntentType.pomodoroStatus: {
+      // Turkish
+      'pomodoro durumu': 1.0, 'kaç pomodoro': 0.9, 'kac pomodoro': 0.9,
+      'bugün kaç': 0.7, 'bugun kac': 0.7, 'pomodoro istatistik': 1.0,
+      'odak istatistik': 0.9, 'kaç oturum': 0.9, 'kac oturum': 0.9,
+      'günlük pomodoro': 1.0, 'gunluk pomodoro': 1.0, 'haftalık pomodoro': 1.0,
+      'haftalik pomodoro': 1.0, 'toplam pomodoro': 1.0,
+      'odak hedefi': 0.9, 'pomodoro hedefi': 0.9,
+      'ne kadar odaklandım': 0.8, 'ne kadar odaklandim': 0.8,
+      // English
+      'pomodoro status': 1.0, 'pomodoro stats': 1.0, 'focus stats': 0.9,
+      'how many pomodoros': 0.9, 'pomodoro count': 0.9,
+      'daily pomodoro': 1.0, 'weekly pomodoro': 1.0, 'total pomodoros': 1.0,
+      'focus goal': 0.8, 'pomodoro goal': 0.9, 'focus progress': 0.8,
     },
     IntentType.setName: {
       // Turkish - explicit name setting

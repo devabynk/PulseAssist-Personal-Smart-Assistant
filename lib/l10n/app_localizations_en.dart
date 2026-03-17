@@ -1118,4 +1118,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get thisWeek => 'This Week';
+
+  @override
+  String get pomodoroStats => 'Pomodoro Statistics';
+
+  @override
+  String get totalSessions => 'Total Sessions';
+
+  @override
+  String get dailyGoalLabel => 'Daily Goal';
+
+  @override
+  String get weeklyGoalLabel => 'Weekly Goal';
+
+  @override
+  String get minuteShort => 'min';
 }

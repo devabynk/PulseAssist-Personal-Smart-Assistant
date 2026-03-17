@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../core/utils/extensions.dart';
 import '../providers/alarm_provider.dart';
 import '../providers/note_provider.dart';
+import '../providers/pomodoro_provider.dart';
 import '../providers/reminder_provider.dart';
 import '../theme/app_theme.dart';
 
@@ -26,7 +27,9 @@ class StatisticsScreen extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
-      body: Consumer3<AlarmProvider, NoteProvider, ReminderProvider>(
+      body: Consumer<PomodoroProvider>(
+        builder: (context, pomodoro, _) =>
+            Consumer3<AlarmProvider, NoteProvider, ReminderProvider>(
         builder: (context, alarms, notes, reminders, _) {
           final activeAlarms =
               alarms.alarms.where((a) => a.isActive).length;
@@ -178,12 +181,81 @@ class StatisticsScreen extends StatelessWidget {
                           color: const Color(0xFF2196F3)),
                     ],
                   ),
+                  const SizedBox(height: 12),
+
+                  // Pomodoro section
+                  _SectionCard(
+                    title: l10n.pomodoroStats,
+                    icon: Icons.timer_rounded,
+                    color: AppColors.primary,
+                    children: [
+                      // Overview row: today / week / total
+                      Row(
+                        children: [
+                          _MiniStatCard(
+                            label: l10n.today,
+                            value: pomodoro.sessionsToday,
+                            color: AppColors.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          _MiniStatCard(
+                            label: l10n.thisWeek,
+                            value: pomodoro.sessionsThisWeek,
+                            color: const Color(0xFF4ECDC4),
+                          ),
+                          const SizedBox(width: 8),
+                          _MiniStatCard(
+                            label: l10n.totalSessions,
+                            value: pomodoro.totalSessions,
+                            color: const Color(0xFFFF9800),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _BarRow(
+                        label: l10n.dailyGoalLabel,
+                        count: pomodoro.sessionsToday,
+                        total: pomodoro.dailyGoal,
+                        color: AppColors.primary,
+                      ),
+                      _BarRow(
+                        label: l10n.weeklyGoalLabel,
+                        count: pomodoro.sessionsThisWeek,
+                        total: pomodoro.weeklyGoal,
+                        color: const Color(0xFF4ECDC4),
+                      ),
+                      const SizedBox(height: 4),
+                      // Timer settings row
+                      Row(
+                        children: [
+                          _TimerChip(
+                            label: l10n.workDuration,
+                            minutes: pomodoro.workMinutes,
+                            minuteShort: l10n.minuteShort,
+                          ),
+                          const SizedBox(width: 8),
+                          _TimerChip(
+                            label: l10n.shortBreakDuration,
+                            minutes: pomodoro.shortBreakMinutes,
+                            minuteShort: l10n.minuteShort,
+                          ),
+                          const SizedBox(width: 8),
+                          _TimerChip(
+                            label: l10n.longBreakDuration,
+                            minutes: pomodoro.longBreakMinutes,
+                            minuteShort: l10n.minuteShort,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 40),
                 ],
               ),
             ),
           );
         },
+      ),
       ),
     );
   }
@@ -371,6 +443,85 @@ class _SectionCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           ...children,
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniStatCard extends StatelessWidget {
+  final String label;
+  final int value;
+  final Color color;
+
+  const _MiniStatCard({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        decoration: BoxDecoration(
+          color: color.withAlpha(20),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withAlpha(40)),
+        ),
+        child: Column(
+          children: [
+            Text(
+              '$value',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(fontSize: 10, color: Theme.of(context).hintColor),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TimerChip extends StatelessWidget {
+  final String label;
+  final int minutes;
+  final String minuteShort;
+
+  const _TimerChip({
+    required this.label,
+    required this.minutes,
+    required this.minuteShort,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(
+            '$minutes $minuteShort',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(fontSize: 10, color: Theme.of(context).hintColor),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );

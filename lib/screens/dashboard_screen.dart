@@ -198,7 +198,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildToolsRow(bool isDark, AppLocalizations l10n) {
-    return Row(
+    return IntrinsicHeight(
+      child: Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
           child: _ToolCard(
@@ -228,6 +230,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
       ],
+      ),
     );
   }
 

@@ -970,7 +970,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get pomodoroSettings => 'Zamanlayıcı Ayarları';
 
   @override
-  String get workDuration => 'Çalışma Süresi';
+  String get workDuration => 'Odak Süresi';
 
   @override
   String get shortBreakDuration => 'Kısa Mola';
@@ -1118,4 +1118,19 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get thisWeek => 'Bu Hafta';
+
+  @override
+  String get pomodoroStats => 'Pomodoro İstatistikleri';
+
+  @override
+  String get totalSessions => 'Toplam Oturum';
+
+  @override
+  String get dailyGoalLabel => 'Günlük Hedef';
+
+  @override
+  String get weeklyGoalLabel => 'Haftalık Hedef';
+
+  @override
+  String get minuteShort => 'dk';
 }

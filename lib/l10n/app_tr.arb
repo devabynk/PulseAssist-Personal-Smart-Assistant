@@ -450,5 +450,14 @@
   "noSummaryYet": "Henüz haftalık özet oluşturulmadı.",
   "noSummaryHint": "Aktivitelerinizin AI destekli özetini görmek için butona basın.",
   "summaryError": "Özet oluşturulamadı. İnternet bağlantınızı kontrol edin.",
-  "thisWeek": "Bu Hafta"
+  "thisWeek": "Bu Hafta",
+
+  "pomodoroStats": "Pomodoro İstatistikleri",
+  "totalSessions": "Toplam Oturum",
+  "dailyGoalLabel": "Günlük Hedef",
+  "weeklyGoalLabel": "Haftalık Hedef",
+  "workDuration": "Odak Süresi",
+  "shortBreakDuration": "Kısa Mola",
+  "longBreakDuration": "Uzun Mola",
+  "minuteShort": "dk"
 }

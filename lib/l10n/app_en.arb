@@ -515,5 +515,14 @@
   "noSummaryYet": "No weekly summary generated yet.",
   "noSummaryHint": "Tap the button to get an AI-powered summary of your activity.",
   "summaryError": "Could not generate summary. Check your internet connection.",
-  "thisWeek": "This Week"
+  "thisWeek": "This Week",
+
+  "pomodoroStats": "Pomodoro Statistics",
+  "totalSessions": "Total Sessions",
+  "dailyGoalLabel": "Daily Goal",
+  "weeklyGoalLabel": "Weekly Goal",
+  "workDuration": "Focus Duration",
+  "shortBreakDuration": "Short Break",
+  "longBreakDuration": "Long Break",
+  "minuteShort": "min"
 }

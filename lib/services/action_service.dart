@@ -7,6 +7,7 @@ import '../models/reminder.dart';
 // Providers
 import '../providers/alarm_provider.dart';
 import '../providers/note_provider.dart';
+import '../providers/pomodoro_provider.dart';
 import '../providers/reminder_provider.dart';
 import '../services/learning_service.dart';
 import 'database_service.dart';
@@ -29,6 +30,8 @@ class ActionService {
     AlarmProvider? alarmProvider,
     NoteProvider? noteProvider,
     ReminderProvider? reminderProvider,
+    PomodoroProvider? pomodoroProvider,
+    String? rawInput,
     bool isTurkish = true,
   }) async {
     switch (response.intent.type) {
@@ -44,8 +47,128 @@ class ActionService {
         return await _listNotes(isTurkish);
       case IntentType.listReminders:
         return await _listReminders(isTurkish);
+      case IntentType.startPomodoro:
+        return _startPomodoro(pomodoroProvider, isTurkish);
+      case IntentType.pomodoroStatus:
+        return _getPomodoroStatus(pomodoroProvider, isTurkish);
+      case IntentType.setPomodoroSettings:
+        return _setPomodoroSettings(rawInput ?? '', pomodoroProvider, isTurkish);
       default:
         return null; // No action needed
+    }
+  }
+
+  String _startPomodoro(PomodoroProvider? provider, bool isTurkish) {
+    if (provider == null) {
+      return isTurkish
+          ? 'Pomodoro zamanlayıcısına erişilemiyor.'
+          : 'Pomodoro timer is not available.';
+    }
+    if (provider.isRunning) {
+      final phase = provider.phase == PomodoroPhase.work
+          ? (isTurkish ? 'Odak' : 'Focus')
+          : (isTurkish ? 'Mola' : 'Break');
+      return isTurkish
+          ? '⏱ Pomodoro zaten çalışıyor! Aşama: $phase — Kalan: ${provider.timeString}'
+          : '⏱ Pomodoro is already running! Phase: $phase — Remaining: ${provider.timeString}';
+    }
+    provider.start();
+    return isTurkish
+        ? '▶️ Pomodoro başlatıldı! ${provider.workMinutes} dakika odak zamanı. Başarılar!'
+        : '▶️ Pomodoro started! ${provider.workMinutes} minutes of focus time. Good luck!';
+  }
+
+  String _setPomodoroSettings(
+    String rawInput,
+    PomodoroProvider? provider,
+    bool isTurkish,
+  ) {
+    if (provider == null) {
+      return isTurkish
+          ? 'Pomodoro ayarlarına erişilemiyor.'
+          : 'Pomodoro settings are not available.';
+    }
+
+    final raw = rawInput.toLowerCase();
+
+    // Extract number from raw text
+    final numMatch = RegExp(r'\b(\d+)\b').firstMatch(raw);
+    if (numMatch == null) {
+      return isTurkish
+          ? 'Kaç dakika istediğinizi belirtir misiniz? Örn: "odak süresini 30 dakika yap"'
+          : 'Please specify the number of minutes. E.g. "set work time to 30 minutes"';
+    }
+    final minutes = int.parse(numMatch.group(1)!);
+    if (minutes < 1 || minutes > 120) {
+      return isTurkish
+          ? 'Süre 1-120 dakika arasında olmalıdır.'
+          : 'Duration must be between 1 and 120 minutes.';
+    }
+
+    // Determine which field to update
+    final isLongBreak = raw.contains('uzun') || raw.contains('long break') || raw.contains('long');
+    final isShortBreak = !isLongBreak &&
+        (raw.contains('kısa') || raw.contains('kisa') ||
+            raw.contains('mola') || raw.contains('break'));
+    final isWork = !isLongBreak && !isShortBreak;
+
+    provider.updateSettings(
+      workMins: isWork ? minutes : provider.workMinutes,
+      shortBreakMins: isShortBreak ? minutes : provider.shortBreakMinutes,
+      longBreakMins: isLongBreak ? minutes : provider.longBreakMinutes,
+      longBreakAfter: provider.longBreakAfterSessions,
+      newDailyGoal: provider.dailyGoal,
+      newWeeklyGoal: provider.weeklyGoal,
+    );
+
+    if (isWork) {
+      return isTurkish
+          ? '✅ Odak süresi $minutes dakika olarak ayarlandı.'
+          : '✅ Focus duration set to $minutes minutes.';
+    } else if (isShortBreak) {
+      return isTurkish
+          ? '✅ Kısa mola süresi $minutes dakika olarak ayarlandı.'
+          : '✅ Short break duration set to $minutes minutes.';
+    } else {
+      return isTurkish
+          ? '✅ Uzun mola süresi $minutes dakika olarak ayarlandı.'
+          : '✅ Long break duration set to $minutes minutes.';
+    }
+  }
+
+  String _getPomodoroStatus(PomodoroProvider? provider, bool isTurkish) {
+    if (provider == null) {
+      return isTurkish
+          ? 'Pomodoro verilerine erişilemiyor.'
+          : 'Pomodoro data is not available.';
+    }
+    final phase = provider.phase == PomodoroPhase.work
+        ? (isTurkish ? 'Odak' : 'Focus')
+        : provider.phase == PomodoroPhase.shortBreak
+            ? (isTurkish ? 'Kısa Mola' : 'Short Break')
+            : (isTurkish ? 'Uzun Mola' : 'Long Break');
+    final running = provider.isRunning
+        ? (isTurkish ? '▶️ Çalışıyor' : '▶️ Running')
+        : (isTurkish ? '⏸ Duraklatıldı' : '⏸ Paused');
+    final dailyBar = '${provider.sessionsToday}/${provider.dailyGoal}';
+    final weeklyBar = '${provider.sessionsThisWeek}/${provider.weeklyGoal}';
+    final dailyDone = provider.dailyGoalReached ? ' ✅' : '';
+    final weeklyDone = provider.weeklyGoalReached ? ' ✅' : '';
+
+    if (isTurkish) {
+      return '🍅 **Pomodoro Durumu**\n'
+          '• Durum: $running\n'
+          '• Aşama: $phase — Kalan: ${provider.timeString}\n'
+          '• Bugün: $dailyBar oturum$dailyDone\n'
+          '• Bu hafta: $weeklyBar oturum$weeklyDone\n'
+          '• Toplam: ${provider.totalSessions} pomodoro';
+    } else {
+      return '🍅 **Pomodoro Status**\n'
+          '• Status: $running\n'
+          '• Phase: $phase — Remaining: ${provider.timeString}\n'
+          '• Today: $dailyBar sessions$dailyDone\n'
+          '• This week: $weeklyBar sessions$weeklyDone\n'
+          '• Total: ${provider.totalSessions} pomodoros';
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppPalette {
@@ -214,6 +215,15 @@ class AppTheme {
         foregroundColor: AppPalette.textPrimaryDark,
         elevation: 0,
         centerTitle: false,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          // Android: light (white) icons on dark background
+          statusBarIconBrightness: Brightness.light,
+          // iOS: dark background → light content
+          statusBarBrightness: Brightness.dark,
+          systemNavigationBarColor: AppPalette.darkBackground,
+          systemNavigationBarIconBrightness: Brightness.light,
+        ),
         titleTextStyle: GoogleFonts.outfit(
           fontSize: 22,
           fontWeight: FontWeight.bold,
@@ -340,6 +350,15 @@ class AppTheme {
         foregroundColor: AppPalette.textPrimary,
         elevation: 0,
         centerTitle: false,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          // Android: dark icons on light background
+          statusBarIconBrightness: Brightness.dark,
+          // iOS: light background → dark content
+          statusBarBrightness: Brightness.light,
+          systemNavigationBarColor: AppPalette.lightBackground,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
         titleTextStyle: GoogleFonts.outfit(
           fontSize: 22,
           fontWeight: FontWeight.bold,

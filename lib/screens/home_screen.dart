@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../core/utils/extensions.dart';
 import '../core/utils/responsive.dart';
 import '../l10n/app_localizations.dart';
-import '../theme/app_theme.dart';
+import '../theme/app_theme.dart'; // AppColors + AppPalette
 import 'alarm_screen.dart';
 import 'chatbot_screen.dart';
 import 'dashboard_screen.dart';
@@ -49,11 +50,32 @@ class _HomeScreenState extends State<HomeScreen> {
         !context.isDesktop;
     final isTablet = context.isTablet || context.isDesktop;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final overlayStyle = isDark
+        ? const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.light,
+            statusBarBrightness: Brightness.dark,
+            systemNavigationBarColor: AppPalette.darkBackground,
+            systemNavigationBarIconBrightness: Brightness.light,
+          )
+        : const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
+            systemNavigationBarColor: AppPalette.lightBackground,
+            systemNavigationBarIconBrightness: Brightness.dark,
+          );
+
     // Use tablet layout (side menu) for tablets, desktops, AND landscape phones
-    if (isTablet || isLandscapePhone) {
-      return _buildTabletLayout(l10n);
-    }
-    return _buildMobileLayout(l10n);
+    final child = (isTablet || isLandscapePhone)
+        ? _buildTabletLayout(l10n)
+        : _buildMobileLayout(l10n);
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: overlayStyle,
+      child: child,
+    );
   }
 
   Widget _buildMobileLayout(AppLocalizations l10n) {

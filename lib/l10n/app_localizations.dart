@@ -2278,6 +2278,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'min'**
   String get minuteShort;
+
+  /// No description provided for @pomodoroAchievementButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Great! 🎊'**
+  String get pomodoroAchievementButton;
+
+  /// No description provided for @timerSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer'**
+  String get timerSection;
+
+  /// No description provided for @goalsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals'**
+  String get goalsSection;
+
+  /// No description provided for @totalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get totalLabel;
+
+  /// No description provided for @achievementDailyGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Goal! 🎯'**
+  String get achievementDailyGoalTitle;
+
+  /// No description provided for @achievementDailyGoalMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Great job! You reached your daily pomodoro goal.'**
+  String get achievementDailyGoalMessage;
+
+  /// No description provided for @achievementWeeklyGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Goal! 🌟'**
+  String get achievementWeeklyGoalTitle;
+
+  /// No description provided for @achievementWeeklyGoalMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Amazing! You completed your weekly pomodoro goal.'**
+  String get achievementWeeklyGoalMessage;
+
+  /// No description provided for @achievementMilestoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Pomodoros! 🔥'**
+  String achievementMilestoneTitle(int count);
+
+  /// No description provided for @achievementMilestoneMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve completed {count} pomodoros total. Super focus!'**
+  String achievementMilestoneMessage(int count);
+
+  /// No description provided for @tapToEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to edit'**
+  String get tapToEdit;
+
+  /// No description provided for @deleteDrawing.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Drawing'**
+  String get deleteDrawing;
+
+  /// No description provided for @permissionRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission Required'**
+  String get permissionRequiredTitle;
+
+  /// No description provided for @permissionBlockedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} access has been permanently denied or disabled in settings. Please grant it from settings to continue.'**
+  String permissionBlockedMessage(String name);
+
+  /// No description provided for @openSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get openSettings;
+
+  /// No description provided for @chatbotWelcomeAskName.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello! I\'m Mina, your personal assistant. 🌟\n\nHow should I call you?'**
+  String get chatbotWelcomeAskName;
+
+  /// No description provided for @chatbotWelcomeWithName.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello {name}! 👋 How can I help you today?'**
+  String chatbotWelcomeWithName(String name);
+
+  /// No description provided for @chatbotWelcomeNoName.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello! 👋 How can I help you today?'**
+  String get chatbotWelcomeNoName;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

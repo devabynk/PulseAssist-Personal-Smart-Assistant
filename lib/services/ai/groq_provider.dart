@@ -27,17 +27,21 @@ class GroqProvider implements AiProvider {
   static const String _primaryModel = 'openai/gpt-oss-120b';
 
   // Fallback model used if primary is unavailable/deprecated
-  static const String _fallbackModel = 'llama-3.3-70b-versatile';
+  static const String _fallbackModel = 'meta-llama/llama-4-scout-17b-16e-instruct';
 
-  // Vision models - use Llama 4 Scout for better multimodal understanding
+  // Vision models - use Llama 4 Scout for multimodal understanding
   static const String _visionModel =
       'meta-llama/llama-4-scout-17b-16e-instruct';
 
-  // Vision fallback
-  static const String _visionFallbackModel = 'llama-3.2-11b-vision-preview';
+  // Vision fallback - Maverick is more capable and also supports vision
+  static const String _visionFallbackModel =
+      'meta-llama/llama-4-maverick-17b-128e-instruct';
 
-  // Audio model
-  static const String _audioModel = 'whisper-large-v3';
+  // Audio model - turbo is 2.8x cheaper and marginally faster
+  static const String _audioModel = 'whisper-large-v3-turbo';
+
+  // Audio fallback for maximum accuracy (noisy audio, edge cases)
+  static const String _audioFallbackModel = 'whisper-large-v3';
 
   // Current active model (mutable so we can downgrade on model-not-found errors)
   String _currentModel = _primaryModel;
@@ -170,9 +174,32 @@ class GroqProvider implements AiProvider {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         final text = data['text'] as String?;
         return text;
+      } else if (response.statusCode == 404 || response.statusCode == 400) {
+        // Primary audio model unavailable — retry with fallback
+        return await _transcribeAudioWithModel(path, _audioFallbackModel);
       } else {
         return null;
       }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<String?> _transcribeAudioWithModel(String path, String model) async {
+    try {
+      final uri = Uri.parse('$_baseUrl/audio/transcriptions');
+      final request = http.MultipartRequest('POST', uri);
+      request.headers['Authorization'] = 'Bearer ${_keyManager.currentKey}';
+      request.fields['model'] = model;
+      request.fields['response_format'] = 'json';
+      request.files.add(await http.MultipartFile.fromPath('file', path));
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        return data['text'] as String?;
+      }
+      return null;
     } catch (e) {
       return null;
     }
@@ -408,8 +435,13 @@ Selamlama, soru veya genel konuşmada → doğal, samimi cevap ver. JSON DÖNDÜ
 İşlem isteğinde:
 - Gerekli bilgi eksikse → **SORU SOR, JSON DÖNDÜRME** (Slot Filling)
 - Tüm bilgiler varsa → **SADECE JSON döndür, başka metin ekleme**
+- **Birden fazla işlem varsa → JSON'ları art arda yaz, araya metin girme**
 - "iptal/vazgeç/boşver/hayır/cancel" → işlemi bırak, JSON YOK
 - Göreceli zaman: "1 saat öteye al" → şu an $timeStr, yeni saati kendin hesapla
+
+**Birden fazla işlem örneği:**
+Kullanıcı: "07:00 alarmını sil ve 08:00'e yeni alarm kur" →
+`{"action":"delete_alarm","time":"07:00"}{"action":"create_alarm","time":"08:00","label":"Alarm","repeatDays":[]}`
 
 **Gerekli bilgiler:**
 - ALARM: saat (zorunlu), etiket (opsiyonel), tekrar günleri (opsiyonel)
@@ -452,10 +484,11 @@ Selamlama, soru veya genel konuşmada → doğal, samimi cevap ver. JSON DÖNDÜ
 
 **Oluştur:**
 ```json
-{"action": "create_note", "title": "Başlık", "content": "İçerik", "template": "shopping", "color": "blue"}
+{"action": "create_note", "title": "Başlık", "content": "İçerik", "template": "shopping", "color": "blue", "voice_path": "/path/to/audio.m4a"}
 ```
 - template: "shopping" (alışveriş checklist), "todo" (yapılacaklar checklist), "meeting" (toplantı notu), "default" (düz metin)
 - color: blue, green, yellow, orange, purple, pink, red, gray
+- voice_path: ses kaydı eki varsa `[User attached a voice note: ...]` etiketteki yolu buraya yaz
 
 **Güncelle:**
 ```json
@@ -628,8 +661,13 @@ For greetings, questions, or general conversation → respond naturally. DO NOT 
 When user requests an action:
 - Required info missing → **ASK, DO NOT return JSON** (Slot Filling)
 - All info present → **Return ONLY JSON, no other text**
+- **Multiple actions in one request → write JSON objects back-to-back, no text between them**
 - "cancel/nevermind/forget it/no" → stop, NO JSON
 - Relative time: "move 30 min later" → current time is $timeStr, compute the new time yourself
+
+**Multiple actions example:**
+User: "Delete the 7am alarm and set a new one at 8am" →
+`{"action":"delete_alarm","time":"07:00"}{"action":"create_alarm","time":"08:00","label":"Alarm","repeatDays":[]}`
 
 **Required fields:**
 - ALARM: time (required), label (optional), repeat days (optional)
@@ -672,10 +710,11 @@ When user requests an action:
 
 **Create:**
 ```json
-{"action": "create_note", "title": "Title", "content": "Content", "template": "shopping", "color": "blue"}
+{"action": "create_note", "title": "Title", "content": "Content", "template": "shopping", "color": "blue", "voice_path": "/path/to/audio.m4a"}
 ```
 - template: "shopping" (checklist), "todo" (todo checklist), "meeting" (meeting notes), "default" (plain text)
 - color: blue, green, yellow, orange, purple, pink, red, gray
+- voice_path: if a voice note is attached, copy the path from the `[User attached a voice note: ...]` tag here
 
 **Update:**
 ```json

@@ -4,15 +4,23 @@
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.10+-0175C2?logo=dart&logoColor=white)](https://dart.dev)
-[![AI](https://img.shields.io/badge/AI-GPT--OSS%20120B%20%7C%20Llama%204%20Scout-orange)](https://groq.com)
+[![AI](https://img.shields.io/badge/AI-GPT--OSS%20120B%20%7C%20Llama%204%20Scout%20%7C%20Maverick-orange)](https://groq.com)
 [![License](https://img.shields.io/badge/License-GPLv3-blue)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-lightgrey)](#-multi-platform-support)
 [![Version](https://img.shields.io/badge/Version-1.3.5%2B49-brightgreen)](#)
+[![Tests](https://img.shields.io/badge/Tests-421%20passing-success)](#-testing)
 
-**PulseAssist** is a state-of-the-art, AI-powered personal assistant built with Flutter. It combines the power of multiple LLMs via **Groq** (GPT-OSS 120B, Llama 4 Scout, Whisper V3) with a custom local NLP engine to provide a seamless, intuitive, and high-performance user experience across all major platforms.
+**PulseAssist** is a state-of-the-art, AI-powered personal assistant built with Flutter. It combines the power of multiple LLMs via **Groq** (GPT-OSS 120B, Llama 4 Scout, Llama 4 Maverick, Whisper V3 Turbo) with a custom local NLP engine to provide a seamless, intuitive, and high-performance user experience across all major platforms.
+
+> [!IMPORTANT]
+> **📢 Final Public Release**
+>
+> This repository represents the final public source release of PulseAssist. The app is now live and future updates will no longer be published here. For all details, release notes, and announcements, visit **[pulseassist.abynk.com](https://pulseassist.abynk.com)**.
+>
+> **🤖 AI models** (Groq) are continuously updated as new and better models become available — the live app always runs on the latest generation.
 
 > [!NOTE]
-> **Project Status**: Most core features are fully functional. We are currently finalizing UI refinements and localization polishing.
+> **Project Status**: All core features are fully functional. UI refinements and localization polishing are ongoing.
 
 [Features](#-key-features) • [Screenshots](#-screenshots) • [How it Works](#-how-it-works) • [API Setup](#-api-configuration) • [Tech Stack](#-tech-stack) • [Usage](#-usage)
 
@@ -23,19 +31,22 @@
 ## ✨ Key Features
 
 ### 🧠 Intelligent Chatbot — "Mina" (Multi-Model AI)
-- **Hybrid AI Architecture**: Leverages multiple state-of-the-art models for specialized tasks:
-  - **Reasoning & Chat**: Powered by **GPT-OSS 120B** (Primary) via Groq.
-  - **Interactive Slot Filling**: The assistant intelligently asks for missing details (e.g., "What time for the alarm?") instead of guessing.
-  - **Offline Smart Chat**: Even without internet, the Local NLP engine tracks conversation context to support multi-turn commands naturally.
-- **Full AI CRUD Operations**: Beyond simple chat, the AI can directly **create, read, update, delete, and list**:
-  - ⏰ **Alarms**: Smart time parsing, recurring settings, update/delete by time, and **Native System Ringtones**.
-  - 📝 **Notes**: Structured note creation with template support (Shopping, Meeting, To-Do), append content, color coding.
-  - 🔔 **Reminders**: Priority-based tasks (`low` / `medium` / `high` / `urgent`) with subtasks, toggle completion, and local notifications.
+- **Hybrid AI Architecture**: Intelligently routes requests to the best model for each task (see [AI Models](#-specialized-ai-models)).
+- **Full AI CRUD Operations**: Create, read, update, delete, and list all items via natural language:
+  - ⏰ **Alarms**: Smart time parsing, recurring settings (daily / weekdays / custom), update by time or label, delete with confirmation.
+  - 📝 **Notes**: Structured note creation with template support (Shopping, Meeting, To-Do), append/replace content, color coding, pin/unpin.
+  - 🔔 **Reminders**: Priority-based tasks (`low` / `medium` / `high` / `urgent`) with subtasks, toggle completion, pin, and local notifications.
   - 📊 **Data Analysis**: AI can summarize your total alarms, notes, and reminders on demand.
-- **Multimodal Capabilities**:
-  - 👁️ **Vision & OCR**: Advanced object recognition and text extraction via **Llama 4 Scout 17B**.
-  - 🎙️ **Audio Transcription**: High-accuracy voice-to-text using **Whisper Large V3**.
-  - 📄 **Document Analysis**: Upload and query **PDF**, **DOCX**, **XLSX**, **CSV**, and **TXT** files directly within the chat.
+- **Compound Commands**: Execute multiple actions in a single message — *"Delete the 7am alarm and set a new one at 8am"* runs both atomically.
+- **Interactive Slot Filling**: Asks for missing details across multiple turns without losing context — *"Set an alarm" → "What time?" → "7:30"* works seamlessly.
+- **Offline Intelligence**: Even without internet, the local NLP engine supports:
+  - Create, list, **and delete** alarms, notes, and reminders.
+  - Full Pomodoro control (start, pause, status, settings).
+  - Multi-turn slot filling with persistent context.
+- **Voice → Action**: Attach a voice recording to any chat message. The audio is transcribed via Whisper and:
+  - The spoken content is used as note/reminder text.
+  - The voice file itself is saved as an attachment on the created note or reminder.
+- **Resilient AI Layer**: Automatic exponential-backoff retry on transient errors (timeout, 500s); API key rotation on rate limits (429).
 
 ### 🎨 Rich Content Creation
 - **Drawing Canvas**: Built-in drawing screen with touch support for sketches and handwritten notes.
@@ -43,35 +54,40 @@
 - **Rich Text Notes**: Full rich-text editing powered by **Flutter Quill** with masonry grid layout and color-coded categories.
 
 ### 📍 Local Services & Regional Optimization (TR)
-- **Turkey-Specific Logic**: Many core features are currently optimized specifically for **Turkey**:
-  - 🌦️ **Weather**: City and district search is tailored for Turkish administrative regions (81 provinces + districts), with USA states data also available.
+- **Turkey-Specific Logic**: Many core features are optimized for **Turkey**:
+  - 🌦️ **Weather**: City and district search tailored for Turkish administrative regions (81 provinces + districts), with USA states also available.
   - 🏥 **Pharmacy**: Real-time "on-duty" (nöbetçi eczane) data via CollectAPI (TR focus).
   - 🎭 **Events**: Nearby event discovery via Ticketmaster localization for Turkey.
-- **🌍 Multi-language Support**: Full support for both **Turkish (TR)** and **English (EN)**, with ARB-based localization adapting to system settings or manual choice.
-- **🌓 Adaptive Themes**: Premium look with seamless switching between **Light** and **Dark** modes, powered by a comprehensive theme system with Google Fonts.
-- **📊 Dashboard**: A beautiful, responsive dashboard providing a quick overview of your day with weather, alarms, reminders, and more.
+- **🌍 Multi-language Support**: Full **Turkish (TR)** and **English (EN)** support, with ARB-based localization adapting to system settings or manual choice.
+- **🌓 Adaptive Themes**: Seamless switching between **Light** and **Dark** modes, powered by a comprehensive theme system with Google Fonts.
+- **📊 Dashboard**: A responsive dashboard providing a quick overview of your day with weather, alarms, reminders, and more.
+
+### 🍅 Pomodoro Timer
+- Full Pomodoro workflow: focus sessions, short breaks, long breaks.
+- Configurable durations (work / short break / long break) and daily/weekly goals.
+- Achievement system and session statistics.
+- Works fully offline — both via chat commands and directly in the Pomodoro screen.
 
 ### 📱 Home Screen Widgets
-- **Android Home Widget**: Quick-glance widget for your dashboard data directly on your home screen, powered by `home_widget` integration.
-  - Weather, alarms, reminders, and notes widgets available
-  - iOS widget support is planned for a future release
+- **Android Home Widget**: Quick-glance widget for dashboard data directly on your home screen (`home_widget`).
+  - Weather, alarms, reminders, and notes widgets available.
+  - iOS widget support planned for a future release.
 
 ### 🔒 Privacy & Security
-- **Local-First Data**: All notes, alarms, and reminders are stored locally using **Hive CE** (NoSQL) + **SQLite**, providing blazing fast performance without cloud dependencies.
-- **Secure Exports**: Backup and restore your data via encrypted ZIP files.
-- **Secret Management**: API keys are managed via a local-only configuration file (`.gitignore`'d) to ensure security.
-- **Multiple API Key Failover**: Supports multiple Groq API keys with automatic rotation when hitting rate limits (30 RPM / 14400 RPD per key).
+- **Local-First Data**: All notes, alarms, and reminders are stored locally using **Hive CE** (NoSQL) + **SQLite** — no cloud dependencies.
+- **Secure Exports**: Backup and restore data via encrypted ZIP files.
+- **Secret Management**: API keys live in a local-only config file (`.gitignore`'d).
+- **Multiple API Key Failover**: Automatic rotation across multiple Groq keys with cooldown tracking on rate limits.
 - **Legal Compliance**: Built-in Privacy Policy and Terms of Use screens.
-- **Notification History**: Built-in notification log to review past alarm and reminder alerts
+- **Notification History**: Built-in notification log to review past alarm and reminder alerts.
 
 ### 📐 Responsive Design & Tablet Support
-- **Adaptive Layouts**: Fully responsive UI for phones, tablets, and desktop
-  - **Mobile**: Bottom navigation bar with 5 tabs
-  - **Tablet/Desktop**: Sidebar navigation with labels, adaptive grid layouts
-  - **Portrait/Landscape**: Layout adapts to device orientation
-- **Smart Grid System**: Notes and alarms switch between 2-column (portrait tablet) and 3-column (landscape tablet) grids
-- **Adaptive Typography**: Text sizes and padding scale with screen size (16→32→48dp horizontal padding)
-- **Tablet Dashboard**: Two-column dashboard layout on landscape tablets for better use of screen space
+- **Adaptive Layouts**: Fully responsive for phones, tablets, and desktop.
+  - **Mobile**: Bottom navigation bar with 5 tabs.
+  - **Tablet/Desktop**: Sidebar navigation with labels, adaptive grid layouts.
+  - **Portrait/Landscape**: Layout adapts to device orientation.
+- **Smart Grid System**: Notes and alarms switch between 2-column (portrait tablet) and 3-column (landscape tablet) grids.
+- **Adaptive Typography**: Text sizes and padding scale with screen size (16→32→48dp horizontal padding).
 
 ---
 
@@ -97,32 +113,30 @@
 
 ---
 
-
 ## ⚙️ How it Works
 
 PulseAssist uses a hybrid approach to natural language understanding:
 
 ```mermaid
 flowchart LR
-    A[User Input] --> B{Internet?}
+    A[User Input\n± Audio / Image / File] --> B{Internet?}
     B -->|Yes| C[Groq AI Layer]
     B -->|No| D[Local NLP Engine]
-    C --> E[Structured JSON Response]
+    C --> E[Structured JSON\nSingle or Compound]
     D --> E
-    E --> F[Action Service]
-    F --> G[Local Execution]
+    E --> F[Action Executor]
+    F -->|Each action| G[Local Execution]
     G --> H[(Hive CE / SQLite)]
 ```
 
-1.  **Local NLP Layer**: For simple, privacy-sensitive tasks, a custom NLP engine (built entirely in Dart) classifies intents, extracts entities with fuzzy matching, and preprocesses text — all without needing an internet connection.
-2.  **AI Intelligence Layer**: For complex requests, vision tasks, document analysis, or audio transcription, the app leverages **Groq AI** with model-specific routing. The AI is instructed to return structured JSON, which the app's **Action Service** executes directly.
-3.  **Local Execution**: All actions (like setting an alarm or saving a note) happen on the device, ensuring your data stays yours.
+1. **Local NLP Layer**: A fully custom Dart engine classifies intents, extracts entities (time, date, priority, content) with fuzzy matching, and preprocesses text — zero latency, no internet. Supports create, list, and **delete** for alarms, notes, and reminders, plus full Pomodoro control.
+2. **AI Intelligence Layer**: For complex or multi-step requests, the app calls **Groq AI** with a comprehensive system prompt. The AI returns structured JSON (single action or multiple back-to-back for compound commands), which the Action Executor runs sequentially.
+3. **Multimodal Pipeline**: Images are base64-encoded and sent to the vision model. Audio is transcribed via Whisper before reaching the AI; the file path is also attached to any created note or reminder. Documents (PDF/DOCX/XLSX/TXT/CSV) have their text extracted and appended to the AI context.
+4. **Resilient Fallback**: Empty or errored AI responses silently fall back to the local NLP engine. Transient network errors retry with exponential backoff (1 s, 2 s, …); rate-limited keys are cooled down and the next key is rotated in automatically.
 
 ---
 
 ## 🔑 API Configuration
-
-To use all features of PulseAssist, you need to provide your own API keys. We use a template-based approach to keep your keys safe.
 
 > [!TIP]
 > Supports **Multiple API Keys** (Failover) for uninterrupted service. If a primary key hits a rate limit, the system automatically switches to the next available key.
@@ -138,12 +152,12 @@ To use all features of PulseAssist, you need to provide your own API keys. We us
 
 ### 2. Setup your local config
 
-1.  Navigate to `lib/core/config/`.
-2.  Copy `api_config.example.dart` and rename it to `api_config.dart`.
-3.  Open `api_config.dart` and paste your keys into the corresponding fields.
+1. Navigate to `lib/core/config/`.
+2. Copy `api_config.example.dart` and rename it to `api_config.dart`.
+3. Open `api_config.dart` and paste your keys into the corresponding fields.
 
 > [!TIP]
-> `api_config.dart` is already added to `.gitignore`, so your keys will never be accidentally committed to your repository.
+> `api_config.dart` is already added to `.gitignore`, so your keys will never be accidentally committed.
 
 ---
 
@@ -157,26 +171,26 @@ graph TB
         UI[Screens & Widgets]
         Providers[State Management - Provider]
     end
-    
+
     subgraph "Business Logic"
         Services[Services Layer]
         NLP[Local NLP Engine]
         AI[AI Manager - Groq]
     end
-    
+
     subgraph "Data Layer"
         HiveDB[(Hive CE Database)]
         SQLite[(SQLite Database)]
         APIs[External APIs]
     end
-    
+
     subgraph "Core Layer"
         DI[Dependency Injection]
         Config[Environment Config]
         Error[Error Handling]
         Logging[Logging]
     end
-    
+
     UI --> Providers
     Providers --> Services
     Services --> NLP
@@ -184,7 +198,7 @@ graph TB
     Services --> HiveDB
     Services --> SQLite
     Services --> APIs
-    
+
     Services -.-> DI
     Services -.-> Config
     Services -.-> Error
@@ -212,20 +226,23 @@ lib/
 │   ├── message.dart        # Chat message model
 │   ├── weather.dart        # Weather data model
 │   └── ...                 # Event, Pharmacy, UserHabit, UserLocation, NotificationLog
-├── providers/              # State management (7 providers)
-│   ├── chat_provider.dart  # AI chat orchestration
+├── providers/              # State management (8 providers)
+│   ├── chat_provider.dart  # AI chat orchestration & action execution
 │   ├── alarm_provider.dart # Alarm CRUD + ring handling
 │   ├── note_provider.dart  # Note management
 │   ├── reminder_provider.dart
+│   ├── pomodoro_provider.dart  # Pomodoro timer, sessions & achievements
 │   ├── weather_provider.dart
 │   ├── settings_provider.dart
 │   └── notification_provider.dart
-├── screens/                # UI screens (13 screens)
+├── screens/                # UI screens (13+ screens)
 │   ├── dashboard_screen.dart
 │   ├── chatbot_screen.dart
 │   ├── alarm_screen.dart / alarm_ring_screen.dart
 │   ├── notes_screen.dart / note_edit_screen.dart
 │   ├── reminder_screen.dart
+│   ├── pomodoro_screen.dart
+│   ├── statistics_screen.dart
 │   ├── drawing_screen.dart
 │   ├── voice_note_screen.dart
 │   ├── settings_screen.dart
@@ -243,44 +260,40 @@ lib/
 │   ├── chat/              # Chat utilities (WelcomeGenerator)
 │   ├── action_service.dart
 │   ├── database_service.dart
-│   ├── data_service.dart
+│   ├── notification_service.dart
 │   ├── weather_service.dart
 │   ├── pharmacy_service.dart
 │   ├── events_service.dart
-│   ├── notification_service.dart
 │   ├── widget_service.dart
 │   ├── system_ringtone_service.dart
 │   └── learning_service.dart    # Adaptive user habit & preference tracking
 ├── widgets/                # Reusable widgets
-│   ├── common/            # Buttons, TextFields, Dialogs
-│   ├── note_sheet.dart
-│   ├── voice_player.dart
-│   ├── drawing_preview.dart
-│   ├── quill_note_viewer.dart
-│   └── location_selector_dialog.dart
 └── theme/                  # App theming (Light & Dark)
 ```
 
 ### 🎯 Key Architecture Features
 
-- **Environment-Based Config** — Dev, Staging, Production environments with separate database names & timeouts
-- **Dependency Injection** — GetIt for loose coupling
-- **Error Handling** — Custom exceptions and failures with `dartz` Either
-- **Logging** — Environment-aware logging with Logger
-- **Key Management** — Automatic API key rotation/failover for rate limits
-- **Testing** — Comprehensive test infrastructure with unit, widget, and integration tests
-- **Adaptive Learning** — Background learning service tracks user habits and preferences for smarter suggestions
+- **Environment-Based Config** — Dev, Staging, Production environments with separate database names & timeouts.
+- **Dependency Injection** — GetIt for loose coupling.
+- **Error Handling** — Custom exceptions and failures with `dartz` Either.
+- **Logging** — Environment-aware logging with Logger.
+- **Key Management** — Automatic API key rotation/failover with cooldown and exponential backoff.
+- **Testing** — 421 passing unit tests covering NLP, models, providers, and core logic.
+- **Adaptive Learning** — Background learning service tracks user habits for smarter suggestions.
 
+---
 
 ### 🤖 Specialized AI Models
 
-PulseAssist doesn't just use one model; it intelligently routes requests to the best available LLM for the task:
+PulseAssist routes requests to the best available model for each task:
 
-| Task | Model | Role |
-| :--- | :--- | :--- |
-| **Core Chat & Logic** | `GPT-OSS 120B` | Advanced reasoning, structured JSON generation for CRUD actions. |
-| **Vision & OCR** | `Llama 4 Scout 17B` | Analyzing images, identifying objects, and reading text from photos. |
-| **Voice / Audio** | `Whisper Large V3` | Industry-leading transcription for voice notes and audio files. |
+| Task | Primary Model | Fallback Model | Notes |
+| :--- | :--- | :--- | :--- |
+| **Core Chat & Logic** | `openai/gpt-oss-120b` | `meta-llama/llama-4-scout-17b-16e-instruct` | Advanced reasoning, structured JSON for CRUD |
+| **Vision & OCR** | `meta-llama/llama-4-scout-17b-16e-instruct` | `meta-llama/llama-4-maverick-17b-128e-instruct` | Image analysis, object recognition, OCR |
+| **Voice / Audio** | `whisper-large-v3-turbo` | `whisper-large-v3` | 2.8× cheaper, marginally faster; full fallback on error |
+
+> All models are served via the **Groq API** and are compatible with the OpenAI SDK interface.
 
 ### 🧠 Local NLP Engine
 
@@ -288,13 +301,22 @@ The custom-built NLP engine runs entirely on-device with **zero latency** and **
 
 | Component | Purpose |
 | :--- | :--- |
-| **Intent Classifier** | Detects user intent (create alarm, note, reminder, cancel, etc.) |
-| **Entity Extractor** | Parses time, dates, labels, priorities, and other entities from text |
-| **Fuzzy Matcher** | Handles typos and approximate matching for robust input parsing |
-| **Preprocessor** | Normalizes and tokenizes input text for both TR and EN |
-| **NLP Engine** | Orchestrates all components into a unified pipeline |
+| **Intent Classifier** | Detects 40+ intent types (create / list / delete alarm, note, reminder; Pomodoro; greetings; etc.) |
+| **Entity Extractor** | Parses time (12/24h, relative, period words), dates, day names, priority, content, color |
+| **Fuzzy Matcher** | Handles typos and approximate matching via Levenshtein distance + n-gram similarity |
+| **Preprocessor** | Turkish character normalization, tokenization, stop-word removal |
+| **NLP Engine** | Orchestrates all components; manages multi-turn slot-filling context |
 
-For detailed architecture documentation, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+#### Offline Capability Matrix
+
+| Feature | Create | List | Delete | Update |
+|---------|:------:|:----:|:------:|:------:|
+| Alarms | ✅ | ✅ | ✅ | — |
+| Notes | ✅ | ✅ | ✅ | — |
+| Reminders | ✅ | ✅ | ✅ | — |
+| Pomodoro | ✅ start/pause | ✅ status | — | ✅ settings |
+
+> Update operations require the AI (online) mode due to the complexity of target identification and field merging.
 
 ---
 
@@ -319,7 +341,6 @@ For detailed architecture documentation, see [docs/ARCHITECTURE.md](docs/ARCHITE
 | **Home Widgets** | [home_widget](https://pub.dev/packages/home_widget) |
 | **Charts** | [fl_chart](https://pub.dev/packages/fl_chart) |
 | **Testing** | Flutter Test, Mockito, Mocktail, Integration Test |
-| **AI Models** | GPT-OSS 120B, Llama 4 Scout 17B, Whisper V3 |
 
 ---
 
@@ -346,7 +367,7 @@ For detailed architecture documentation, see [docs/ARCHITECTURE.md](docs/ARCHITE
    ```bash
    make setup
    ```
-   
+
    Or manually:
    ```bash
    flutter pub get
@@ -436,11 +457,13 @@ flutter build ios --release
 
 ## 🧪 Testing
 
-We maintain comprehensive test coverage with unit, widget, and integration tests.
+421 unit tests passing across all major components.
 
 **Run all tests:**
 ```bash
 make test
+# or
+flutter test test/unit/
 ```
 
 **Generate coverage report:**
@@ -449,10 +472,31 @@ make coverage
 ```
 
 **Test structure:**
-- `test/unit/` — Unit tests for business logic
-- `test/widget/` — Widget tests for UI components
-- `test/helpers/` — Test utilities and mock factories
-- `test/fixtures/` — Test fixture data
+
+```
+test/
+├── unit/
+│   ├── nlp/
+│   │   ├── intent_classifier_test.dart   # 63 tests — all 40+ intent types, confidence, isQuestion/isCommand
+│   │   ├── entity_extractor_test.dart    # 40 tests — time, days, relative date, priority, content
+│   │   ├── fuzzy_matcher_test.dart       # 34 tests — Levenshtein, similarity, n-gram, containsFuzzy
+│   │   └── preprocessor_test.dart        # 46 tests — normalize (Turkish chars), tokenize, stopwords
+│   ├── models/
+│   │   ├── alarm_model_test.dart         # 27 tests — constructor defaults, toMap/fromMap, copyWith
+│   │   ├── note_model_test.dart          # 25 tests — JSON content, imagePaths, copyWith
+│   │   └── reminder_model_test.dart      # 30 tests — Subtask, subtasksProgress, copyWith
+│   ├── alarm_logic_test.dart             # 22 tests — alarmSystemId algorithm, duplicate detection
+│   ├── key_manager_test.dart             # 22 tests — rotate, reportFailure, executeWithRetry, backoff
+│   ├── pomodoro_provider_test.dart       # 32 tests — phase transitions, achievements, settings
+│   ├── settings_provider_test.dart       # 39 tests — SharedPreferences persistence, all setters
+│   └── core/
+│       ├── validators_test.dart
+│       ├── extensions_test.dart
+│       └── config_test.dart
+├── widget/
+│   └── splash_screen_test.dart
+└── helpers/                              # Test utilities and mock factories
+```
 
 For detailed testing guidelines, see [docs/TESTING.md](docs/TESTING.md).
 

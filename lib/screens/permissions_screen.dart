@@ -190,8 +190,8 @@ class _PermissionsScreenState extends State<PermissionsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${context.l10n.permissionsTitle} Gerekli'),
-        content: Text('$permissionName erişimi kalıcı olarak reddedildi veya ayarlardan kapalı. Devam etmek için lütfen ayarlardan izin verin.'),
+        title: Text(context.l10n.permissionRequiredTitle),
+        content: Text(context.l10n.permissionBlockedMessage(permissionName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -202,7 +202,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
               Navigator.pop(context);
               openAppSettings();
             },
-            child: const Text('Ayarları Aç'),
+            child: Text(context.l10n.openSettings),
           ),
         ],
       ),

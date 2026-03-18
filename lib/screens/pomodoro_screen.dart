@@ -43,6 +43,23 @@ class _PomodoroViewState extends State<_PomodoroView> {
   }
 
   void _showAchievement(PomodoroAchievement a) {
+    final l10n = context.l10n;
+    final String title;
+    final String message;
+    switch (a.type) {
+      case PomodoroAchievementType.dailyGoal:
+        title = l10n.achievementDailyGoalTitle;
+        message = l10n.achievementDailyGoalMessage;
+        break;
+      case PomodoroAchievementType.weeklyGoal:
+        title = l10n.achievementWeeklyGoalTitle;
+        message = l10n.achievementWeeklyGoalMessage;
+        break;
+      case PomodoroAchievementType.milestone:
+        title = l10n.achievementMilestoneTitle(a.milestoneCount ?? 0);
+        message = l10n.achievementMilestoneMessage(a.milestoneCount ?? 0);
+        break;
+    }
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -53,13 +70,13 @@ class _PomodoroViewState extends State<_PomodoroView> {
             Text(a.emoji, style: const TextStyle(fontSize: 56)),
             const SizedBox(height: 12),
             Text(
-              a.title,
+              title,
               style: const TextStyle(
                   fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            Text(a.message,
+            Text(message,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Theme.of(context).hintColor)),
           ],
@@ -68,7 +85,7 @@ class _PomodoroViewState extends State<_PomodoroView> {
         actions: [
           FilledButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Harika! 🎊'),
+            child: Text(l10n.pomodoroAchievementButton),
           ),
         ],
       ),
@@ -297,7 +314,7 @@ class _PomodoroViewState extends State<_PomodoroView> {
                     ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              Text('Zamanlayıcı',
+              Text(l10n.timerSection,
                   style: TextStyle(
                       color: Theme.of(ctx).hintColor,
                       fontSize: 12,
@@ -332,21 +349,21 @@ class _PomodoroViewState extends State<_PomodoroView> {
                 onChanged: (v) => setModalState(() => longAfter = v),
               ),
               const Divider(height: 24),
-              Text('Hedefler',
+              Text(l10n.goalsSection,
                   style: TextStyle(
                       color: Theme.of(ctx).hintColor,
                       fontSize: 12,
                       fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               _SettingRow(
-                label: 'Günlük Hedef (pomodoro)',
+                label: l10n.dailyGoalLabel,
                 value: daily,
                 min: 1,
                 max: 20,
                 onChanged: (v) => setModalState(() => daily = v),
               ),
               _SettingRow(
-                label: 'Haftalık Hedef (pomodoro)',
+                label: l10n.weeklyGoalLabel,
                 value: weekly,
                 min: 5,
                 max: 100,
@@ -403,7 +420,7 @@ class _GoalSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Hedefler',
+            l10n.goalsSection,
             style: Theme.of(context)
                 .textTheme
                 .titleSmall
@@ -411,7 +428,7 @@ class _GoalSection extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _GoalRow(
-            label: 'Bugün',
+            label: l10n.today,
             current: provider.sessionsToday,
             goal: provider.dailyGoal,
             progress: provider.dailyProgress,
@@ -422,7 +439,7 @@ class _GoalSection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _GoalRow(
-            label: 'Bu Hafta',
+            label: l10n.thisWeek,
             current: provider.sessionsThisWeek,
             goal: provider.weeklyGoal,
             progress: provider.weeklyProgress,
@@ -436,7 +453,7 @@ class _GoalSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Toplam',
+                l10n.totalLabel,
                 style: TextStyle(
                     fontSize: 13, color: Theme.of(context).hintColor),
               ),

@@ -1133,4 +1133,66 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get minuteShort => 'min';
+
+  @override
+  String get pomodoroAchievementButton => 'Great! 🎊';
+
+  @override
+  String get timerSection => 'Timer';
+
+  @override
+  String get goalsSection => 'Goals';
+
+  @override
+  String get totalLabel => 'Total';
+
+  @override
+  String get achievementDailyGoalTitle => 'Daily Goal! 🎯';
+
+  @override
+  String get achievementDailyGoalMessage => 'Great job! You reached your daily pomodoro goal.';
+
+  @override
+  String get achievementWeeklyGoalTitle => 'Weekly Goal! 🌟';
+
+  @override
+  String get achievementWeeklyGoalMessage => 'Amazing! You completed your weekly pomodoro goal.';
+
+  @override
+  String achievementMilestoneTitle(int count) {
+    return '$count Pomodoros! 🔥';
+  }
+
+  @override
+  String achievementMilestoneMessage(int count) {
+    return 'You\'ve completed $count pomodoros total. Super focus!';
+  }
+
+  @override
+  String get tapToEdit => 'Tap to edit';
+
+  @override
+  String get deleteDrawing => 'Delete Drawing';
+
+  @override
+  String get permissionRequiredTitle => 'Permission Required';
+
+  @override
+  String permissionBlockedMessage(String name) {
+    return '$name access has been permanently denied or disabled in settings. Please grant it from settings to continue.';
+  }
+
+  @override
+  String get openSettings => 'Open Settings';
+
+  @override
+  String get chatbotWelcomeAskName => 'Hello! I\'m Mina, your personal assistant. 🌟\n\nHow should I call you?';
+
+  @override
+  String chatbotWelcomeWithName(String name) {
+    return 'Hello $name! 👋 How can I help you today?';
+  }
+
+  @override
+  String get chatbotWelcomeNoName => 'Hello! 👋 How can I help you today?';
 }

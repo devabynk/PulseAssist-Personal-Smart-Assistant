@@ -5,14 +5,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum PomodoroPhase { work, shortBreak, longBreak }
 
+enum PomodoroAchievementType { dailyGoal, weeklyGoal, milestone }
+
 class PomodoroAchievement {
-  final String title;
-  final String message;
+  final PomodoroAchievementType type;
   final String emoji;
+  final int? milestoneCount;
   const PomodoroAchievement({
-    required this.title,
-    required this.message,
+    required this.type,
     required this.emoji,
+    this.milestoneCount,
   });
 }
 
@@ -255,8 +257,7 @@ class PomodoroProvider extends ChangeNotifier {
     // Daily goal just reached
     if (_sessionsToday == dailyGoal) {
       _pendingAchievement = const PomodoroAchievement(
-        title: 'Günlük Hedef! 🎯',
-        message: 'Harika iş! Bugünkü pomodoro hedefinize ulaştınız.',
+        type: PomodoroAchievementType.dailyGoal,
         emoji: '🏆',
       );
       return;
@@ -264,8 +265,7 @@ class PomodoroProvider extends ChangeNotifier {
     // Weekly goal just reached
     if (_sessionsThisWeek == weeklyGoal) {
       _pendingAchievement = const PomodoroAchievement(
-        title: 'Haftalık Hedef! 🌟',
-        message: 'İnanılmaz! Bu haftalık pomodoro hedefinizi tamamladınız.',
+        type: PomodoroAchievementType.weeklyGoal,
         emoji: '🎉',
       );
       return;
@@ -276,9 +276,9 @@ class PomodoroProvider extends ChangeNotifier {
         _totalSessions == 50 ||
         _totalSessions == 100) {
       _pendingAchievement = PomodoroAchievement(
-        title: '$_totalSessions Pomodoro! 🔥',
-        message: 'Toplam $_totalSessions pomodoro tamamladınız. Süper odak!',
+        type: PomodoroAchievementType.milestone,
         emoji: '🔥',
+        milestoneCount: _totalSessions,
       );
     }
   }

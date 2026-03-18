@@ -332,6 +332,7 @@ class _WeeklyChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final maxVal = data.map((d) => d.$2).fold(0, (a, b) => a > b ? a : b);
+    final locale = Localizations.localeOf(context).languageCode;
 
     return Container(
       height: 160,
@@ -360,7 +361,7 @@ class _WeeklyChart extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(top: 6),
                     child: Text(
-                      DateFormat.E().format(data[idx].$1),
+                      DateFormat.E(locale).format(data[idx].$1),
                       style: TextStyle(
                         fontSize: 10,
                         color: Theme.of(context).hintColor,

@@ -51,10 +51,11 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
 
     final now = DateTime.now();
     final weekAgo = now.subtract(const Duration(days: 7));
+    final locale = isTurkish ? 'tr' : 'en';
 
     // Build context data for AI
     final data = {
-      'period': '${DateFormat('dd MMM').format(weekAgo)} – ${DateFormat('dd MMM yyyy').format(now)}',
+      'period': '${DateFormat('dd MMM', locale).format(weekAgo)} – ${DateFormat('dd MMM yyyy', locale).format(now)}',
       'notes_created': notes.where((n) => n.createdAt.isAfter(weekAgo)).length,
       'total_notes': notes.length,
       'pinned_notes': notes.where((n) => n.isPinned).length,
@@ -79,7 +80,7 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
       );
 
       if (result != null && result.isNotEmpty) {
-        final dateStr = DateFormat('dd MMM yyyy, HH:mm').format(now);
+        final dateStr = DateFormat('dd MMM yyyy, HH:mm', locale).format(now);
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(_prefKey, result);
         await prefs.setString(_prefDateKey, dateStr);

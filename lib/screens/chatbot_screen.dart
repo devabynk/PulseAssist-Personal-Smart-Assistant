@@ -88,22 +88,16 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 
       // Only ask for name if we haven't asked before AND no name is set
       if (!settings.hasAskedForName && settings.userName == null) {
-        welcomeMsg = isTurkish
-            ? 'Merhaba! Ben Mina, senin kişisel asistanınım. 🌟\n\nSana nasıl hitap etmemi istersin?'
-            : "Hello! I'm Mina, your personal assistant. 🌟\n\nHow should I call you?";
+        welcomeMsg = l10n.chatbotWelcomeAskName;
         // Mark that we've asked for name
         await settings.setHasAskedForName(true);
       } else {
         // We have a name or already asked, just greet
         final name = settings.userName ?? '';
         if (name.isNotEmpty) {
-          welcomeMsg = isTurkish
-              ? 'Merhaba $name! 👋 Bugün sana nasıl yardımcı olabilirim?'
-              : 'Hello $name! 👋 How can I help you today?';
+          welcomeMsg = l10n.chatbotWelcomeWithName(name);
         } else {
-          welcomeMsg = isTurkish
-              ? 'Merhaba! 👋 Bugün sana nasıl yardımcı olabilirim?'
-              : 'Hello! 👋 How can I help you today?';
+          welcomeMsg = l10n.chatbotWelcomeNoName;
         }
       }
 

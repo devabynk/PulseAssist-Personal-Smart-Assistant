@@ -1133,4 +1133,66 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get minuteShort => 'dk';
+
+  @override
+  String get pomodoroAchievementButton => 'Harika! 🎊';
+
+  @override
+  String get timerSection => 'Zamanlayıcı';
+
+  @override
+  String get goalsSection => 'Hedefler';
+
+  @override
+  String get totalLabel => 'Toplam';
+
+  @override
+  String get achievementDailyGoalTitle => 'Günlük Hedef! 🎯';
+
+  @override
+  String get achievementDailyGoalMessage => 'Harika iş! Bugünkü pomodoro hedefinize ulaştınız.';
+
+  @override
+  String get achievementWeeklyGoalTitle => 'Haftalık Hedef! 🌟';
+
+  @override
+  String get achievementWeeklyGoalMessage => 'İnanılmaz! Bu haftalık pomodoro hedefinizi tamamladınız.';
+
+  @override
+  String achievementMilestoneTitle(int count) {
+    return '$count Pomodoro! 🔥';
+  }
+
+  @override
+  String achievementMilestoneMessage(int count) {
+    return 'Toplam $count pomodoro tamamladınız. Süper odak!';
+  }
+
+  @override
+  String get tapToEdit => 'Düzenlemek için dokunun';
+
+  @override
+  String get deleteDrawing => 'Çizimi Sil';
+
+  @override
+  String get permissionRequiredTitle => 'İzin Gerekli';
+
+  @override
+  String permissionBlockedMessage(String name) {
+    return '$name erişimi kalıcı olarak reddedildi veya ayarlardan kapalı. Devam etmek için lütfen ayarlardan izin verin.';
+  }
+
+  @override
+  String get openSettings => 'Ayarları Aç';
+
+  @override
+  String get chatbotWelcomeAskName => 'Merhaba! Ben Mina, senin kişisel asistanınım. 🌟\n\nSana nasıl hitap etmemi istersin?';
+
+  @override
+  String chatbotWelcomeWithName(String name) {
+    return 'Merhaba $name! 👋 Bugün sana nasıl yardımcı olabilirim?';
+  }
+
+  @override
+  String get chatbotWelcomeNoName => 'Merhaba! 👋 Bugün sana nasıl yardımcı olabilirim?';
 }

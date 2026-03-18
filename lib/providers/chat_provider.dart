@@ -626,6 +626,11 @@ class ChatProvider with ChangeNotifier {
         _isTyping = false;
         notifyListeners();
 
+        // Guard against empty AI response
+        if (aiResponse.isEmpty) {
+          throw Exception('Empty AI response');
+        }
+
         // Try to parse and execute any action from AI response
         final actionResult = await _parseAndExecuteAiAction(
           aiResponse,
@@ -635,6 +640,7 @@ class ChatProvider with ChangeNotifier {
           alarmProvider,
           noteProvider,
           reminderProvider,
+          audioPath: finalAttachmentType == 'audio' ? finalAttachmentPath : null,
         );
 
         if (actionResult != null) {
@@ -719,37 +725,26 @@ class ChatProvider with ChangeNotifier {
 
     // 2. Handle Pending Partial Intent (Slot Filling)
     if (_partialIntent != null) {
-      // If the new intent is generic (like 'date', 'time', 'unknown') or matches, we assume it's filling a slot
-      // Valid slot-filling intents or just neutral text
-      if (response.intent.type == IntentType.date ||
-          response.intent.type == IntentType.time ||
-          response.intent.type == IntentType.unclear ||
-          response.intent.type ==
-              IntentType
-                  .smallTalk // sometimes user just says "tomorrow"
-                  ) {
-        // Merge entities
-        _partialEntities.addAll(response.entities);
-        if (response.intent.type == IntentType.time &&
-            !response.entities.containsKey('time')) {
-          // If NLP detected time intent but entities didn't capture complex time, try to parse text?
-          // Assuming NLP engine does its job.
-        }
+      // Accept any response that provides useful entities OR is a neutral/unclear message.
+      // Only switch context if the user clearly states a DIFFERENT action intent.
+      final isActionSwitch = _isActionIntent(response.intent.type) &&
+          response.intent.type != _partialIntent;
 
-        // Create a synthetic response with the ORIGINAL task intent but merged entities
-        // Create a synthetic response with the ORIGINAL task intent but merged entities
+      if (isActionSwitch) {
+        // User changed their mind — start fresh with new intent
+        _partialIntent = null;
+        _partialEntities = {};
+      } else {
+        // Merge any new entities the user provided (time, date, content, etc.)
+        _partialEntities.addAll(response.entities);
+
+        // Rebuild response using the original intent with accumulated entities
         response = NlpResponse(
           intent: Intent(type: _partialIntent!, confidence: 1.0),
           entities: Map.from(_partialEntities),
-          text: response.text, // keep original text? or irrelevant
+          text: response.text,
           language: isTurkish ? 'tr' : 'en',
         );
-      } else if (response.intent.type != _partialIntent) {
-        // User switched context? e.g. from "Alarm" to "Weather"
-        // Clear previous pending
-        _partialIntent = null;
-        _partialEntities = {};
-        // Proceed with new intent
       }
     }
 
@@ -776,6 +771,15 @@ class ChatProvider with ChangeNotifier {
         isTurkish: isTurkish,
       );
       await addSystemMessage(await result ?? '', _activeConversation?.id);
+      _partialIntent = null;
+    } else if (_isDeleteIntent(response.intent.type)) {
+      await _handleLocalDeleteIntent(
+        response,
+        isTurkish,
+        alarmProvider,
+        noteProvider,
+        reminderProvider,
+      );
       _partialIntent = null;
     } else if (_isActionIntent(response.intent.type)) {
       // For action intents, execute directly with local NLP entities
@@ -877,6 +881,210 @@ class ChatProvider with ChangeNotifier {
         type == IntentType.setPomodoroSettings;
   }
 
+  bool _isDeleteIntent(IntentType type) {
+    return type == IntentType.deleteAlarm ||
+        type == IntentType.deleteNote ||
+        type == IntentType.deleteReminder;
+  }
+
+  /// Offline delete: search for item → set pending confirmation
+  Future<void> _handleLocalDeleteIntent(
+    NlpResponse response,
+    bool isTurkish,
+    AlarmProvider? alarmProvider,
+    NoteProvider? noteProvider,
+    ReminderProvider? reminderProvider,
+  ) async {
+    final entities = response.entities;
+    final originalInput = entities['_originalInput']?.toString() ?? '';
+    final timeEntity = entities['time'] as dynamic; // TimeEntity
+    final contentEntity = entities['content']?.toString();
+
+    switch (response.intent.type) {
+      // ── DELETE ALARM ───────────────────────────────────────────────────
+      case IntentType.deleteAlarm:
+        final alarms = alarmProvider?.alarms ?? await _db.getAlarms();
+        if (alarms.isEmpty) {
+          await addSystemMessage(
+            isTurkish ? '⚠️ Hiç alarmın yok.' : '⚠️ You have no alarms.',
+            _activeConversation?.id,
+          );
+          return;
+        }
+        dynamic target;
+        // 1) by time entity
+        if (timeEntity != null) {
+          target = alarms.firstWhereOrNull(
+            (a) => a.time.hour == timeEntity.hour && a.time.minute == timeEntity.minute,
+          );
+        }
+        // 2) by content/label
+        if (target == null && contentEntity != null) {
+          target = alarms.firstWhereOrNull(
+            (a) => a.title.toLowerCase().contains(contentEntity.toLowerCase()),
+          );
+        }
+        // 3) by any word from original input
+        if (target == null) {
+          final lowerIn = originalInput.toLowerCase();
+          target = alarms.firstWhereOrNull(
+            (a) => lowerIn.contains(a.title.toLowerCase()) && a.title.isNotEmpty,
+          );
+        }
+        if (target != null) {
+          final display =
+              '${target.time.hour.toString().padLeft(2, '0')}:${target.time.minute.toString().padLeft(2, '0')} - ${target.title}';
+          _pendingDeleteAction = PendingDeleteAction(
+            type: 'alarm',
+            target: target,
+            displayName: display,
+            timestamp: DateTime.now(),
+          );
+          await addSystemMessage(
+            _getConfirmationMessage(_pendingDeleteAction!, isTurkish),
+            _activeConversation?.id,
+          );
+        } else if (alarms.length == 1) {
+          // Only one alarm — confirm that one
+          final a = alarms.first;
+          final display =
+              '${a.time.hour.toString().padLeft(2, '0')}:${a.time.minute.toString().padLeft(2, '0')} - ${a.title}';
+          _pendingDeleteAction = PendingDeleteAction(
+            type: 'alarm',
+            target: a,
+            displayName: display,
+            timestamp: DateTime.now(),
+          );
+          await addSystemMessage(
+            _getConfirmationMessage(_pendingDeleteAction!, isTurkish),
+            _activeConversation?.id,
+          );
+        } else {
+          await addSystemMessage(
+            isTurkish
+                ? '⚠️ Hangi alarmı silmek istiyorsun? Saatini ya da etiketini söyle.'
+                : '⚠️ Which alarm do you want to delete? Tell me the time or label.',
+            _activeConversation?.id,
+          );
+        }
+        break;
+
+      // ── DELETE NOTE ────────────────────────────────────────────────────
+      case IntentType.deleteNote:
+        final notes = noteProvider?.notes ?? await _db.getNotes();
+        if (notes.isEmpty) {
+          await addSystemMessage(
+            isTurkish ? '⚠️ Hiç notun yok.' : '⚠️ You have no notes.',
+            _activeConversation?.id,
+          );
+          return;
+        }
+        dynamic noteTarget;
+        if (contentEntity != null) {
+          noteTarget = notes.firstWhereOrNull(
+            (n) =>
+                n.title.toLowerCase().contains(contentEntity.toLowerCase()) ||
+                n.content.toLowerCase().contains(contentEntity.toLowerCase()),
+          );
+        }
+        if (noteTarget == null) {
+          final lowerIn = originalInput.toLowerCase();
+          noteTarget = notes.firstWhereOrNull(
+            (n) => n.title.isNotEmpty && lowerIn.contains(n.title.toLowerCase()),
+          );
+        }
+        if (noteTarget != null) {
+          _pendingDeleteAction = PendingDeleteAction(
+            type: 'note',
+            target: noteTarget,
+            displayName: noteTarget.title,
+            timestamp: DateTime.now(),
+          );
+          await addSystemMessage(
+            _getConfirmationMessage(_pendingDeleteAction!, isTurkish),
+            _activeConversation?.id,
+          );
+        } else if (notes.length == 1) {
+          _pendingDeleteAction = PendingDeleteAction(
+            type: 'note',
+            target: notes.first,
+            displayName: notes.first.title,
+            timestamp: DateTime.now(),
+          );
+          await addSystemMessage(
+            _getConfirmationMessage(_pendingDeleteAction!, isTurkish),
+            _activeConversation?.id,
+          );
+        } else {
+          await addSystemMessage(
+            isTurkish
+                ? '⚠️ Hangi notu silmek istiyorsun? Başlığını söyle.'
+                : '⚠️ Which note do you want to delete? Tell me the title.',
+            _activeConversation?.id,
+          );
+        }
+        break;
+
+      // ── DELETE REMINDER ────────────────────────────────────────────────
+      case IntentType.deleteReminder:
+        final reminders = reminderProvider?.reminders ?? await _db.getReminders();
+        final pending = reminders.where((r) => !r.isCompleted).toList();
+        if (pending.isEmpty) {
+          await addSystemMessage(
+            isTurkish ? '⚠️ Aktif hatırlatıcın yok.' : '⚠️ No active reminders.',
+            _activeConversation?.id,
+          );
+          return;
+        }
+        dynamic reminderTarget;
+        if (contentEntity != null) {
+          reminderTarget = pending.firstWhereOrNull(
+            (r) => r.title.toLowerCase().contains(contentEntity.toLowerCase()),
+          );
+        }
+        if (reminderTarget == null) {
+          final lowerIn = originalInput.toLowerCase();
+          reminderTarget = pending.firstWhereOrNull(
+            (r) => r.title.isNotEmpty && lowerIn.contains(r.title.toLowerCase()),
+          );
+        }
+        if (reminderTarget != null) {
+          _pendingDeleteAction = PendingDeleteAction(
+            type: 'reminder',
+            target: reminderTarget,
+            displayName: reminderTarget.title,
+            timestamp: DateTime.now(),
+          );
+          await addSystemMessage(
+            _getConfirmationMessage(_pendingDeleteAction!, isTurkish),
+            _activeConversation?.id,
+          );
+        } else if (pending.length == 1) {
+          _pendingDeleteAction = PendingDeleteAction(
+            type: 'reminder',
+            target: pending.first,
+            displayName: pending.first.title,
+            timestamp: DateTime.now(),
+          );
+          await addSystemMessage(
+            _getConfirmationMessage(_pendingDeleteAction!, isTurkish),
+            _activeConversation?.id,
+          );
+        } else {
+          await addSystemMessage(
+            isTurkish
+                ? '⚠️ Hangi hatırlatıcıyı silmek istiyorsun? Adını söyle.'
+                : '⚠️ Which reminder do you want to delete? Tell me the name.',
+            _activeConversation?.id,
+          );
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
+
   /// Determines if a query needs AI fallback
   /// Returns true for queries that local NLP cannot adequately handle
 
@@ -890,8 +1098,9 @@ class ChatProvider with ChangeNotifier {
     AppLocalizations l10n,
     AlarmProvider? alarmProvider,
     NoteProvider? noteProvider,
-    ReminderProvider? reminderProvider,
-  ) async {
+    ReminderProvider? reminderProvider, {
+    String? audioPath,
+  }) async {
 
     // Check if response contains JSON-like structure
     if (!aiResponse.contains('{') || !aiResponse.contains('}')) {
@@ -899,22 +1108,49 @@ class ChatProvider with ChangeNotifier {
     }
 
     try {
-      // Extract JSON from response - handle various formats
-      final jsonStr = _extractJson(aiResponse);
-      if (jsonStr == null) {
-        return null;
+      // Extract all JSON action objects (supports compound commands)
+      final jsonList = _extractAllJson(aiResponse);
+      if (jsonList.isEmpty) return null;
+
+      // Execute each action and collect results
+      final results = <String>[];
+      for (final jsonStr in jsonList) {
+        final Map<String, dynamic> actionData = jsonDecode(jsonStr);
+        final action = actionData['action']?.toString().toLowerCase();
+        if (action == null) continue;
+        final result = await _executeSingleAction(
+          action,
+          actionData,
+          isTurkish,
+          l10n,
+          alarmProvider,
+          noteProvider,
+          reminderProvider,
+          userName: userName,
+          audioPath: audioPath,
+        );
+        if (result != null) results.add(result);
       }
 
+      if (results.isEmpty) return null;
+      return results.join('\n\n');
+    } catch (e) {
+      return null;
+    }
+  }
 
-      final Map<String, dynamic> actionData = jsonDecode(jsonStr);
-
-      final action = actionData['action']?.toString().toLowerCase();
-      if (action == null) {
-        return null;
-      }
-
-
-      switch (action) {
+  Future<String?> _executeSingleAction(
+    String action,
+    Map<String, dynamic> actionData,
+    bool isTurkish,
+    AppLocalizations l10n,
+    AlarmProvider? alarmProvider,
+    NoteProvider? noteProvider,
+    ReminderProvider? reminderProvider, {
+    String? userName,
+    String? audioPath,
+  }) async {
+    switch (action) {
         // === ALARM CRUD ===
         case 'alarm':
         case 'create_alarm':
@@ -949,6 +1185,7 @@ class ChatProvider with ChangeNotifier {
             isTurkish,
             l10n,
             noteProvider,
+            audioPath: audioPath,
           );
         case 'update_note':
           return await _executeAiUpdateNote(
@@ -975,6 +1212,7 @@ class ChatProvider with ChangeNotifier {
             isTurkish,
             l10n,
             reminderProvider,
+            audioPath: audioPath,
           );
         case 'update_reminder':
           return await _executeAiUpdateReminder(
@@ -1043,9 +1281,24 @@ class ChatProvider with ChangeNotifier {
         default:
           return null;
       }
-    } catch (e) {
-      return null;
+  }
+
+  /// Extract all JSON action objects from AI response (supports compound commands)
+  List<String> _extractAllJson(String text) {
+    final results = <String>[];
+    var remaining = text;
+
+    while (remaining.contains('{') && remaining.contains('}')) {
+      final jsonStr = _extractJson(remaining);
+      if (jsonStr == null) break;
+      results.add(jsonStr);
+      // Advance past this JSON object
+      final idx = remaining.indexOf(jsonStr);
+      if (idx == -1) break;
+      remaining = remaining.substring(idx + jsonStr.length);
     }
+
+    return results;
   }
 
   /// Extract JSON from AI response - handles various formats
@@ -1507,11 +1760,14 @@ class ChatProvider with ChangeNotifier {
     Map<String, dynamic> data,
     bool isTurkish,
     AppLocalizations l10n,
-    NoteProvider? provider,
-  ) async {
+    NoteProvider? provider, {
+    String? audioPath,
+  }) async {
     final title = data['title']?.toString() ?? l10n.newNote;
     var content = data['content']?.toString() ?? '';
     final colorName = data['color']?.toString().toLowerCase();
+    // Voice note: AI can provide voice_path, or it falls through from the audio attachment
+    final voicePath = data['voice_path']?.toString() ?? audioPath;
 
     // Process newlines in content (AI sends \\n as literal string)
     content = content.replaceAll('\\n', '\n');
@@ -1551,8 +1807,8 @@ class ChatProvider with ChangeNotifier {
       updatedAt: DateTime.now(),
       color: hexColor,
       orderIndex: 0,
-      imagePaths: [], // AI doesn't support adding images directly yet
-      voiceNotePath: null,
+      imagePaths: [],
+      voiceNotePath: voicePath,
     );
 
     if (provider != null) {
@@ -1855,8 +2111,9 @@ class ChatProvider with ChangeNotifier {
     Map<String, dynamic> data,
     bool isTurkish,
     AppLocalizations l10n,
-    ReminderProvider? provider,
-  ) async {
+    ReminderProvider? provider, {
+    String? audioPath,
+  }) async {
     final title = data['title']?.toString() ?? l10n.reminder;
     var description = data['description']?.toString() ?? '';
     // Wrap description in Quill Delta JSON format if not empty
@@ -1869,7 +2126,7 @@ class ChatProvider with ChangeNotifier {
     final timeStr = data['time']?.toString() ?? '09:00';
     final dateStr = data['date']?.toString() ?? 'today';
     final priority = data['priority']?.toString().toLowerCase() ?? 'medium';
-    final voicePath = data['voice_path']?.toString();
+    final voicePath = data['voice_path']?.toString() ?? audioPath;
 
     // Parse time
     final timeParts = timeStr.split(':');
@@ -1995,27 +2252,46 @@ class ChatProvider with ChangeNotifier {
     }
 
     if (data['new_date'] != null || data['date'] != null) {
-      final dateStr = (data['new_date'] ?? data['date']).toString();
-      if (dateStr == 'tomorrow') {
-        final tomorrow = DateTime.now().add(const Duration(days: 1));
-        newDateTime = DateTime(
-          tomorrow.year,
-          tomorrow.month,
-          tomorrow.day,
-          newDateTime.hour,
-          newDateTime.minute,
-        );
-      } else if (dateStr.contains('-')) {
-        final parsed = DateTime.tryParse(dateStr);
-        if (parsed != null) {
-          newDateTime = DateTime(
-            parsed.year,
-            parsed.month,
-            parsed.day,
-            newDateTime.hour,
-            newDateTime.minute,
-          );
+      final dateStr = (data['new_date'] ?? data['date']).toString().toLowerCase().trim();
+      final now = DateTime.now();
+      DateTime? newDate;
+
+      if (dateStr == 'today' || dateStr == 'bugün' || dateStr == 'bugun') {
+        newDate = now;
+      } else if (dateStr == 'tomorrow' || dateStr == 'yarın' || dateStr == 'yarin') {
+        newDate = now.add(const Duration(days: 1));
+      } else if (dateStr == 'next week' || dateStr == 'haftaya' || dateStr == 'gelecek hafta') {
+        newDate = now.add(const Duration(days: 7));
+      } else if (RegExp(r'^in\s+(\d+)\s+days?$').hasMatch(dateStr)) {
+        final m = RegExp(r'(\d+)').firstMatch(dateStr);
+        if (m != null) newDate = now.add(Duration(days: int.parse(m.group(1)!)));
+      } else if (RegExp(r'^(\d+)\s+g[üu]n\s+sonra$').hasMatch(dateStr)) {
+        final m = RegExp(r'(\d+)').firstMatch(dateStr);
+        if (m != null) newDate = now.add(Duration(days: int.parse(m.group(1)!)));
+      } else {
+        // Day name mapping (Monday=1 ... Sunday=7)
+        const dayNames = {
+          'monday': 1, 'pazartesi': 1,
+          'tuesday': 2, 'sali': 2, 'salı': 2,
+          'wednesday': 3, 'carsamba': 3, 'çarşamba': 3,
+          'thursday': 4, 'persembe': 4, 'perşembe': 4,
+          'friday': 5, 'cuma': 5,
+          'saturday': 6, 'cumartesi': 6,
+          'sunday': 7, 'pazar': 7,
+        };
+        final targetWeekday = dayNames[dateStr];
+        if (targetWeekday != null) {
+          var diff = targetWeekday - now.weekday;
+          if (diff <= 0) diff += 7;
+          newDate = now.add(Duration(days: diff));
+        } else if (dateStr.contains('-')) {
+          newDate = DateTime.tryParse(dateStr);
         }
+      }
+
+      if (newDate != null) {
+        newDateTime = DateTime(newDate.year, newDate.month, newDate.day,
+            newDateTime.hour, newDateTime.minute);
       }
     }
 
@@ -2972,16 +3248,33 @@ class ChatProvider with ChangeNotifier {
   ) async {
     if (_pendingDeleteAction == null) return null;
 
+    // Expire pending delete after 5 minutes
+    if (DateTime.now().difference(_pendingDeleteAction!.timestamp).inMinutes >= 5) {
+      _pendingDeleteAction = null;
+      return null;
+    }
+
     final lowerResponse = userResponse.toLowerCase().trim();
 
-    // Check if response is a confirmation
+    // If the message looks like a new action command (contains a different object reference
+    // beyond the pending item), treat it as a new request, not a confirmation.
+    // e.g. "aslında notu sil" while pending is an alarm → new command
+    final pendingDisplayLower = _pendingDeleteAction!.displayName.toLowerCase();
+    final isNewCommand = (lowerResponse.contains('sil') || lowerResponse.contains('delete')) &&
+        !lowerResponse.contains(pendingDisplayLower) &&
+        lowerResponse.split(' ').length > 1; // multi-word = likely a new request
+
+    if (isNewCommand) {
+      _pendingDeleteAction = null;
+      return null; // Process as normal message
+    }
+
+    // Unambiguous confirmation keywords (intentionally excludes 'sil'/'delete')
     final confirmKeywords = [
       'yes',
       'evet',
       'confirm',
       'onayla',
-      'sil',
-      'delete',
       'tamam',
       'ok',
       'okay',
@@ -2994,7 +3287,7 @@ class ChatProvider with ChangeNotifier {
       'kabul',
     ];
 
-    // Check if response is a cancellation
+    // Cancellation keywords
     final cancelKeywords = [
       'no',
       'hayır',
@@ -3010,19 +3303,20 @@ class ChatProvider with ChangeNotifier {
       'nope',
       'nah',
       'never mind',
+      'boşver',
     ];
 
     final isConfirmation = confirmKeywords.any(
-      (kw) => lowerResponse.contains(kw),
+      (kw) => lowerResponse == kw || lowerResponse.contains(kw),
     );
     final isCancellation = cancelKeywords.any(
       (kw) => lowerResponse.contains(kw),
     );
 
-    // If neither confirmation nor cancellation, treat as unrelated message and clear pending action
+    // If neither, treat as unrelated — clear pending and let it process normally
     if (!isConfirmation && !isCancellation) {
       _pendingDeleteAction = null;
-      return null; // Process as normal message
+      return null;
     }
 
     final action = _pendingDeleteAction!;

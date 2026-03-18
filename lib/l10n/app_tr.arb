@@ -459,5 +459,48 @@
   "workDuration": "Odak Süresi",
   "shortBreakDuration": "Kısa Mola",
   "longBreakDuration": "Uzun Mola",
-  "minuteShort": "dk"
+  "minuteShort": "dk",
+
+  "pomodoroAchievementButton": "Harika! 🎊",
+  "timerSection": "Zamanlayıcı",
+  "goalsSection": "Hedefler",
+  "totalLabel": "Toplam",
+
+  "achievementDailyGoalTitle": "Günlük Hedef! 🎯",
+  "achievementDailyGoalMessage": "Harika iş! Bugünkü pomodoro hedefinize ulaştınız.",
+  "achievementWeeklyGoalTitle": "Haftalık Hedef! 🌟",
+  "achievementWeeklyGoalMessage": "İnanılmaz! Bu haftalık pomodoro hedefinizi tamamladınız.",
+  "achievementMilestoneTitle": "{count} Pomodoro! 🔥",
+  "@achievementMilestoneTitle": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "achievementMilestoneMessage": "Toplam {count} pomodoro tamamladınız. Süper odak!",
+  "@achievementMilestoneMessage": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "tapToEdit": "Düzenlemek için dokunun",
+  "deleteDrawing": "Çizimi Sil",
+
+  "permissionRequiredTitle": "İzin Gerekli",
+  "permissionBlockedMessage": "{name} erişimi kalıcı olarak reddedildi veya ayarlardan kapalı. Devam etmek için lütfen ayarlardan izin verin.",
+  "@permissionBlockedMessage": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "openSettings": "Ayarları Aç",
+
+  "chatbotWelcomeAskName": "Merhaba! Ben Mina, senin kişisel asistanınım. 🌟\n\nSana nasıl hitap etmemi istersin?",
+  "chatbotWelcomeWithName": "Merhaba {name}! 👋 Bugün sana nasıl yardımcı olabilirim?",
+  "@chatbotWelcomeWithName": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "chatbotWelcomeNoName": "Merhaba! 👋 Bugün sana nasıl yardımcı olabilirim?"
 }

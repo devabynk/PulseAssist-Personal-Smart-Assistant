@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
@@ -215,7 +217,7 @@ extension DoubleExtensions on double {
 
   /// Round to specified decimal places
   double roundToDecimal(int decimals) {
-    final mod = 10.0 * decimals;
+    final mod = math.pow(10.0, decimals).toDouble();
     return (this * mod).round() / mod;
   }
 }

@@ -524,7 +524,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Düzenlemek için dokunun', // todo translate
+                        context.l10n.tapToEdit,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).textTheme.bodySmall?.color,
                         ),
@@ -535,7 +535,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                 IconButton(
                   icon: const Icon(Icons.close, size: 20),
                   onPressed: () => setState(() => _drawingData = null),
-                  tooltip: 'Çizimi Sil', // todo translate
+                  tooltip: context.l10n.deleteDrawing,
                 ),
               ],
             ),

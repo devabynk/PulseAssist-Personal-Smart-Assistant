@@ -120,6 +120,7 @@ class KeyManager {
           type = FailureType.serverError;
         } else if (errorStr.contains('socket') ||
             errorStr.contains('timeout') ||
+            errorStr.contains('timed out') ||
             errorStr.contains('connection')) {
           type = FailureType.connection;
         }
@@ -130,9 +131,9 @@ class KeyManager {
         // Report failure and rotate if needed
         reportFailure(type);
 
-        // If connection error, wait a bit before retry
-        if (type == FailureType.connection) {
-          await Future.delayed(const Duration(seconds: 1));
+        // Exponential backoff for transient errors (1s, 2s, ...)
+        if (type == FailureType.connection || type == FailureType.serverError) {
+          await Future.delayed(Duration(seconds: attempts));
         }
       }
     }

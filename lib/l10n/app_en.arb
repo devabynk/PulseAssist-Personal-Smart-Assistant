@@ -524,5 +524,48 @@
   "workDuration": "Focus Duration",
   "shortBreakDuration": "Short Break",
   "longBreakDuration": "Long Break",
-  "minuteShort": "min"
+  "minuteShort": "min",
+
+  "pomodoroAchievementButton": "Great! 🎊",
+  "timerSection": "Timer",
+  "goalsSection": "Goals",
+  "totalLabel": "Total",
+
+  "achievementDailyGoalTitle": "Daily Goal! 🎯",
+  "achievementDailyGoalMessage": "Great job! You reached your daily pomodoro goal.",
+  "achievementWeeklyGoalTitle": "Weekly Goal! 🌟",
+  "achievementWeeklyGoalMessage": "Amazing! You completed your weekly pomodoro goal.",
+  "achievementMilestoneTitle": "{count} Pomodoros! 🔥",
+  "@achievementMilestoneTitle": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "achievementMilestoneMessage": "You've completed {count} pomodoros total. Super focus!",
+  "@achievementMilestoneMessage": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "tapToEdit": "Tap to edit",
+  "deleteDrawing": "Delete Drawing",
+
+  "permissionRequiredTitle": "Permission Required",
+  "permissionBlockedMessage": "{name} access has been permanently denied or disabled in settings. Please grant it from settings to continue.",
+  "@permissionBlockedMessage": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "openSettings": "Open Settings",
+
+  "chatbotWelcomeAskName": "Hello! I'm Mina, your personal assistant. 🌟\n\nHow should I call you?",
+  "chatbotWelcomeWithName": "Hello {name}! 👋 How can I help you today?",
+  "@chatbotWelcomeWithName": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "chatbotWelcomeNoName": "Hello! 👋 How can I help you today?"
 }
